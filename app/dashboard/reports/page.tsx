@@ -11,6 +11,7 @@ import {
   Microscope, 
   BookOpen 
 } from 'lucide-react'
+import { protectRoute } from '@/lib/auth/role-guard'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +19,9 @@ import { createClient } from '@/lib/supabase/server'
 import { cn } from '@/lib/utils'
 
 export default async function ReportsManagementPage() {
+  // RBAC Protection
+  await protectRoute(['administrator', 'technical_team'])
+
   const supabase = await createClient()
 
   // Fetch counts

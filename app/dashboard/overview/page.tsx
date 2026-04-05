@@ -20,24 +20,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { UserRole } from '@/types'
+import { getUserRole, protectRoute } from '@/lib/auth/role-guard'
 
 export default async function DashboardOverview() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const userId = user?.id || 'dev-user-id'
+  // Ensure user is logged in
+  const user = await protectRoute(['technical_team', 'administrator', 'researcher', 'public_user'])
+  const role = await getUserRole()
   
-  // Role Detection
-  let role: UserRole = 'researcher'
-  if (user) {
-    const { data: roleProfile } = await supabase
-      .from('user_roles')
-      .select('roles(name)')
-      .eq('user_id', user.id)
-      .single()
-    role = (roleProfile?.roles as any)?.name || 'public_user'
-  }
-
+  const supabase = await createClient()
+  const userId = user.id
+  
   const isAdminOrTech = role === 'administrator' || role === 'technical_team'
 
   // Fetch counts based on role

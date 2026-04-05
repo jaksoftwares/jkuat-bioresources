@@ -1,12 +1,16 @@
 import React from 'react'
 import { Settings, Globe, Database, Shield, Bell, Save, Layout, SlidersHorizontal } from 'lucide-react'
+import { protectRoute } from '@/lib/auth/role-guard'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
-export default function PlatformSettingsPage() {
+export default async function PlatformSettingsPage() {
+  // RBAC Protection
+  await protectRoute(['administrator', 'technical_team'])
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div>

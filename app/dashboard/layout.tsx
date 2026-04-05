@@ -12,28 +12,20 @@ export default async function DashboardLayout({
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   
-  // DEVELOPMENT ONLY: bypass auth restrictions
-  const devUser = user || { id: 'dev-user-id', email: 'researcher@jkuat.ac.ke' }
-
-  /* 
-   * PRODUCTION RESTRICTION (TODO):
-   * if (authError || !user) {
-   *   redirect('/login')
-   * }
-   */
-  
-  // Fetch user role if user exists, otherwise default to researcher for dev
-  let role: UserRole = 'researcher'
-  
-  if (user) {
-    const { data: roleProfile } = await supabase
-      .from('user_roles')
-      .select('roles(name)')
-      .eq('user_id', user.id)
-      .single()
-    
-    role = (roleProfile?.roles as any)?.name || 'public_user'
+  if (authError || !user) {
+    redirect('/login')
   }
+  
+  // Fetch user role
+  let role: UserRole = 'public_user'
+  
+  const { data: roleProfile } = await supabase
+    .from('user_roles')
+    .select('roles(name)')
+    .eq('user_id', user.id)
+    .single()
+  
+  role = (roleProfile?.roles as any)?.name || 'public_user'
 
   return (
     <div className="flex min-h-screen bg-slate-50/50">
@@ -45,11 +37,11 @@ export default async function DashboardLayout({
           </h2>
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end">
-              <span className="text-sm font-semibold text-slate-900">{devUser.email?.split('@')[0]}</span>
+              <span className="text-sm font-semibold text-slate-900">{user.email?.split('@')[0]}</span>
               <span className="text-[10px] text-teal-600 font-bold uppercase">{role}</span>
             </div>
             <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 font-bold">
-              {devUser.email?.[0].toUpperCase()}
+              {user.email?.[0].toUpperCase()}
             </div>
           </div>
         </header>
