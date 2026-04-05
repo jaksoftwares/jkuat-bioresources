@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Plus, Search, Filter, MoreVertical, Edit, Eye, Trash2, Leaf } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { PlantRepository } from '@/repositories/plant.repository'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -52,7 +52,7 @@ export default async function PlantsManagementPage() {
         </div>
         <Link 
           href="/dashboard/plants/add" 
-          className={cn(buttonVariants({ className: 'bg-teal-600 hover:bg-teal-700 text-white' }), "flex items-center gap-2")}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add New Plant

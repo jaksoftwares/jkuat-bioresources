@@ -17,33 +17,35 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { UserRole } from '@/types'
 import { getUserRole, protectRoute } from '@/lib/auth/role-guard'
 
 export default async function DashboardOverview() {
-  // Ensure user is logged in
-  const user = await protectRoute(['technical_team', 'administrator', 'researcher', 'public_user'])
-  const role = await getUserRole()
+  // Consolidate Auth & RBAC checks into a single secure call
+  const { user, role } = await protectRoute(['technical_team', 'administrator', 'researcher', 'public_user'])
   
   const supabase = await createClient()
   const userId = user.id
-  
   const isAdminOrTech = role === 'administrator' || role === 'technical_team'
 
-  // Fetch counts based on role
-  const { count: plantCount } = await (isAdminOrTech 
-    ? supabase.from('plants').select('*', { count: 'exact', head: true })
-    : supabase.from('plants').select('*', { count: 'exact', head: true }).eq('created_by', userId))
+  // Optimized parallel data fetching
+  const [plantsRes, microsRes, herbariumRes] = await Promise.all([
+    isAdminOrTech 
+      ? supabase.from('plants').select('*', { count: 'exact', head: true })
+      : supabase.from('plants').select('*', { count: 'exact', head: true }).eq('created_by', userId),
+    isAdminOrTech
+      ? supabase.from('microorganisms').select('*', { count: 'exact', head: true })
+      : supabase.from('microorganisms').select('*', { count: 'exact', head: true }).eq('created_by', userId),
+    isAdminOrTech
+      ? supabase.from('herbarium_specimens').select('*', { count: 'exact', head: true })
+      : supabase.from('herbarium_specimens').select('*', { count: 'exact', head: true }).eq('created_by', userId)
+  ])
 
-  const { count: microCount } = await (isAdminOrTech
-    ? supabase.from('microorganisms').select('*', { count: 'exact', head: true })
-    : supabase.from('microorganisms').select('*', { count: 'exact', head: true }).eq('created_by', userId))
-
-  const { count: herbariumCount } = await (isAdminOrTech
-    ? supabase.from('herbarium_specimens').select('*', { count: 'exact', head: true })
-    : supabase.from('herbarium_specimens').select('*', { count: 'exact', head: true }).eq('created_by', userId))
+  const plantCount = plantsRes.count || 0
+  const microCount = microsRes.count || 0
+  const herbariumCount = herbariumRes.count || 0
 
   const stats = [
     { 
@@ -85,11 +87,11 @@ export default async function DashboardOverview() {
         </div>
         {isAdminOrTech ? (
           <div className="flex items-center gap-3">
-             <Link href="/dashboard/audit" className={cn(buttonVariants({ variant: 'outline' }), "flex items-center gap-2 border-slate-200")}>
+             <Link href="/dashboard/audit" className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                 <History className="w-4 h-4" />
                 Audit Logs
              </Link>
-             <Link href="/dashboard/reports" className={cn(buttonVariants({ className: 'bg-blue-600 hover:bg-blue-700 text-white' }), "flex items-center gap-2")}>
+             <Link href="/dashboard/reports" className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors">
                 <TrendingUp className="w-4 h-4" />
                 Full Analytics
              </Link>
@@ -98,7 +100,7 @@ export default async function DashboardOverview() {
           <div className="flex items-center gap-3">
             <Link 
               href="/dashboard/add-new" 
-              className={cn(buttonVariants({ size: 'lg', className: 'bg-teal-600 hover:bg-teal-700 shadow-md text-white' }), "flex items-center gap-2")}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-teal-600 hover:bg-teal-700 text-white font-bold shadow-md transition-colors"
             >
               <Plus className="w-5 h-5" />
               Upload Resource

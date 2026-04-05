@@ -4,25 +4,32 @@ import { UserRole } from '@/types'
 
 export async function protectRoute(allowedRoles: UserRole[], redirectTo = '/dashboard/overview') {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-  if (!user) {
+  if (authError || !user) {
     redirect('/login')
   }
 
-  const { data: roleProfile } = await supabase
+  const { data: roleData } = await supabase
     .from('user_roles')
     .select('roles(name)')
     .eq('user_id', user.id)
     .single()
 
-  const userRole = (roleProfile?.roles as any)?.name as UserRole
+  const userRole = (roleData?.roles as any)?.name as UserRole || 'public_user'
 
+  // Only redirect if NOT authorized
   if (!allowedRoles.includes(userRole)) {
-    redirect(redirectTo)
+    // Avoid double redirect loop if already on the target
+    if (redirectTo !== '/dashboard/overview') {
+       redirect(redirectTo)
+    } else {
+       // Deeply restricted or generic fallback
+       redirect('/login')
+    }
   }
 
-  return user
+  return { user, role: userRole }
 }
 
 export async function getUserRole(): Promise<UserRole> {
@@ -31,11 +38,11 @@ export async function getUserRole(): Promise<UserRole> {
 
   if (!user) return 'public_user'
 
-  const { data: roleProfile } = await supabase
+  const { data: roleData } = await supabase
     .from('user_roles')
     .select('roles(name)')
     .eq('user_id', user.id)
     .single()
 
-  return (roleProfile?.roles as any)?.name || 'public_user'
+  return (roleData?.roles as any)?.name as UserRole || 'public_user'
 }

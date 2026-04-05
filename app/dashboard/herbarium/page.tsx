@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Plus, Search, Filter, BookOpen, Edit, Eye, Trash2, Calendar } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { HerbariumRepository } from '@/repositories/herbarium.repository'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -52,7 +52,7 @@ export default async function HerbariumManagementPage() {
         </div>
         <Link 
           href="/dashboard/herbarium/add" 
-          className={cn(buttonVariants({ className: 'bg-amber-600 hover:bg-amber-700 text-white' }), "flex items-center gap-2")}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Specimen
