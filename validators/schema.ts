@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+/**
+ * Cloudinary Media Object Structure
+ */
+const mediaSchema = z.object({
+  url: z.string().url(),
+  public_id: z.string(),
+  format: z.string().optional(),
+  resource_type: z.string().optional(),
+  secure_url: z.string().url().optional()
+})
+
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters')
@@ -8,10 +19,25 @@ export const loginSchema = z.object({
 export const signUpSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirm_password: z.string().min(6, 'Please confirm your password'),
   full_name: z.string().min(2, 'Full name must be at least 2 characters'),
   staff_number: z.string().optional(),
   department: z.string().optional(),
-  faculty: z.string().optional()
+  faculty: z.string().optional(),
+  agree_to_terms: z.boolean().refine(val => val === true, {
+     message: 'You must agree to the terms and conditions'
+  })
+}).refine((data) => data.password === data.confirm_password, {
+  message: "Passwords do not match",
+  path: ["confirm_password"],
+})
+
+export const researcherSchema = z.object({
+  user_id: z.string().uuid(),
+  qualification: z.string().optional(),
+  specialization: z.string().optional(),
+  research_focus: z.string().optional(),
+  institution: z.string().default('JKUAT')
 })
 
 export const plantSchema = z.object({
@@ -26,10 +52,10 @@ export const plantSchema = z.object({
   nutritional_value: z.string().optional(),
   medicinal_value: z.string().optional(),
   cultural_significance: z.string().optional(),
-  growth_conditions: z.record(z.any()).default({}),
+  growth_conditions: z.record(z.string(), z.any()).default({}),
   geographic_distribution: z.array(z.string()).default([]),
-  images: z.array(z.any()).default([]),
-  documents: z.array(z.any()).default([])
+  images: z.array(mediaSchema).default([]),
+  documents: z.array(mediaSchema).default([])
 })
 
 export const microSchema = z.object({
@@ -44,8 +70,8 @@ export const microSchema = z.object({
   enzymatic_activity: z.string().optional(),
   experiment_details: z.string().optional(),
   date_stored: z.string().optional(),
-  microscopy_images: z.array(z.any()).default([]),
-  supporting_docs: z.array(z.any()).default([])
+  microscopy_images: z.array(mediaSchema).default([]),
+  supporting_docs: z.array(mediaSchema).default([])
 })
 
 export const herbariumSchema = z.object({
@@ -57,6 +83,6 @@ export const herbariumSchema = z.object({
   ecological_notes: z.string().optional(),
   medicinal_notes: z.string().optional(),
   physical_storage_location: z.string().optional(),
-  specimen_images: z.array(z.any()).default([]),
-  supporting_documents: z.array(z.any()).default([])
+  specimen_images: z.array(mediaSchema).default([]),
+  supporting_documents: z.array(mediaSchema).default([])
 })

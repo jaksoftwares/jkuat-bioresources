@@ -33,6 +33,18 @@ export class PlantRepository {
     return data as Plant[]
   }
 
+  static async listByUserId(userId: string) {
+    const supabase = await this.getClient()
+    const { data, error } = await supabase
+      .from('plants')
+      .select('*')
+      .eq('created_by', userId)
+      .order('updated_at', { ascending: false })
+
+    if (error) throw error
+    return data as Plant[]
+  }
+
   static async getById(id: string) {
     const supabase = await this.getClient()
     const { data, error } = await supabase

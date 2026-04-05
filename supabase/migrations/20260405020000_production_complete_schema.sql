@@ -308,12 +308,39 @@ do $$ begin
     create trigger update_microorganisms_updated_at before update on microorganisms for each row execute procedure handle_updated_at();
 exception when duplicate_object then null; end $$;
 
--- Trigger to create user profile on signup
+-- Trigger to create user profile and default role on signup
 create or replace function public.handle_new_user()
 returns trigger as $$
+declare
+  default_role_id uuid;
 begin
-  insert into public.user_profiles (id, full_name, email)
-  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', 'New User'), new.email);
+  -- Get the ID for 'researcher' role
+  select id into default_role_id from public.roles where name = 'researcher';
+
+  -- Create the profile
+  insert into public.user_profiles (
+    id, 
+    full_name, 
+    email, 
+    staff_number, 
+    department, 
+    faculty
+  )
+  values (
+    new.id, 
+    coalesce(new.raw_user_meta_data->>'full_name', 'New User'), 
+    new.email,
+    new.raw_user_meta_data->>'staff_number',
+    new.raw_user_meta_data->>'department',
+    new.raw_user_meta_data->>'faculty'
+  );
+
+  -- Assign default role
+  if default_role_id is not null then
+    insert into public.user_roles (user_id, role_id)
+    values (new.id, default_role_id);
+  end if;
+
   return new;
 end;
 $$ language plpgsql security definer;

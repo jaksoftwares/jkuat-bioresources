@@ -25,6 +25,18 @@ export class MicroorganismRepository {
     return data as Microorganism[]
   }
 
+  static async listByUserId(userId: string) {
+    const supabase = await this.getClient()
+    const { data, error } = await supabase
+      .from('microorganisms')
+      .select('*')
+      .eq('created_by', userId)
+      .order('updated_at', { ascending: false })
+
+    if (error) throw error
+    return data as Microorganism[]
+  }
+
   static async getById(id: string) {
     const supabase = await this.getClient()
     const { data, error } = await supabase

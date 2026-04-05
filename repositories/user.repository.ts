@@ -31,6 +31,17 @@ export class UserRepository {
     return updatedProfile as UserProfile
   }
 
+  static async list() {
+    const supabase = await this.getClient()
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('*, user_roles(roles(name))')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data
+  }
+
   static async listByRole(roleName: UserRole) {
     const supabase = await this.getClient()
     const { data, error } = await supabase
