@@ -10,7 +10,7 @@ export class UserRepository {
     const supabase = await this.getClient()
     const { data, error } = await supabase
       .from('user_profiles')
-      .select('*, user_roles(roles(name))')
+      .select('*, user_roles!user_roles_user_id_fkey(roles(name))')
       .eq('id', userId)
       .single()
 
@@ -35,11 +35,14 @@ export class UserRepository {
     const supabase = await this.getClient()
     const { data, error } = await supabase
       .from('user_profiles')
-      .select('*, user_roles(roles(name))')
+      .select('*, user_roles!user_roles_user_id_fkey(roles(name))')
       .order('created_at', { ascending: false })
 
-    if (error) throw error
-    return data
+    if (error) {
+      console.error('[UserRepository.list] RLS or query error:', error.message)
+      return []
+    }
+    return data ?? []
   }
 
   static async listByRole(roleName: UserRole) {

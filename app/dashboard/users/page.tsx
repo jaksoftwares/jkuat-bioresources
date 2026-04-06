@@ -1,19 +1,11 @@
 import React from 'react'
-import { Users, Shield, Mail, Calendar, MoreVertical, ShieldAlert, ShieldCheck, UserCog } from 'lucide-react'
+import { Users, Shield, Mail, Calendar, ShieldAlert, ShieldCheck, UserCog } from 'lucide-react'
 import { UserRepository } from '@/repositories/user.repository'
 import { protectRoute } from '@/lib/auth/role-guard'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
+import { UserActionMenu } from '@/components/dashboard/user-action-menu'
 
 export default async function UserManagementPage() {
   // RBAC Protection
@@ -73,7 +65,8 @@ export default async function UserManagementPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 italic-none">
                 {users.map((user: any) => {
-                  const roleName = user.user_roles?.[0]?.roles?.name || 'public_user'
+                  const roleEntry = (user as any).user_roles_user_id_fkey?.[0] ?? (user as any).user_roles?.[0]
+                  const roleName = roleEntry?.roles?.name || 'public_user'
                   return (
                     <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="px-6 py-4">
@@ -120,22 +113,7 @@ export default async function UserManagementPage() {
                         </p>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 font-bold">
-                            <DropdownMenuLabel>Change Role</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-xs text-purple-600">Upgrade to Technical</DropdownMenuItem>
-                            <DropdownMenuItem className="text-xs text-blue-600">Make Administrator</DropdownMenuItem>
-                            <DropdownMenuItem className="text-xs text-teal-600">Assign Researcher</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-xs text-rose-600">Suspend Access</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <UserActionMenu userId={user.id} currentRole={roleName} />
                       </td>
                     </tr>
                   )
