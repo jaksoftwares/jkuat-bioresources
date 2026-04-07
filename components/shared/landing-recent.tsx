@@ -9,7 +9,7 @@ const recentAssets = [
     type: "Plant",
     taxa: "Amaranthus hybridus",
     localName: "Mchicha / Terere",
-    repository: "Plants Archive",
+    repository: "Botanical Collection",
     icon: Sprout,
     time: "Added 2 days ago",
   },
@@ -40,15 +40,15 @@ export function LandingRecent() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-left">
-              Recently Accessioned
+              Latest Research
             </h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl">
-              Preview the latest biological additions digitized and verified by our partner laboratories.
+            <p className="mt-4 text-muted-foreground max-w-2xl text-left">
+              Explore the latest plants, microorganisms, and specimens added to our collections at JKUAT Bioresources.
             </p>
           </div>
           <Link href="/search">
             <Button variant="outline" className="font-semibold text-primary border-primary/20 hover:bg-secondary">
-              View All Records <ArrowRight className="ml-2 h-4 w-4" />
+              Search All Collections <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </div>

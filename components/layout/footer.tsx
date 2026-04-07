@@ -16,7 +16,7 @@ export function Footer() {
               className="h-10 w-auto"
             />
             <p className="text-slate-200/80 text-sm leading-relaxed max-w-xs">
-              Jomo Kenyatta University of Agriculture and Technology's official institutional repository for preserving, digitizing, and sharing our rich biological heritage.
+              The official website for biological research at Jomo Kenyatta University of Agriculture and Technology.
             </p>
           </div>
           
@@ -24,10 +24,10 @@ export function Footer() {
           <div>
             <h3 className="font-bold text-white mb-6">Collections</h3>
             <ul className="space-y-4">
-              <li><Link href="/plants" className="text-sm text-slate-200/80 hover:text-white transition-colors">AIV Plants Repository</Link></li>
-              <li><Link href="/microorganisms" className="text-sm text-slate-200/80 hover:text-white transition-colors">Microorganism Strains</Link></li>
-              <li><Link href="/herbarium" className="text-sm text-slate-200/80 hover:text-white transition-colors">Herbarium Database</Link></li>
-              <li><Link href="/search" className="text-sm text-slate-200/80 hover:text-white transition-colors">Global Search</Link></li>
+              <li><Link href="/plants" className="text-sm text-slate-200/80 hover:text-white transition-colors">Indigenous Plants</Link></li>
+              <li><Link href="/microorganisms" className="text-sm text-slate-200/80 hover:text-white transition-colors">Microorganisms</Link></li>
+              <li><Link href="/herbarium" className="text-sm text-slate-200/80 hover:text-white transition-colors">Herbarium Collection</Link></li>
+              <li><Link href="/search" className="text-sm text-slate-200/80 hover:text-white transition-colors">Find Research</Link></li>
             </ul>
           </div>
           
@@ -35,7 +35,7 @@ export function Footer() {
           <div>
             <h3 className="font-bold text-white mb-6">Institution</h3>
             <ul className="space-y-4">
-              <li><Link href="/about" className="text-sm text-slate-200/80 hover:text-white transition-colors">About The Project</Link></li>
+              <li><Link href="/about" className="text-sm text-slate-200/80 hover:text-white transition-colors">About JKUAT Bioresources</Link></li>
               <li><a href="https://jkuat.ac.ke" target="_blank" rel="noreferrer" className="text-sm text-slate-200/80 hover:text-white transition-colors">JKUAT Main Website</a></li>
               <li><Link href="/researchers" className="text-sm text-slate-200/80 hover:text-white transition-colors">Researcher Directory</Link></li>
               <li><Link href="/contact" className="text-sm text-slate-200/80 hover:text-white transition-colors">Contact Support</Link></li>

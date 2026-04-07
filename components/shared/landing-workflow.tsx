@@ -3,26 +3,26 @@ import { ArrowRight, Dna, Database, Beaker, Globe2 } from "lucide-react";
 const steps = [
   {
     id: "01",
-    name: "Field & Lab Collection",
-    description: "Researchers ethically isolate physical strains, seeds, or herbarium specimens locally.",
+    name: "Field Collection",
+    description: "Our researchers collect plant and microbial samples directly from their natural environments.",
     icon: Beaker,
   },
   {
     id: "02",
-    name: "Sequencing & Metadata",
-    description: "Detailed taxonomic classification, morphological, and genomic baseline mapping.",
+    name: "Laboratory Study",
+    description: "Samples are carefully studied in JKUAT labs to identify their scientific characteristics.",
     icon: Dna,
   },
   {
     id: "03",
-    name: "Institutional Digitization",
-    description: "Specimens are processed into high-fidelity relational digital assets via our repository grid.",
+    name: "Information Records",
+    description: "Detailed findings are recorded and stored to ensure the safety and longevity of the research.",
     icon: Database,
   },
   {
     id: "04",
-    name: "Global Open Access",
-    description: "Data strictly curated, peer-reviewed, and published for global scientific query via the public framework.",
+    name: "Scientific Access",
+    description: "Research results are shared with the scientific community and the public for further study.",
     icon: Globe2,
   },
 ];
@@ -34,15 +34,15 @@ export function LandingWorkflow() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-left">
-              Standardized Digital <br />
-              <span className="text-primary">Preservation Pipeline</span>
+              Our Research <br />
+              <span className="text-primary">Process</span>
             </h2>
             <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-              Every asset inside the Bioresources platform passes through an academically rigorous verification workflow ensuring only peer-verified data is permanently captured in our institutional grid.
+              Every sample at JKUAT Bioresources follows a strict scientific process to ensure the accuracy and reliability of our work.
             </p>
             <div className="mt-8 flex items-center text-sm font-semibold text-primary">
               <a href="/about" className="hover:underline flex items-center">
-                Read the methodology whitepaper
+                Learn more about our work
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </div>

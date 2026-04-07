@@ -10,11 +10,11 @@ export default function LandingPage() {
   return (
     <div className="w-full">
       <LandingHero />
-      <LandingPartners />
       <LandingStats />
       <LandingFeatures />
       <LandingWorkflow />
       <LandingRecent />
+      <LandingPartners />
       <LandingCta />
     </div>
   );

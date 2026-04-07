@@ -10,10 +10,10 @@ export function LandingCta() {
       
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
         <h2 className="text-3xl font-extrabold text-white sm:text-5xl tracking-tight">
-          Accelerate Your Research.
+          Join Our Research Community.
         </h2>
         <p className="mt-6 text-xl text-primary-foreground/80 leading-relaxed max-w-2xl mx-auto">
-          Gain full programmatic and visual access to thousands of JKUAT’s peer-reviewed biological records. Register as an institutional researcher today.
+          Explore JKUAT’s biological collections and collaborate with our team of researchers and students. Register today to contribute to our work.
         </p>
         
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
