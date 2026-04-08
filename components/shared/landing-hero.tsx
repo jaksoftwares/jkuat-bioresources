@@ -8,6 +8,7 @@ import { Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const images = [
+  "/assets/images/hero_main.png",
   "/assets/images/lab-research.png",
   "/assets/images/microorganism.png",
   "/assets/images/herbarium.png",
@@ -33,7 +34,7 @@ export function LandingHero() {
           <motion.div
             key={currentIndex}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.3 }}
+            animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
             className="absolute inset-0"
@@ -48,7 +49,7 @@ export function LandingHero() {
             />
           </motion.div>
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/50 dark:from-[#09090b] dark:via-[#09090b]/90 dark:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent dark:from-[#09090b]/80 dark:via-[#09090b]/40 dark:to-transparent" />
       </div>
       
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-left py-20 flex flex-col justify-center min-h-full">
