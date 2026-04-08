@@ -1,33 +1,82 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Library } from "lucide-react";
+import { Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const images = [
+  "/assets/images/lab-research.png",
+  "/assets/images/microorganism.png",
+  "/assets/images/herbarium.png",
+  "/assets/images/indigenous_plants.png",
+  "/assets/images/research-lab.png",
+];
 
 export function LandingHero() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section className="relative overflow-hidden pt-10 pb-20 min-h-[500px] lg:min-h-[70vh] flex items-center">
+    <section className="relative overflow-hidden pt-2 pb-4 min-h-[350px] lg:min-h-[70vh] flex items-center bg-background">
       <div className="absolute inset-0 z-0">
-        <Image
-          src="/assets/images/lab-research.png"
-          alt="JKUAT Bioresources"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/50 dark:from-[#09090b] dark:via-[#09090b]/95 dark:to-transparent" />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.3 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={images[currentIndex]}
+              alt="JKUAT Bioresources"
+              fill
+              className="object-cover"
+              priority
+              quality={100}
+            />
+          </motion.div>
+        </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/50 dark:from-[#09090b] dark:via-[#09090b]/90 dark:to-transparent" />
       </div>
       
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-left py-20 flex flex-col justify-center min-h-full">
         <div className="space-y-10 max-w-5xl">
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl xl:text-8xl leading-[1.05]">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl xl:text-8xl leading-[1.05]"
+          >
             <span className="text-primary">JKUAT Bioresources</span> Research
-          </h1>
+          </motion.h1>
           
-          <p className="max-w-3xl text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed">
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="max-w-3xl text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed"
+          >
             Explore our collections of indigenous vegetables, microorganisms, and herbarium specimens from across Jomo Kenyatta University.
-          </p>
+          </motion.p>
           
-          <div className="flex flex-wrap gap-6 pt-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="flex flex-wrap gap-6 pt-4"
+          >
             <Link href="/search">
               <Button size="lg" className="h-14 px-10 font-bold shadow-2xl rounded-xl group text-lg">
                 <Search className="mr-3 h-5 w-5" />
@@ -39,9 +88,10 @@ export function LandingHero() {
                 Researcher Login
               </Button>
             </Link>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
 }
+
