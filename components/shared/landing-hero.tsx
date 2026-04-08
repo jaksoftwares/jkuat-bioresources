@@ -30,7 +30,7 @@ export function LandingHero() {
   return (
     <section className="relative overflow-hidden pt-2 pb-4 min-h-[350px] lg:min-h-[70vh] flex items-center bg-background">
       <div className="absolute inset-0 z-0">
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           <motion.div
             key={currentIndex}
             initial={{ opacity: 0 }}
