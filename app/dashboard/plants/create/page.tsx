@@ -1,1 +1,5 @@
-﻿export default function CreatePlantPage() { return <div>Register Plant</div> }
+﻿import { redirect } from 'next/navigation'
+
+export default function CreatePlantPage() {
+  redirect('/dashboard/plants/add')
+}

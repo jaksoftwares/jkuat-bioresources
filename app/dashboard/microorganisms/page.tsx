@@ -1,13 +1,12 @@
-import React from 'react'
 import Link from 'next/link'
-import { Plus, Search, Filter, Microscope, Edit, Eye, Trash2, Database } from 'lucide-react'
+import { Plus, Search, Filter, Microscope, Database } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { MicroorganismRepository } from '@/repositories/microorganism.repository'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 import { UserRole } from '@/types'
+import { MicroorganismRowActions } from '@/components/dashboard/microorganism-row-actions'
 
 export default async function MicroorganismsManagementPage() {
   const supabase = await createClient()
@@ -124,17 +123,7 @@ export default async function MicroorganismsManagementPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <MicroorganismRowActions microorganismId={micro.id} />
                       </td>
                     </tr>
                   ))

@@ -45,6 +45,17 @@ export async function updateMicroorganism(id: string, data: Partial<Microorganis
   }
 }
 
+export async function deleteMicroorganism(id: string) {
+  try {
+    await MicroorganismRepository.delete(id)
+    revalidatePath('/microorganisms')
+    return true
+  } catch (error) {
+    console.error('deleteMicroorganism Error:', error)
+    throw new Error('Failed to delete microorganism record')
+  }
+}
+
 export async function assignLabStorage(microorganism_id: string, partition_id: string, tube_label: string) {
   try {
     const result = await MicroorganismRepository.assignStorage({

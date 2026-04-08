@@ -1,1 +1,5 @@
-﻿export default function CreateHerbariumPage() { return <div>Register Herbarium Specimen</div> }
+﻿import { redirect } from 'next/navigation'
+
+export default function CreateHerbariumPage() {
+  redirect('/dashboard/herbarium/add')
+}

@@ -1,1 +1,5 @@
-﻿export default function CreateMicroPage() { return <div>Register Microorganism</div> }
+﻿import { redirect } from 'next/navigation'
+
+export default function CreateMicroPage() {
+  redirect('/dashboard/microorganisms/add')
+}

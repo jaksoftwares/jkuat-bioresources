@@ -80,6 +80,13 @@ export class MicroorganismRepository {
   /**
    * Complex storage mapping: Fridge -> Shelf -> Tray -> Partition -> Test Tube
    */
+  static async delete(id: string) {
+    const supabase = await this.getClient()
+    const { error } = await supabase.from('microorganisms').delete().eq('id', id)
+    if (error) throw error
+    return true
+  }
+
   static async assignStorage(input: {
     microorganism_id: string;
     partition_id: string;

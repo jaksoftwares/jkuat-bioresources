@@ -36,3 +36,19 @@ export async function PUT(
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
 }
+
+/**
+ * DELETE /api/microorganisms/[id]
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Params }
+) {
+  try {
+    const { id } = await params
+    await MicroorganismRepository.delete(id)
+    return NextResponse.json({ message: 'Microorganism deleted' })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}

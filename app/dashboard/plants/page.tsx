@@ -1,13 +1,13 @@
 import React from 'react'
 import Link from 'next/link'
-import { Plus, Search, Filter, MoreVertical, Edit, Eye, Trash2, Leaf } from 'lucide-react'
+import { Plus, Search, Filter, Leaf } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { PlantRepository } from '@/repositories/plant.repository'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 import { UserRole } from '@/types'
+import { PlantRowActions } from '@/components/dashboard/plant-row-actions'
 
 export default async function PlantsManagementPage() {
   const supabase = await createClient()
@@ -130,17 +130,7 @@ export default async function PlantsManagementPage() {
                         {new Date(plant.updated_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-teal-600">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <PlantRowActions plantId={plant.id} />
                       </td>
                     </tr>
                   ))
