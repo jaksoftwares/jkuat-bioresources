@@ -7,9 +7,7 @@ import { Menu, Search, Sprout, Microscope, BookOpen, Info, ChevronRight, LogIn, 
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
-  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useState } from "react";
