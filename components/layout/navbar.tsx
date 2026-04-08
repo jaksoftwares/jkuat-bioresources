@@ -74,10 +74,7 @@ export function Navbar() {
                       className="h-6 w-auto"
                     />
                   </div>
-                  <SheetTitle className="text-lg font-semibold text-foreground">Bioresources Portal</SheetTitle>
-                  <SheetDescription className="text-xs text-muted-foreground">
-                    Access JKUAT's biological resource database and research tools.
-                  </SheetDescription>
+                  
                 </SheetHeader>
 
                 <div className="flex-1 overflow-y-auto py-6">
@@ -121,7 +118,7 @@ export function Navbar() {
                     </Link>
                   </div>
                   <p className="mt-4 text-center text-[10px] text-muted-foreground">
-                    © {new Date().getFullYear()} JKUAT Bioresources Department
+                    © {new Date().getFullYear()} JKUAT All rights reserved
                   </p>
                 </div>
               </div>
