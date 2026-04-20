@@ -4,19 +4,15 @@ import { createClient } from '@/lib/supabase/server'
 import { MicroorganismRepository } from '@/repositories/microorganism.repository'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { UserRole } from '@/types'
+import { MicroorganismModal } from '@/components/dashboard/microorganism-modal'
 import { MicroorganismRowActions } from '@/components/dashboard/microorganism-row-actions'
 
 export default async function MicroorganismsManagementPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const userId = user?.id || 'dev-user-id'
-
-  /* 
-   * PRODUCTION RESTRICTION (TODO):
-   * if (!user) return redirect('/login')
-   */
 
   // Fetch role
   let role: UserRole = 'researcher'
@@ -30,48 +26,40 @@ export default async function MicroorganismsManagementPage() {
   }
   
   // Fetch data
-  let micros = []
+  let microorganisms = []
   if (role === 'researcher') {
-    micros = await MicroorganismRepository.listByUserId(userId)
+    microorganisms = await MicroorganismRepository.listByUserId(userId)
   } else {
-    micros = await MicroorganismRepository.list()
+    microorganisms = await MicroorganismRepository.list()
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-jkuat-gray-100 pb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <Microscope className="w-6 h-6 text-indigo-600" />
+          <h1 className="text-4xl font-extrabold text-jkuat-gray-900 tracking-tight">
             Microorganisms
           </h1>
-          <p className="text-slate-500 text-sm mt-1 font-medium">
-            {role === 'researcher' ? "Manage your microbial strains and research data." : "Manage all microbial collections."}
+          <p className="text-jkuat-gray-500 mt-2 text-sm font-semibold uppercase tracking-widest leading-relaxed">
+            Manage research strains and isolation records
           </p>
         </div>
-        <Link 
-          href="/dashboard/microorganisms/add" 
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add New Strain
-        </Link>
+        <MicroorganismModal mode="add" />
       </div>
 
-      <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
+      <Card className="border-jkuat-gray-200 shadow-sm overflow-hidden bg-white rounded-xl">
         <CardContent className="p-0">
-          <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center gap-4">
+          <div className="p-6 border-b border-jkuat-gray-100 bg-jkuat-gray-50/50 flex flex-col md:flex-row md:items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-jkuat-gray-400 font-bold" />
               <Input 
-                placeholder="Search by scientific name, strain code..." 
-                className="pl-9 bg-white border-slate-200 focus:ring-indigo-500/20"
+                placeholder="Search strains..." 
+                className="pl-9 bg-white border-jkuat-gray-200 focus:ring-jkuat-green/20 font-medium h-11"
               />
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" className="flex items-center gap-2 text-slate-600 border-slate-200">
-                <Database className="w-4 h-4" />
-                Inventory
+              <Button variant="outline" className="text-jkuat-gray-700 border-jkuat-gray-200 font-semibold text-sm h-11 px-6">
+                Filters
               </Button>
             </div>
           </div>
@@ -79,51 +67,50 @@ export default async function MicroorganismsManagementPage() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <thead>
-                <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-widest bg-slate-50/30">
-                  <th className="px-6 py-4">Scientific Name</th>
-                  <th className="px-6 py-4">Strain Code</th>
-                  <th className="px-6 py-4">Source</th>
+                <tr className="border-b border-jkuat-gray-100 text-sm font-semibold text-jkuat-gray-600 bg-jkuat-gray-50/30">
+                  <th className="px-6 py-4">Strain Info</th>
+                  <th className="px-6 py-4">Isolation Source</th>
+                  <th className="px-6 py-4">Growth Media</th>
                   <th className="px-6 py-4">Storage Info</th>
-                  <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {micros.length === 0 ? (
+              <tbody className="divide-y divide-jkuat-gray-100">
+                {microorganisms.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center gap-2 text-slate-400">
-                        <Microscope className="w-10 h-10 opacity-20" />
-                        <p className="font-medium">No microorganisms found.</p>
-                      </div>
+                    <td colSpan={5} className="px-6 py-12 text-center text-jkuat-gray-400">
+                      <p className="font-semibold text-sm uppercase tracking-widest">No microorganisms found.</p>
                     </td>
                   </tr>
                 ) : (
-                  micros.map((micro) => (
-                    <tr key={micro.id} className="hover:bg-indigo-50/20 transition-colors group">
+                  microorganisms.map((item) => (
+                    <tr key={item.id} className="hover:bg-jkuat-green-light/10 transition-colors group">
                       <td className="px-6 py-4">
-                        <span className="font-bold text-slate-900 group-hover:text-indigo-700 transition-colors italic">
-                          {micro.scientific_name}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 font-mono text-xs text-indigo-600 font-bold bg-indigo-50/30 px-2 py-1 rounded inline-block">
-                        {micro.strain_code || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-500">
-                        {micro.source_isolated_from || '—'}
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-jkuat-gray-900 group-hover:text-jkuat-green transition-colors italic">
+                            {item.scientific_name}
+                          </span>
+                          <span className="text-[10px] font-bold text-jkuat-gray-400 uppercase tracking-widest mt-0.5">{item.strain_code || 'No Strain Code'}</span>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs text-slate-400 font-medium">
-                          {micro.growth_medium || 'No medium specified'}
+                        <span className="text-sm text-jkuat-gray-700 font-semibold uppercase tracking-tight">
+                          {item.source_isolated_from || '—'}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-800 uppercase">
-                          Preserved
+                        <span className="text-xs font-bold text-jkuat-gray-600 bg-jkuat-gray-100 px-2.5 py-1 rounded-md border border-jkuat-gray-200 uppercase tracking-widest">
+                           {item.growth_medium || '—'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4">
+                         <div className="flex flex-col">
+                           <span className="text-sm text-jkuat-gray-600 font-medium">{item.date_stored || '—'}</span>
+                           <span className="text-[10px] text-jkuat-gray-400 font-bold uppercase tracking-widest">Date Stored</span>
+                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <MicroorganismRowActions microorganismId={micro.id} />
+                        <MicroorganismRowActions microorganism={item} />
                       </td>
                     </tr>
                   ))
@@ -133,6 +120,15 @@ export default async function MicroorganismsManagementPage() {
           </div>
         </CardContent>
       </Card>
+      
+      <div className="flex items-center justify-between text-[10px] font-bold text-jkuat-gray-400 px-2 uppercase tracking-widest">
+        <span>Showing {microorganisms.length} records</span>
+        <div className="flex items-center gap-1.5">
+          <Button variant="outline" size="sm" disabled className="h-8 w-8 p-0 rounded-md border-jkuat-gray-200">&lt;</Button>
+          <Button variant="outline" size="sm" className="h-8 min-w-[32px] px-2 border-jkuat-green/20 text-jkuat-green bg-jkuat-green-light/10 font-bold">1</Button>
+          <Button variant="outline" size="sm" disabled className="h-8 w-8 p-0 rounded-md border-jkuat-gray-200">&gt;</Button>
+        </div>
+      </div>
     </div>
   )
 }

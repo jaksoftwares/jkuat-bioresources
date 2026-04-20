@@ -38,7 +38,7 @@ export default function PlantDetailPage({ params }: { params: { id: string } }) 
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
+    <div className="min-h-screen bg-jkuat-gray-200/20 dark:bg-slate-950 pb-20">
       {/* Immersive Header */}
       <div className="relative h-64 md:h-96 w-full overflow-hidden">
         <Image
@@ -49,7 +49,7 @@ export default function PlantDetailPage({ params }: { params: { id: string } }) 
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-jkuat-green-dark via-jkuat-green-dark/40 to-transparent" />
         
         <div className="absolute bottom-0 left-0 w-full p-6 md:p-12">
           <div className="mx-auto max-w-7xl">
@@ -58,13 +58,13 @@ export default function PlantDetailPage({ params }: { params: { id: string } }) 
             </Link>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <Badge className="mb-4 bg-emerald-500 text-white border-none px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                <Badge className="mb-4 bg-jkuat-gold text-white border-none px-3 py-1 text-xs font-bold uppercase tracking-wider">
                   Plant Specimen
                 </Badge>
-                <h1 className="text-4xl md:text-6xl font-extrabold text-white italic tracking-tight mb-2">
+                <h1 className="text-3xl md:text-5xl font-bold text-white italic tracking-tight mb-2">
                   {plant.taxa}
                 </h1>
-                <p className="text-xl md:text-2xl text-emerald-400 font-medium">
+                <p className="text-xl md:text-2xl text-jkuat-green-light font-medium">
                   {plant.local}
                 </p>
               </div>
@@ -72,7 +72,7 @@ export default function PlantDetailPage({ params }: { params: { id: string } }) 
                 <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md">
                   <Share2 className="mr-2 h-4 w-4" /> Share
                 </Button>
-                <Button variant="secondary" className="bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-lg">
+                <Button variant="secondary" className="bg-jkuat-green hover:bg-jkuat-green-dark text-white border-none shadow-lg">
                   <Download className="mr-2 h-4 w-4" /> Export Data
                 </Button>
               </div>
@@ -86,56 +86,56 @@ export default function PlantDetailPage({ params }: { params: { id: string } }) 
           {/* Main Content Column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Scientific Profile Card */}
-            <Card className="border-none shadow-sm overflow-hidden rounded-2xl bg-white dark:bg-slate-900">
-              <CardHeader className="border-b bg-slate-50/50 dark:bg-slate-800/50 pb-4">
-                <div className="flex items-center gap-2 text-primary font-bold">
+            <Card className="border-none shadow-card overflow-hidden rounded-xl bg-white dark:bg-slate-900">
+              <CardHeader className="border-b bg-jkuat-green-light/30 dark:bg-slate-800/50 pb-4">
+                <div className="flex items-center gap-2 text-jkuat-green font-bold">
                   <Info className="h-5 w-5" />
-                  <CardTitle className="text-xl">Scientific Profile</CardTitle>
+                  <CardTitle className="text-xl font-bold">Scientific Profile</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="pt-8">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-10">
                   <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">ID Number</p>
-                    <p className="font-mono text-lg font-bold text-foreground">{plant.id}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-jkuat-gray-500">ID Number</p>
+                    <p className="font-mono text-lg font-bold text-jkuat-gray-900">{plant.id}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Family</p>
-                    <p className="text-lg font-bold text-foreground">{plant.family}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-jkuat-gray-500">Family</p>
+                    <p className="text-lg font-bold text-jkuat-gray-900">{plant.family}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Order</p>
-                    <p className="text-lg font-bold text-foreground">{plant.order}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-jkuat-gray-500">Order</p>
+                    <p className="text-lg font-bold text-jkuat-gray-900">{plant.order}</p>
                   </div>
                 </div>
 
                 <div className="space-y-8">
                   <section>
-                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2 mb-3">
-                      <Leaf className="h-5 w-5 text-emerald-500" />
+                    <h3 className="text-lg font-bold text-jkuat-gray-900 flex items-center gap-2 mb-3">
+                      <Leaf className="h-5 w-5 text-jkuat-green" />
                       Biological Description
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed text-base italic">
+                    <p className="text-jkuat-gray-700 leading-relaxed text-base italic">
                       {plant.description}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2 mb-3">
-                      <MapPin className="h-5 w-5 text-emerald-500" />
+                    <h3 className="text-lg font-bold text-jkuat-gray-900 flex items-center gap-2 mb-3">
+                      <MapPin className="h-5 w-5 text-jkuat-green" />
                       Distribution & Habitat
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed text-base">
+                    <p className="text-jkuat-gray-700 leading-relaxed text-base">
                       {plant.distribution}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2 mb-3">
-                      <FileText className="h-5 w-5 text-emerald-500" />
+                    <h3 className="text-lg font-bold text-jkuat-gray-900 flex items-center gap-2 mb-3">
+                      <FileText className="h-5 w-5 text-jkuat-green" />
                       Uses & Importance
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed text-base">
+                    <p className="text-jkuat-gray-700 leading-relaxed text-base">
                       {plant.usage}
                     </p>
                   </section>
@@ -144,9 +144,9 @@ export default function PlantDetailPage({ params }: { params: { id: string } }) 
             </Card>
 
             {/* Visual Records */}
-            <h2 className="text-2xl font-bold text-foreground mb-4 pt-4">Visual Records</h2>
+            <h2 className="text-2xl font-bold text-jkuat-gray-900 mb-4 pt-4">Visual Records</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="aspect-video relative rounded-2xl overflow-hidden border bg-muted">
+              <div className="aspect-video relative rounded-xl overflow-hidden border border-jkuat-gray-200 bg-muted">
                 <Image 
                   src="/assets/images/avis.png" 
                   alt="Specimen view 1" 
@@ -154,8 +154,8 @@ export default function PlantDetailPage({ params }: { params: { id: string } }) 
                   className="object-cover group-hover:scale-105 transition-transform" 
                 />
               </div>
-              <div className="aspect-video relative rounded-2xl overflow-hidden border bg-muted flex items-center justify-center">
-                 <p className="text-muted-foreground text-sm flex items-center gap-2">
+              <div className="aspect-video relative rounded-xl overflow-hidden border border-jkuat-gray-200 bg-muted flex items-center justify-center">
+                 <p className="text-jkuat-gray-500 text-sm flex items-center gap-2">
                    <Database className="h-4 w-4" /> Lab Photo Unavailable
                  </p>
               </div>
@@ -164,62 +164,62 @@ export default function PlantDetailPage({ params }: { params: { id: string } }) 
 
           {/* Sidebar Info Column */}
           <div className="space-y-6">
-            <Card className="border-none shadow-sm rounded-2xl bg-white dark:bg-slate-900 overflow-hidden">
-               <div className="bg-emerald-600 h-2 w-full" />
+            <Card className="border-none shadow-card rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
+               <div className="bg-jkuat-green h-2 w-full" />
                <CardHeader>
-                 <CardTitle className="text-lg">Accession Data</CardTitle>
+                 <CardTitle className="text-lg font-bold">Accession Data</CardTitle>
                </CardHeader>
                <CardContent className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-emerald-600">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-jkuat-green-light flex items-center justify-center text-jkuat-green">
                       <Clock className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase text-muted-foreground">Collected On</p>
-                      <p className="font-bold text-foreground">{plant.accessionDate}</p>
+                      <p className="text-xs font-bold uppercase text-jkuat-gray-500">Collected On</p>
+                      <p className="font-bold text-jkuat-gray-900">{plant.accessionDate}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-emerald-600">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-jkuat-green-light flex items-center justify-center text-jkuat-green">
                       <User className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase text-muted-foreground">Collected By</p>
-                      <p className="font-bold text-foreground">{plant.collector}</p>
+                      <p className="text-xs font-bold uppercase text-jkuat-gray-500">Collected By</p>
+                      <p className="font-bold text-jkuat-gray-900">{plant.collector}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-emerald-600">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-jkuat-green-light flex items-center justify-center text-jkuat-green">
                       <FlaskConical className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase text-muted-foreground">Department</p>
-                      <p className="font-bold text-foreground">{plant.department}</p>
+                      <p className="text-xs font-bold uppercase text-jkuat-gray-500">Department</p>
+                      <p className="font-bold text-jkuat-gray-900">{plant.department}</p>
                     </div>
                   </div>
 
-                  <div className="mt-8 pt-6 border-t">
-                    <p className="text-xs font-bold uppercase text-muted-foreground mb-3 flex items-center gap-1">
+                  <div className="mt-8 pt-6 border-t border-jkuat-gray-200">
+                    <p className="text-xs font-bold uppercase text-jkuat-gray-500 mb-3 flex items-center gap-1">
                       <MapPin className="h-3 w-3" /> Storage Location
                     </p>
-                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border font-mono text-sm font-bold text-emerald-600">
+                    <div className="p-4 rounded-xl bg-jkuat-green-light/50 border border-jkuat-green/20 font-mono text-sm font-bold text-jkuat-green-dark">
                       {plant.storageLocation}
                     </div>
                   </div>
                </CardContent>
             </Card>
 
-            <Card className="border-none shadow-sm rounded-2xl bg-emerald-900 text-white overflow-hidden">
+            <Card className="border-none shadow-card rounded-xl bg-jkuat-green-dark text-white overflow-hidden">
                <CardHeader>
-                 <CardTitle className="text-lg">Conservation Status</CardTitle>
+                 <CardTitle className="text-lg font-bold">Conservation Status</CardTitle>
                </CardHeader>
                <CardContent>
                   <div className="p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm">
                     <p className="text-2xl font-black">{plant.conservationStatus}</p>
                   </div>
-                  <p className="mt-4 text-emerald-200 text-xs leading-relaxed">
+                  <p className="mt-4 text-jkuat-green-light opacity-80 text-xs leading-relaxed">
                     This status indicates the current research priority level within our institutional bioresources framework.
                   </p>
                </CardContent>

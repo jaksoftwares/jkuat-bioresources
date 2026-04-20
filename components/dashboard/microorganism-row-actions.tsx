@@ -5,12 +5,14 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Eye, Edit, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import { MicroorganismModal } from './microorganism-modal'
+import { Microorganism } from '@/types'
 
 interface MicroorganismRowActionsProps {
-  microorganismId: string
+  microorganism: Microorganism
 }
 
-export function MicroorganismRowActions({ microorganismId }: MicroorganismRowActionsProps) {
+export function MicroorganismRowActions({ microorganism }: MicroorganismRowActionsProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -22,7 +24,7 @@ export function MicroorganismRowActions({ microorganismId }: MicroorganismRowAct
     setIsDeleting(true)
 
     try {
-      const response = await fetch(`/api/microorganisms/${microorganismId}`, {
+      const response = await fetch(`/api/microorganisms/${microorganism.id}`, {
         method: 'DELETE',
       })
       if (!response.ok) {
@@ -39,32 +41,33 @@ export function MicroorganismRowActions({ microorganismId }: MicroorganismRowAct
   }
 
   return (
-    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
       <Link
-        href={`/dashboard/microorganisms/${microorganismId}/edit`}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition hover:text-indigo-600"
-        aria-label="View microorganism"
+        href={`/portal/microorganisms/${microorganism.id}`}
+        target="_blank"
+        className="text-xs font-semibold text-jkuat-gray-400 hover:text-jkuat-green transition-colors"
       >
-        <Eye className="w-4 h-4" />
+        View
       </Link>
-      <Link
-        href={`/dashboard/microorganisms/${microorganismId}/edit`}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition hover:text-blue-600"
-        aria-label="Edit microorganism"
-      >
-        <Edit className="w-4 h-4" />
-      </Link>
-      <Button
+      
+      <MicroorganismModal 
+        mode="edit" 
+        microorganism={microorganism} 
+        trigger={
+          <button className="text-xs font-semibold text-jkuat-gray-400 hover:text-jkuat-green transition-colors">
+            Edit
+          </button>
+        }
+      />
+
+      <button
         type="button"
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-slate-400 hover:text-rose-600"
         onClick={handleDelete}
         disabled={isDeleting}
-        aria-label="Delete microorganism"
+        className="text-xs font-semibold text-jkuat-gray-400 hover:text-rose-600 transition-colors disabled:opacity-50"
       >
-        <Trash2 className="w-4 h-4" />
-      </Button>
+        Delete
+      </button>
     </div>
   )
 }

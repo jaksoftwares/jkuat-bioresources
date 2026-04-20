@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Eye, Edit, Trash2 } from 'lucide-react'
+import { PlantModal } from './plant-modal'
+import { Plant } from '@/types'
 
 interface PlantRowActionsProps {
-  plantId: string
+  plant: Plant
 }
 
-export function PlantRowActions({ plantId }: PlantRowActionsProps) {
+export function PlantRowActions({ plant }: PlantRowActionsProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -22,7 +24,7 @@ export function PlantRowActions({ plantId }: PlantRowActionsProps) {
     setIsDeleting(true)
 
     try {
-      const response = await fetch(`/api/plants/${plantId}`, {
+      const response = await fetch(`/api/plants/${plant.id}`, {
         method: 'DELETE',
       })
       if (!response.ok) {
@@ -39,32 +41,33 @@ export function PlantRowActions({ plantId }: PlantRowActionsProps) {
   }
 
   return (
-    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+    <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
       <Link
-        href={`/dashboard/plants/${plantId}/edit`}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition hover:text-teal-600"
-        aria-label="View plant"
+        href={`/portal/plants/${plant.id}`}
+        target="_blank"
+        className="text-xs font-semibold text-jkuat-gray-400 hover:text-jkuat-green transition-colors"
       >
-        <Eye className="w-4 h-4" />
+        View
       </Link>
-      <Link
-        href={`/dashboard/plants/${plantId}/edit`}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition hover:text-blue-600"
-        aria-label="Edit plant"
-      >
-        <Edit className="w-4 h-4" />
-      </Link>
-      <Button
+      
+      <PlantModal 
+        mode="edit" 
+        plant={plant} 
+        trigger={
+          <button className="text-xs font-semibold text-jkuat-gray-400 hover:text-jkuat-green transition-colors">
+            Edit
+          </button>
+        }
+      />
+
+      <button
         type="button"
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-slate-400 hover:text-rose-600"
         onClick={handleDelete}
         disabled={isDeleting}
-        aria-label="Delete plant"
+        className="text-xs font-semibold text-jkuat-gray-400 hover:text-rose-600 transition-colors disabled:opacity-50"
       >
-        <Trash2 className="w-4 h-4" />
-      </Button>
+        Delete
+      </button>
     </div>
   )
 }

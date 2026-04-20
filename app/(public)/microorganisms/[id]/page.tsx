@@ -43,7 +43,7 @@ export default function MicroorganismDetailPage({ params }: { params: { id: stri
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
+    <div className="min-h-screen bg-jkuat-gray-200/20 dark:bg-slate-950 pb-20">
       {/* Immersive Header */}
       <div className="relative h-64 md:h-80 w-full overflow-hidden">
         <Image
@@ -54,7 +54,7 @@ export default function MicroorganismDetailPage({ params }: { params: { id: stri
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-jkuat-green-dark via-jkuat-green-dark/40 to-transparent" />
         
         <div className="absolute bottom-0 left-0 w-full p-6 md:p-10">
           <div className="mx-auto max-w-7xl">
@@ -63,13 +63,13 @@ export default function MicroorganismDetailPage({ params }: { params: { id: stri
             </Link>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <Badge className="mb-4 bg-blue-500 text-white border-none px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                <Badge className="mb-4 bg-jkuat-gold text-white border-none px-3 py-1 text-xs font-bold uppercase tracking-wider">
                   {strain.type}
                 </Badge>
-                <h1 className="text-4xl md:text-5xl font-extrabold text-white italic tracking-tight mb-2">
+                <h1 className="text-3xl md:text-5xl font-bold text-white italic tracking-tight mb-2">
                   {strain.taxa}
                 </h1>
-                <p className="text-xl md:text-2xl text-blue-400 font-medium font-mono uppercase tracking-widest leading-none">
+                <p className="text-xl md:text-2xl text-jkuat-green-light font-medium font-mono uppercase tracking-widest leading-none">
                    Strain ID: {strain.id}
                 </p>
               </div>
@@ -77,7 +77,7 @@ export default function MicroorganismDetailPage({ params }: { params: { id: stri
                 <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md">
                   <Share2 className="mr-2 h-4 w-4" /> Share
                 </Button>
-                <Button variant="secondary" className="bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg">
+                <Button variant="secondary" className="bg-jkuat-green hover:bg-jkuat-green-dark text-white border-none shadow-lg">
                   <Download className="mr-2 h-4 w-4" /> Export Data
                 </Button>
               </div>
@@ -91,58 +91,58 @@ export default function MicroorganismDetailPage({ params }: { params: { id: stri
           {/* Main Content Column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Scientific Profile Card */}
-            <Card className="border-none shadow-sm overflow-hidden rounded-2xl bg-white dark:bg-slate-900">
-              <CardHeader className="border-b bg-slate-50/50 dark:bg-slate-800/50 pb-4">
-                <div className="flex items-center gap-2 text-primary font-bold">
+            <Card className="border-none shadow-card overflow-hidden rounded-xl bg-white dark:bg-slate-900">
+              <CardHeader className="border-b bg-jkuat-green-light/30 dark:bg-slate-800/50 pb-4">
+                <div className="flex items-center gap-2 text-jkuat-green font-bold">
                   <Beaker className="h-5 w-5" />
-                  <CardTitle className="text-xl">Scientific Record</CardTitle>
+                  <CardTitle className="text-xl font-bold">Scientific Record</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="pt-8">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-10">
                   <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Genus</p>
-                    <p className="text-lg font-bold text-foreground italic">{strain.genus}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-jkuat-gray-500">Genus</p>
+                    <p className="text-lg font-bold text-jkuat-gray-900 italic">{strain.genus}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Species</p>
-                    <p className="text-lg font-bold text-foreground italic">{strain.species}</p>
+                    <p className="text-xs font-bold uppercase tracking-widest text-jkuat-gray-500">Species</p>
+                    <p className="text-lg font-bold text-jkuat-gray-900 italic">{strain.species}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Biosafety</p>
-                    <p className="text-lg font-bold text-foreground flex items-center gap-1">
-                       <ShieldCheck className="h-4 w-4 text-emerald-500" /> {strain.biosafetyLevel}
+                    <p className="text-xs font-bold uppercase tracking-widest text-jkuat-gray-500">Biosafety</p>
+                    <p className="text-lg font-bold text-jkuat-gray-900 flex items-center gap-1">
+                       <ShieldCheck className="h-4 w-4 text-jkuat-green" /> {strain.biosafetyLevel}
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-8">
                   <section>
-                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2 mb-3">
-                      <Microscope className="h-5 w-5 text-blue-500" />
+                    <h3 className="text-lg font-bold text-jkuat-gray-900 flex items-center gap-2 mb-3">
+                      <Microscope className="h-5 w-5 text-jkuat-green" />
                       Biological Findings
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed text-base italic">
+                    <p className="text-jkuat-gray-700 leading-relaxed text-base italic">
                       {strain.description}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2 mb-3">
-                      <FileText className="h-5 w-5 text-blue-500" />
+                    <h3 className="text-lg font-bold text-jkuat-gray-900 flex items-center gap-2 mb-3">
+                      <FileText className="h-5 w-5 text-jkuat-green" />
                       Key Characteristics
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed text-base italic">
+                    <p className="text-jkuat-gray-700 leading-relaxed text-base italic">
                       {strain.characteristics}
                     </p>
                   </section>
 
                   <section>
-                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2 mb-3">
-                      <FlaskConical className="h-5 w-5 text-blue-500" />
+                    <h3 className="text-lg font-bold text-jkuat-gray-900 flex items-center gap-2 mb-3">
+                      <FlaskConical className="h-5 w-5 text-jkuat-green" />
                       Morphology
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed text-base italic">
+                    <p className="text-jkuat-gray-700 leading-relaxed text-base italic">
                       {strain.morphology}
                     </p>
                   </section>
@@ -151,9 +151,9 @@ export default function MicroorganismDetailPage({ params }: { params: { id: stri
             </Card>
 
             {/* Visual Records */}
-            <h2 className="text-2xl font-bold text-foreground mb-4 pt-4">Visual Findings</h2>
+            <h2 className="text-2xl font-bold text-jkuat-gray-900 mb-4 pt-4">Visual Findings</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="aspect-video relative rounded-2xl overflow-hidden border bg-blue-50/50 dark:bg-blue-950/20 flex items-center justify-center">
+              <div className="aspect-video relative rounded-xl overflow-hidden border border-jkuat-gray-200 bg-jkuat-green-light/10 flex items-center justify-center">
                  <div className="text-center">
                     <Image 
                       src="/assets/images/lsb-research.png" 
@@ -166,8 +166,8 @@ export default function MicroorganismDetailPage({ params }: { params: { id: stri
                     </div>
                  </div>
               </div>
-              <div className="aspect-video relative rounded-2xl overflow-hidden border bg-muted flex items-center justify-center">
-                 <p className="text-muted-foreground text-sm flex items-center gap-2 font-mono">
+              <div className="aspect-video relative rounded-xl overflow-hidden border border-jkuat-gray-200 bg-muted flex items-center justify-center">
+                 <p className="text-jkuat-gray-500 text-sm flex items-center gap-2 font-mono">
                    <Database className="h-4 w-4" /> REPOSITORY-REF: {strain.id}
                  </p>
               </div>
@@ -176,65 +176,65 @@ export default function MicroorganismDetailPage({ params }: { params: { id: stri
 
           {/* Sidebar Info Column */}
           <div className="space-y-6">
-            <Card className="border-none shadow-sm rounded-2xl bg-white dark:bg-slate-900 overflow-hidden">
-               <div className="bg-blue-600 h-2 w-full" />
+            <Card className="border-none shadow-card rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
+               <div className="bg-jkuat-green h-2 w-full" />
                <CardHeader>
-                 <CardTitle className="text-lg">Laboratory Records</CardTitle>
+                 <CardTitle className="text-lg font-bold">Laboratory Records</CardTitle>
                </CardHeader>
                <CardContent className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-blue-600">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-jkuat-green-light flex items-center justify-center text-jkuat-green">
                       <Clock className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase text-muted-foreground">Isolated On</p>
-                      <p className="font-bold text-foreground">{strain.collectionDate}</p>
+                      <p className="text-xs font-bold uppercase text-jkuat-gray-500">Isolated On</p>
+                      <p className="font-bold text-jkuat-gray-900">{strain.collectionDate}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-blue-600">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-jkuat-green-light flex items-center justify-center text-jkuat-green">
                       <User className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase text-muted-foreground">Researcher</p>
-                      <p className="font-bold text-foreground">{strain.collector}</p>
+                      <p className="text-xs font-bold uppercase text-jkuat-gray-500">Researcher</p>
+                      <p className="font-bold text-jkuat-gray-900">{strain.collector}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-blue-600">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-jkuat-green-light flex items-center justify-center text-jkuat-green">
                       <Boxes className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase text-muted-foreground">Storage Method</p>
-                      <p className="font-bold text-foreground">{strain.storageTemperature}</p>
+                      <p className="text-xs font-bold uppercase text-jkuat-gray-500">Storage Method</p>
+                      <p className="font-bold text-jkuat-gray-900">{strain.storageTemperature}</p>
                     </div>
                   </div>
 
-                  <div className="mt-8 pt-6 border-t font-mono">
-                    <p className="text-xs font-bold uppercase text-muted-foreground mb-3 flex items-center gap-1">
+                  <div className="mt-8 pt-6 border-t border-jkuat-gray-200 font-mono">
+                    <p className="text-xs font-bold uppercase text-jkuat-gray-500 mb-3 flex items-center gap-1">
                        <MapPin className="h-3 w-3" /> Storage Coordinates
                     </p>
-                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border text-sm font-bold text-blue-600">
+                    <div className="p-4 rounded-xl bg-jkuat-green-light/50 border border-jkuat-green/20 text-sm font-bold text-jkuat-green-dark">
                       {strain.labLocation}
                     </div>
                   </div>
                </CardContent>
             </Card>
 
-            <Card className="border-none shadow-sm rounded-2xl bg-blue-900 text-white overflow-hidden">
+            <Card className="border-none shadow-card rounded-xl bg-jkuat-green-dark text-white overflow-hidden">
                <CardHeader>
                  <div className="flex items-center gap-2">
                    <Thermometer className="h-5 w-5" />
-                   <CardTitle className="text-lg">Storage Info</CardTitle>
+                   <CardTitle className="text-lg font-bold">Storage Info</CardTitle>
                  </div>
                </CardHeader>
                <CardContent>
                   <div className="p-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm">
                     <p className="text-2xl font-black">{strain.storageTemperature}</p>
                   </div>
-                  <p className="mt-4 text-blue-200 text-xs leading-relaxed italic">
+                  <p className="mt-4 text-jkuat-green-light opacity-80 text-xs leading-relaxed italic">
                     All samples are maintained under strict temperature control within the Microbiology Unit repository.
                   </p>
                </CardContent>

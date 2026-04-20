@@ -28,19 +28,19 @@ export default async function DashboardLayout({
   role = (roleProfile?.roles as any)?.name || 'public_user'
 
   return (
-    <div className="flex min-h-screen bg-slate-50/50">
+    <div className="flex min-h-screen bg-jkuat-gray-200/20">
       <DashboardSidebar userRole={role} />
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center justify-between px-6">
-          <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider">
+        <header className="h-16 bg-white border-b border-jkuat-gray-200 sticky top-0 z-30 flex items-center justify-between px-6">
+          <h2 className="text-sm font-bold text-jkuat-gray-500 uppercase tracking-widest">
             Dashboard / {role.replace('_', ' ')}
           </h2>
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end">
-              <span className="text-sm font-semibold text-slate-900">{user.email?.split('@')[0]}</span>
-              <span className="text-[10px] text-teal-600 font-bold uppercase">{role}</span>
+              <span className="text-sm font-bold text-jkuat-gray-900">{user.email?.split('@')[0]}</span>
+              <span className="text-[10px] text-jkuat-green font-black uppercase tracking-tight">{role}</span>
             </div>
-            <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 font-bold">
+            <div className="w-10 h-10 rounded-full bg-jkuat-green-light border border-jkuat-green/20 flex items-center justify-center text-jkuat-green font-bold shadow-sm">
               {user.email?.[0].toUpperCase()}
             </div>
           </div>

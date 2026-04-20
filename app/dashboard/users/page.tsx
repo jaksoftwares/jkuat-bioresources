@@ -14,69 +14,66 @@ export default async function UserManagementPage() {
   const users = await UserRepository.list()
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-jkuat-gray-100 pb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <Users className="w-6 h-6 text-indigo-600" />
+          <h1 className="text-4xl font-extrabold text-jkuat-gray-900 tracking-tight">
             User Management
           </h1>
-          <p className="text-slate-500 text-sm mt-1 font-medium">
-            Manage platform access, roles, and administrative permissions.
+          <p className="text-jkuat-gray-500 mt-2 text-sm font-semibold uppercase tracking-widest leading-relaxed">
+            Manage platform access and administrative permissions
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-slate-50 border-slate-200 shadow-sm">
-          <CardContent className="p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-indigo-600 shadow-sm border border-slate-100">
-              <Users className="w-5 h-5" />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="border-jkuat-gray-200 shadow-sm rounded-xl bg-white overflow-hidden">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-jkuat-green/10 flex items-center justify-center text-jkuat-green border border-jkuat-green/10">
+              <Users className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Users</p>
-              <p className="text-2xl font-black text-slate-900">{users.length}</p>
+              <p className="text-xs font-bold text-jkuat-gray-400 uppercase tracking-widest">Total Users</p>
+              <p className="text-3xl font-extrabold text-jkuat-gray-900 tracking-tight">{users.length}</p>
             </div>
           </CardContent>
         </Card>
-        {/* Add more summary cards here if needed */}
       </div>
 
-      <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
-        <CardHeader className="border-b border-slate-100 bg-slate-50/30">
-          <CardTitle className="text-lg font-bold flex items-center gap-2">
-             <UserCog className="w-5 h-5 text-slate-400" />
+      <Card className="border-jkuat-gray-200 shadow-sm overflow-hidden bg-white rounded-xl">
+        <CardHeader className="border-b border-jkuat-gray-100 bg-jkuat-gray-50/50">
+          <CardTitle className="text-lg font-extrabold tracking-tight text-jkuat-gray-900">
              Access Control List
           </CardTitle>
-          <CardDescription>View and manage all registered users and their system roles.</CardDescription>
+          <CardDescription className="text-xs font-semibold uppercase tracking-widest text-jkuat-gray-400 mt-1">Institutional roles and system access</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <thead>
-                <tr className="border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] bg-slate-50/50">
+                <tr className="border-b border-jkuat-gray-100 text-sm font-semibold text-jkuat-gray-600 bg-jkuat-gray-50/30">
                   <th className="px-6 py-4">User Details</th>
-                  <th className="px-6 py-4">Staff/PF Number</th>
+                  <th className="px-6 py-4">Institutional ID</th>
                   <th className="px-6 py-4">Role</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Joined At</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 italic-none">
+              <tbody className="divide-y divide-jkuat-gray-100">
                 {users.map((user: any) => {
                   const roleEntry = (user as any).user_roles_user_id_fkey?.[0] ?? (user as any).user_roles?.[0]
                   const roleName = roleEntry?.roles?.name || 'public_user'
                   return (
-                    <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <tr key={user.id} className="hover:bg-jkuat-green-light/10 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs border border-slate-200">
+                           <div className="w-9 h-9 rounded-lg bg-jkuat-gray-100 flex items-center justify-center text-jkuat-gray-500 font-bold text-xs border border-jkuat-gray-200 uppercase">
                              {user.full_name?.[0].toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-slate-900">{user.full_name}</p>
-                            <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                            <p className="text-sm font-semibold text-jkuat-gray-900 tracking-tight">{user.full_name}</p>
+                            <p className="text-[10px] text-jkuat-gray-400 font-bold flex items-center gap-1 uppercase tracking-widest mt-0.5">
                               <Mail className="w-3 h-3" />
                               {user.email}
                             </p>
@@ -84,31 +81,31 @@ export default async function UserManagementPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                         <span className="text-xs font-mono font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                         <span className="text-[10px] font-bold text-jkuat-gray-600 bg-jkuat-gray-100 px-2.5 py-1 rounded-md border border-jkuat-gray-200 uppercase tracking-widest">
                            {user.staff_number || 'STF-XXXX'}
                          </span>
                       </td>
                       <td className="px-6 py-4">
                          <div className={cn(
-                           "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tight",
-                           roleName === 'technical_team' ? "bg-purple-100 text-purple-700 border border-purple-200" :
-                           roleName === 'administrator' ? "bg-blue-100 text-blue-700 border border-blue-200" :
-                           roleName === 'researcher' ? "bg-teal-100 text-teal-700 border border-teal-200" :
-                           "bg-slate-100 text-slate-500"
+                           "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border shadow-none",
+                           roleName === 'technical_team' ? "bg-jkuat-gray-900 text-white border-jkuat-gray-800" :
+                           roleName === 'administrator' ? "bg-jkuat-green-light text-jkuat-green-dark border-jkuat-green/10" :
+                           roleName === 'researcher' ? "bg-jkuat-gray-50 text-jkuat-gray-600 border-jkuat-gray-100" :
+                           "bg-jkuat-gray-50 text-jkuat-gray-400 border-jkuat-gray-100"
                          )}>
-                           {roleName === 'technical_team' && <ShieldAlert className="w-3 h-3" />}
-                           {roleName === 'administrator' && <ShieldCheck className="w-3 h-3" />}
+                           {roleName === 'technical_team' && <ShieldAlert className="w-3.5 h-3.5 font-bold" />}
+                           {roleName === 'administrator' && <ShieldCheck className="w-3.5 h-3.5 font-bold" />}
                            {roleName.replace('_', ' ')}
                          </div>
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant="outline" className="text-[10px] border-emerald-200 text-emerald-700 bg-emerald-50/50 font-black tracking-widest px-2">
-                           ACTIVE
-                        </Badge>
+                         <Badge className="bg-jkuat-green/10 text-jkuat-green-dark border-jkuat-green/10 font-bold tracking-widest px-2 py-0.5 rounded-md text-[9px] uppercase">
+                            Active
+                         </Badge>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
+                        <p className="text-[10px] text-jkuat-gray-400 font-bold flex items-center gap-1.5 uppercase tracking-widest">
+                          <Calendar className="w-3.5 h-3.5 opacity-50 font-bold" />
                           {new Date(user.created_at).toLocaleDateString()}
                         </p>
                       </td>
@@ -124,14 +121,20 @@ export default async function UserManagementPage() {
         </CardContent>
       </Card>
       
-      <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex gap-3 items-start">
-        <Shield className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <p className="text-xs font-bold text-amber-900 uppercase tracking-widest">Administrative Alert</p>
-          <p className="text-xs text-amber-700 font-medium leading-relaxed">
-            Role changes affect platform permissions immediately. Technical Team and Administrator roles have the power to delete datasets and manage other users. Always verify the staff's institutional credentials before upgrading permissions.
-          </p>
-        </div>
+      <div className="bg-jkuat-gray-900 rounded-2xl p-10 border border-jkuat-gray-800 relative overflow-hidden group">
+         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-6">
+               <div className="w-14 h-14 bg-jkuat-green/20 rounded-2xl flex items-center justify-center border border-jkuat-green/20">
+                  <Shield className="w-7 h-7 text-jkuat-green" />
+               </div>
+               <div className="space-y-1">
+                  <h3 className="text-xl font-extrabold text-white tracking-tight">Access Control Warning</h3>
+                  <p className="text-jkuat-gray-400 text-sm font-semibold uppercase tracking-widest leading-relaxed max-w-xl">
+                    Technical roles have absolute platform authority. Always verify institutional credentials before upgrading permissions.
+                  </p>
+               </div>
+            </div>
+         </div>
       </div>
     </div>
   )
