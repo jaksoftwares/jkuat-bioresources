@@ -50,47 +50,59 @@ export class MicroorganismRepository {
   }
 
   private static async resolveStorageHierarchy(supabase: any, labels: any) {
-    if (!labels?.fridge_code) return null;
+    if (!labels?.fridge_code || labels.fridge_code.trim() === '') return null;
 
     try {
       // 1. Resolve Fridge
       let { data: fridge, error: fError } = await supabase.from('lab_fridges').select('id').eq('code', labels.fridge_code).limit(1).maybeSingle();
       if (!fridge) {
         const { data: newFridge, error: fInsertError } = await supabase.from('lab_fridges').insert([{ code: labels.fridge_code }]).select('id').maybeSingle();
-        if (fInsertError || !newFridge) return null;
+        if (fInsertError || !newFridge) {
+          console.error('Fridge Resolution/Insert Error:', fInsertError);
+          return null;
+        }
         fridge = newFridge;
       }
 
       // 2. Resolve Shelf
-      if (!labels.shelf_code) return null;
+      if (!labels.shelf_code || labels.shelf_code.trim() === '') return null;
       let { data: shelf, error: sError } = await supabase.from('lab_shelves').select('id').eq('code', labels.shelf_code).eq('fridge_id', fridge.id).limit(1).maybeSingle();
       if (!shelf) {
          const { data: newShelf, error: sInsertError } = await supabase.from('lab_shelves').insert([{ code: labels.shelf_code, fridge_id: fridge.id }]).select('id').maybeSingle();
-         if (sInsertError || !newShelf) return null;
+         if (sInsertError || !newShelf) {
+           console.error('Shelf Resolution/Insert Error:', sInsertError);
+           return null;
+         }
          shelf = newShelf;
       }
 
       // 3. Resolve Tray
-      if (!labels.tray_code) return null;
+      if (!labels.tray_code || labels.tray_code.trim() === '') return null;
       let { data: tray, error: tError } = await supabase.from('lab_trays').select('id').eq('code', labels.tray_code).eq('shelf_id', shelf.id).limit(1).maybeSingle();
       if (!tray) {
          const { data: newTray, error: tInsertError } = await supabase.from('lab_trays').insert([{ code: labels.tray_code, shelf_id: shelf.id }]).select('id').maybeSingle();
-         if (tInsertError || !newTray) return null;
+         if (tInsertError || !newTray) {
+           console.error('Tray Resolution/Insert Error:', tInsertError);
+           return null;
+         }
          tray = newTray;
       }
 
       // 4. Resolve Partition
-      if (!labels.partition_code) return null;
+      if (!labels.partition_code || labels.partition_code.trim() === '') return null;
       let { data: part, error: pError } = await supabase.from('lab_partitions').select('id').eq('code', labels.partition_code).eq('tray_id', tray.id).limit(1).maybeSingle();
       if (!part) {
          const { data: newPart, error: pInsertError } = await supabase.from('lab_partitions').insert([{ code: labels.partition_code, tray_id: tray.id }]).select('id').maybeSingle();
-         if (pInsertError || !newPart) return null;
+         if (pInsertError || !newPart) {
+           console.error('Partition Resolution/Insert Error:', pInsertError);
+           return null;
+         }
          part = newPart;
       }
 
       return part?.id;
     } catch (err) {
-      console.error('Storage Resolution Error:', err);
+      console.error('Critical Storage Resolution Error:', err);
       return null;
     }
   }
@@ -139,24 +151,47 @@ export class MicroorganismRepository {
 
     if (storage_labels) {
       console.log('🔄 Updating Storage for Microorganism:', id);
-      await supabase.from('lab_test_tubes').delete().eq('microorganism_id', id)
       
       const partition_id = await this.resolveStorageHierarchy(supabase, storage_labels);
       console.log('📍 Resolved Partition ID:', partition_id);
       
       if (partition_id) {
+        // Only delete OLD test tube mapping if we successfully resolved a NEW partition
+        const { error: delError } = await supabase.from('lab_test_tubes').delete().eq('microorganism_id', id)
+        if (delError) throw new Error(`Failed to update storage mapping (delete): ${delError.message}`);
+        
         const { error: storageError } = await supabase.from('lab_test_tubes').insert([{
           microorganism_id: id,
           partition_id: partition_id,
           tube_label: storage_labels.tube_label || updatedMicro.strain_code
         }])
+        
         if (storageError) {
            console.error('❌ Storage Insert Error:', storageError);
+           throw new Error(`Failed to update storage mapping (insert): ${storageError.message}`);
         } else {
-           console.log('✅ Storage mapped successfully');
+           console.log('✅ Storage mapping updated successfully');
+           // Fetch and log the final state to verify joins
+           const { data: final } = await supabase.from('microorganisms')
+             .select('*, lab_test_tubes(*, lab_partitions(*, lab_trays(*)))')
+             .eq('id', id)
+             .single();
+           console.log('🧐 Final Record Storage State:', JSON.stringify(final?.lab_test_tubes?.[0], null, 2));
         }
       } else {
-        console.warn('⚠️ No Partition ID resolved. Location mapping skipped.');
+        // Check if all labels are empty to determine if user wants to CLEAR storage
+        const allEmpty = !storage_labels.fridge_code && !storage_labels.shelf_code && !storage_labels.tray_code && !storage_labels.partition_code;
+        if (allEmpty) {
+          console.log('🗑️ Clearing storage mapping as requested (empty fields)');
+          await supabase.from('lab_test_tubes').delete().eq('microorganism_id', id);
+        } else {
+          // If labels were provided but resolution failed, we don't throw but we log
+          // Actually, let's throw if they provided codes but it couldn't be resolved (likely RLS)
+          console.warn('⚠️ Storage resolution failed.');
+          if (storage_labels.fridge_code) {
+             throw new Error('Failed to resolve storage location. Are you sure you have permission to create new hardware codes?');
+          }
+        }
       }
     }
 

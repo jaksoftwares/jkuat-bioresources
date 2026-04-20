@@ -13,7 +13,7 @@ export function InfrastructureManager() {
   const [fridges, setFridges] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [newFridgeCode, setNewFridgeCode] = useState('')
-  const [addingTo, setAddingTo] = useState<{ id: string, type: 'shelf' | 'tray' } | null>(null)
+  const [addingTo, setAddingTo] = useState<{ id: string, type: 'shelf' | 'tray' | 'partition' } | null>(null)
   const [newChildCode, setNewChildCode] = useState('')
 
   useEffect(() => {
@@ -56,8 +56,19 @@ export function InfrastructureManager() {
 
   const addChild = async () => {
     if (!newChildCode || !addingTo) return
-    const endpoint = addingTo.type === 'shelf' ? '/api/infrastructure/shelves' : '/api/infrastructure/trays'
-    const payload = addingTo.type === 'shelf' ? { code: newChildCode, fridge_id: addingTo.id } : { code: newChildCode, shelf_id: addingTo.id }
+    let endpoint = ''
+    let payload = {}
+    
+    if (addingTo.type === 'shelf') {
+      endpoint = '/api/infrastructure/shelves';
+      payload = { code: newChildCode, fridge_id: addingTo.id };
+    } else if (addingTo.type === 'tray') {
+      endpoint = '/api/infrastructure/trays';
+      payload = { code: newChildCode, shelf_id: addingTo.id };
+    } else {
+      endpoint = '/api/infrastructure/partitions';
+      payload = { code: newChildCode, tray_id: addingTo.id };
+    }
     
     const res = await fetch(endpoint, {
       method: 'POST',
@@ -125,7 +136,11 @@ export function InfrastructureManager() {
                         value={newChildCode} 
                         onChange={e => setNewChildCode(e.target.value)} 
                         autoFocus
-                        placeholder={addingTo.type === 'shelf' ? 'e.g. Shelf-A' : 'e.g. Tray-05'}
+                        placeholder={
+                           addingTo.type === 'shelf' ? 'e.g. Shelf-A' : 
+                           addingTo.type === 'tray' ? 'e.g. Tray-05' : 
+                           'e.g. Slot-12'
+                        }
                         className="h-11 bg-white rounded-xl font-bold" 
                       />
                    </div>
@@ -196,16 +211,38 @@ export function InfrastructureManager() {
                                   </Button>
                                </div>
                             </div>
-                            {shelf.lab_trays?.length > 0 && (
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                 {shelf.lab_trays.map((tray: any) => (
-                                   <div key={tray.id} className="p-2 border border-slate-50 bg-slate-50/50 rounded-lg flex items-center gap-2 hover:bg-emerald-50 hover:border-emerald-100 transition-all cursor-pointer">
-                                      <Box className="w-3 h-3 text-emerald-400" />
-                                      <span className="text-[10px] font-bold text-slate-600 truncate">{tray.code}</span>
-                                   </div>
-                                 ))}
-                              </div>
-                            )}
+                             {shelf.lab_trays?.length > 0 && (
+                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {shelf.lab_trays.map((tray: any) => (
+                                    <div key={tray.id} className="p-3 border border-slate-100 bg-slate-50/20 rounded-xl space-y-3">
+                                       <div className="flex justify-between items-center group/tray">
+                                          <div className="flex items-center gap-2">
+                                             <Box className="w-3.5 h-3.5 text-emerald-500" />
+                                             <span className="text-[10px] font-black text-slate-700 uppercase">{tray.code}</span>
+                                          </div>
+                                          <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            onClick={() => setAddingTo({ id: tray.id, type: 'partition' })}
+                                            className="w-6 h-6 rounded-md opacity-0 group-hover/tray:opacity-100 transition-opacity hover:bg-emerald-100 text-emerald-600"
+                                          >
+                                             <Plus className="w-3 h-3" />
+                                          </Button>
+                                       </div>
+                                       
+                                       {tray.lab_partitions?.length > 0 && (
+                                         <div className="flex flex-wrap gap-1">
+                                            {tray.lab_partitions.map((p: any) => (
+                                              <span key={p.id} className="px-1.5 py-0.5 bg-white border border-slate-100 rounded text-[8px] font-bold text-slate-500 uppercase tracking-tighter">
+                                                {p.code}
+                                              </span>
+                                            ))}
+                                         </div>
+                                       )}
+                                    </div>
+                                  ))}
+                               </div>
+                             )}
                          </div>
                        ))}
                     </div>

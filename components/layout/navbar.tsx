@@ -102,18 +102,14 @@ export function Navbar() {
 
                 <div className="p-6 border-t bg-secondary/30">
                   <div className="space-y-3">
-                    <Link href="/login" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" className="w-full justify-start gap-2 h-11 border-primary/20 hover:bg-primary/5 hover:text-primary text-primary font-medium">
+                    <Button render={<Link href="/login" onClick={() => setIsOpen(false)} />} variant="outline" className="w-full justify-start gap-2 h-11 border-primary/20 hover:bg-primary/5 hover:text-primary text-primary font-medium">
                         <LogIn className="h-4 w-4" />
                         Researcher Login
-                      </Button>
-                    </Link>
-                    <Link href="/register" onClick={() => setIsOpen(false)}>
-                      <Button className="w-full justify-start gap-2 h-11 shadow-sm font-medium">
+                    </Button>
+                    <Button render={<Link href="/register" onClick={() => setIsOpen(false)} />} className="w-full justify-start gap-2 h-11 shadow-sm font-medium">
                         <UserPlus className="h-4 w-4" />
                         Access Portal
-                      </Button>
-                    </Link>
+                    </Button>
                   </div>
                   <p className="mt-4 text-center text-[10px] text-muted-foreground">
                     © {new Date().getFullYear()} JKUAT All rights reserved
@@ -124,16 +120,12 @@ export function Navbar() {
           </Sheet>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost" className="font-semibold text-primary hover:bg-primary/5">
+            <Button render={<Link href="/login" />} variant="ghost" className="font-semibold text-primary hover:bg-primary/5">
                 Researcher Login
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button className="font-semibold shadow-sm rounded-lg px-6">
+            </Button>
+            <Button render={<Link href="/register" />} className="font-semibold shadow-sm rounded-lg px-6">
                 Access Portal
-              </Button>
-            </Link>
+            </Button>
           </div>
         </div>
       </div>

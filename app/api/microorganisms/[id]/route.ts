@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { MicroorganismRepository } from '@/repositories/microorganism.repository'
 
+export const dynamic = 'force-dynamic'
+
 type Params = Promise<{ id: string }>
 
 /**

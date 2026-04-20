@@ -4,15 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Sprout, Filter, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { PlantRepository } from "@/repositories/plant.repository";
 
-const mockPlants = [
-  { id: "AIV-2026-45A", taxa: "Amaranthus hybridus", local: "Mchicha / Terere", family: "Amaranthaceae", accessions: 12 },
-  { id: "AIV-2023-102", taxa: "Cleome gynandra", local: "Spider Plant / Saget", family: "Cleomaceae", accessions: 8 },
-  { id: "AIV-2024-034", taxa: "Solanum scabrum", local: "Nightshade / Managu", family: "Solanaceae", accessions: 24 },
-  { id: "AIV-2025-012", taxa: "Vigna unguiculata", local: "Cowpea leaves / Kunde", family: "Fabaceae", accessions: 15 },
-];
+export const dynamic = 'force-dynamic';
 
-export default function PlantsRepositoryPage() {
+export default async function PlantsRepositoryPage() {
+  const plants = await PlantRepository.list({});
+
   return (
     <div className="min-h-screen">
       {/* Category Header */}
@@ -64,39 +62,37 @@ export default function PlantsRepositoryPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {mockPlants.map((plant, i) => (
+                  {plants.map((plant: any, i: number) => (
                     <tr key={i} className="hover:bg-muted/50 transition-colors group cursor-pointer">
                       <td className="px-6 py-4">
                         <Link href={`/plants/${plant.id}`} className="block">
-                          <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-border shadow-sm group-hover:scale-105 transition-transform">
-                            <Image src="/assets/images/spider-plant.jpg" alt={plant.taxa} fill sizes="48px" className="object-cover" />
+                          <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-border shadow-sm group-hover:scale-105 transition-transform bg-slate-100">
+                            <Image src={plant.images?.[0]?.secure_url || "/assets/images/spider-plant.jpg"} alt={plant.scientific_name} fill sizes="48px" className="object-cover" />
                           </div>
                         </Link>
                       </td>
                       <td className="px-6 py-4">
                         <Link href={`/plants/${plant.id}`} className="flex flex-col">
-                          <span className="font-bold italic text-foreground group-hover:text-primary transition-colors">{plant.taxa}</span>
-                          <span className="text-xs font-mono text-muted-foreground mt-1">{plant.id}</span>
+                          <span className="font-bold italic text-foreground group-hover:text-primary transition-colors">{plant.scientific_name}</span>
+                          <span className="text-xs font-mono text-muted-foreground mt-1">{plant.id.substring(0,8)}</span>
                         </Link>
                       </td>
                       <td className="px-6 py-4 text-sm text-muted-foreground font-medium">
                         <Link href={`/plants/${plant.id}`} className="block">
-                          {plant.local}
+                          {plant.common_name || "N/A"}
                         </Link>
                       </td>
                       <td className="px-6 py-4 text-sm text-muted-foreground">
                         <Link href={`/plants/${plant.id}`} className="block">
                           <Badge variant="outline" className="font-medium bg-background text-foreground/70 border-border">
-                            {plant.family} Family
+                            {plant.family_name || "Unknown"}
                           </Badge>
                         </Link>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link href={`/plants/${plant.id}`}>
-                          <Button variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10 transition-transform group-hover:translate-x-1">
+                        <Button render={<Link href={`/plants/${plant.id}`} />} variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10 transition-transform group-hover:translate-x-1">
                              Detail <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -105,10 +101,12 @@ export default function PlantsRepositoryPage() {
             </div>
             {/* Pagination placeholder */}
             <div className="p-4 border-t border-border flex items-center justify-between bg-muted/20">
-              <span className="text-sm text-muted-foreground">Showing 1 to 4 of 48 records</span>
+              <span className="text-sm text-muted-foreground">
+                 Showing 1 to {plants.length} of {plants.length} records
+              </span>
               <div className="flex gap-2">
                 <Button variant="outline" disabled size="sm">Previous</Button>
-                <Button variant="outline" size="sm">Next</Button>
+                <Button variant="outline" disabled size="sm">Next</Button>
               </div>
             </div>
           </div>

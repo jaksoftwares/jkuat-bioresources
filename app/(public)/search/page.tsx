@@ -1,125 +1,90 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search as SearchIcon, Filter, ArrowRight } from "lucide-react";
+import { Search as SearchIcon, Filter, ArrowRight, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
-// Expanded Mock Data
-const ALL_RESOURCES = [
-  {
-    id: "AIV-2026-45A",
-    taxa: "Amaranthus hybridus",
-    localName: "Mchicha / Terere",
-    family: "Amaranthaceae",
-    repository: "Plants",
-    image: "/assets/images/spider-plant.jpg",
-    color: "emerald",
-  },
-  {
-    id: "MIC-0012-B",
-    taxa: "Bacillus subtilis",
-    localName: "Lab Isolate A1",
-    family: "Bacillaceae",
-    repository: "Microorganisms",
-    image: "/assets/images/microorganism.png",
-    color: "blue",
-  },
-  {
-    id: "HERB-99-881",
-    taxa: "Prunus africana",
-    localName: "Red Stinkwood",
-    family: "Rosaceae",
-    repository: "Herbarium",
-    image: "/assets/images/herbarium_collection.png",
-    color: "amber",
-  },
-  {
-    id: "AIV-2023-102",
-    taxa: "Cleome gynandra",
-    localName: "Spider Plant / Saget",
-    family: "Cleomaceae",
-    repository: "Plants",
-    image: "/assets/images/spider-plant.jpg",
-    color: "emerald",
-  },
-  {
-    id: "MIC-0088-F",
-    taxa: "Trichoderma harzianum",
-    localName: "Bio-control Agent",
-    family: "Hypocreaceae",
-    repository: "Microorganisms",
-    image: "/assets/images/microorganism.png",
-    color: "blue",
-  },
-  {
-    id: "HERB-02-145",
-    taxa: "Warburgia ugandensis",
-    localName: "East African Greenheart",
-    family: "Canellaceae",
-    repository: "Herbarium",
-    image: "/assets/images/herbarium_collection.png",
-    color: "amber",
-  },
-  {
-    id: "AIV-2024-034",
-    taxa: "Solanum scabrum",
-    localName: "Nightshade / Managu",
-    family: "Solanaceae",
-    repository: "Plants",
-    image: "/assets/images/avis.png",
-    color: "emerald",
-  },
-  {
-    id: "MIC-0105-B",
-    taxa: "Pseudomonas aeruginosa",
-    localName: "Clinical Sample 02",
-    family: "Pseudomonadaceae",
-    repository: "Microorganisms",
-    image: "/assets/images/microorganism.png",
-    color: "blue",
-  },
-  {
-    id: "HERB-15-022",
-    taxa: "Vitex keniensis",
-    localName: "Meru Oak",
-    family: "Lamiaceae",
-    repository: "Herbarium",
-    image: "/assets/images/herbarium_collection.png",
-    color: "amber",
-  },
-  {
-    id: "AIV-2025-012",
-    taxa: "Vigna unguiculata",
-    localName: "Cowpea leaves / Kunde",
-    family: "Fabaceae",
-    repository: "Plants",
-    image: "/assets/images/spider-plant.jpg",
-    color: "emerald",
-  },
-];
 
 export default function GlobalSearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Plants", "Microorganisms", "Herbarium"]);
+  const [allResources, setAllResources] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const [plantsRes, microRes, herbRes] = await Promise.all([
+          fetch('/api/plants').then(r => r.json()),
+          fetch('/api/microorganisms').then(r => r.json()),
+          fetch('/api/herbarium').then(r => r.json())
+        ]);
+
+        // The apis return arrays directly from the Repositories, so no `.data` wrapper.
+        const safePlants = Array.isArray(plantsRes) ? plantsRes : (plantsRes.data || []);
+        const formattedPlants = safePlants.map((p: any) => ({
+          id: p.id,
+          displayId: p.id.substring(0,8),
+          taxa: p.scientific_name,
+          localName: p.common_name || "Plant Specimen",
+          family: p.family_name || "Unknown Family",
+          repository: "Plants",
+          image: p.images?.[0]?.secure_url || "/assets/images/spider-plant.jpg",
+          color: "emerald",
+        }));
+
+        const safeMicro = Array.isArray(microRes) ? microRes : (microRes.data || []);
+        const formattedMicro = safeMicro.map((m: any) => ({
+          id: m.id,
+          displayId: m.strain_code || m.id.substring(0,8),
+          taxa: m.scientific_name,
+          localName: m.source_isolated_from || "Culture Isolate",
+          family: m.category || "Microorganism",
+          repository: "Microorganisms",
+          image: m.microscopy_images?.[0]?.secure_url || "/assets/images/microorganism.png",
+          color: "blue",
+        }));
+
+        const safeHerb = Array.isArray(herbRes) ? herbRes : (herbRes.data || []);
+        const formattedHerb = safeHerb.map((h: any) => ({
+          id: h.id,
+          displayId: h.herbarium_code || h.id.substring(0,8),
+          taxa: h.scientific_name,
+          localName: h.habitat_description || h.physical_storage_location || "Preserved Specimen",
+          family: "Preserved Record",
+          repository: "Herbarium",
+          image: h.specimen_images?.[0]?.secure_url || "/assets/images/herbarium_collection.png",
+          color: "amber",
+        }));
+
+        setAllResources([...formattedPlants, ...formattedMicro, ...formattedHerb]);
+      } catch (error) {
+        console.error("Error fetching data for search:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   const filteredResults = useMemo(() => {
-    return ALL_RESOURCES.filter((item) => {
+    return allResources.filter((item) => {
       const matchesSearch = 
-        item.taxa.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.localName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.family.toLowerCase().includes(searchQuery.toLowerCase());
+        item.taxa?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.localName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.displayId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.family?.toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesCategory = selectedCategories.includes(item.repository);
       
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategories]);
+  }, [searchQuery, selectedCategories, allResources]);
 
   const toggleCategory = (cat: string) => {
     setSelectedCategories(prev => 
@@ -195,7 +160,13 @@ export default function GlobalSearchPage() {
             </div>
 
             <div className="space-y-4">
-              {filteredResults.length > 0 ? (
+              {isLoading ? (
+                <div className="py-20 flex flex-col items-center justify-center bg-card border border-dashed border-border rounded-3xl">
+                   <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+                   <h3 className="text-lg font-bold text-foreground mb-1">Searching Bioresources...</h3>
+                   <p className="text-muted-foreground">Gathering institution-wide scientific data.</p>
+                </div>
+              ) : filteredResults.length > 0 ? (
                 filteredResults.map((result) => (
                   <Link href={`/${result.repository.toLowerCase()}/${result.id}`} key={result.id} className="block group">
                     <Card className="rounded-2xl border-border group-hover:border-primary/40 group-hover:shadow-xl group-hover:shadow-primary/5 transition-all overflow-hidden bg-background">
@@ -220,7 +191,7 @@ export default function GlobalSearchPage() {
                                 {result.taxa}
                               </h3>
                               <div className="flex items-center gap-3">
-                                 <span className="text-xs font-mono text-muted-foreground">{result.id}</span>
+                                 <span className="text-xs font-mono text-muted-foreground">{result.displayId}</span>
                                  <span className="h-1 w-1 rounded-full bg-border" />
                                  <span className="text-xs font-bold text-primary/70 uppercase tracking-tighter">{result.family}</span>
                               </div>

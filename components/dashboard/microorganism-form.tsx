@@ -75,19 +75,28 @@ export default function MicroorganismForm({
       const tube = initialValues.lab_test_tubes[0];
       setTubeLabel(tube.tube_label || '');
       
-      // Handle both object and array response from Supabase joins
-      const getVal = (val: any) => Array.isArray(val) ? val[0] : val;
+      const getP = (obj: any, key: string) => {
+        if (!obj) return null;
+        const variations = [key, key.replace(/s$/, ''), `lab_${key}`, `lab_${key.replace(/s$/, '')}`];
+        for (const v of variations) {
+          if (obj[v]) {
+            const val = obj[v];
+            return Array.isArray(val) ? val[0] : val;
+          }
+        }
+        return null;
+      };
       
-      const part = getVal(tube.lab_partitions);
+      const part = getP(tube, 'lab_partitions');
       if (part) {
         setPartition(part.code || '');
-        const t = getVal(part.lab_trays);
+        const t = getP(part, 'lab_trays');
         if (t) {
           setTray(t.code || '');
-          const s = getVal(t.lab_shelves);
+          const s = getP(t, 'lab_shelves');
           if (s) {
             setShelf(s.code || '');
-            const f = getVal(s.lab_fridges);
+            const f = getP(s, 'lab_fridges');
             if (f) setFridge(f.code || '');
           }
         }
@@ -138,7 +147,40 @@ export default function MicroorganismForm({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setErrorMessage(''); setIsSubmitting(true)
+
     try {
+      let finalImages = [...images];
+      if (pendingImages.length > 0) {
+        setUploading(true);
+        const resultsImg: CloudinaryMedia[] = [];
+        for (const file of pendingImages) {
+          const reader = new FileReader();
+          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file); });
+          const res = await uploadToCloudinary(base64, 'microorganisms/images');
+          resultsImg.push(res);
+        }
+        finalImages = [...finalImages, ...resultsImg];
+        setImages(finalImages);
+        setPendingImages([]);
+        setUploading(false);
+      }
+
+      let finalDocs = [...docs];
+      if (pendingDocs.length > 0) {
+        setUploading(true);
+        const resultsDoc: CloudinaryMedia[] = [];
+        for (const file of pendingDocs) {
+          const reader = new FileReader();
+          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file); });
+          const res = await uploadToCloudinary(base64, 'microorganisms/docs');
+          resultsDoc.push(res);
+        }
+        finalDocs = [...finalDocs, ...resultsDoc];
+        setDocs(finalDocs);
+        setPendingDocs([]);
+        setUploading(false);
+      }
+
       const payload = {
         scientific_name: scientificName,
         strain_code: strainCode || undefined,
@@ -152,8 +194,8 @@ export default function MicroorganismForm({
         enzymatic_activity: enzymatic || undefined,
         experiment_details: notes || undefined,
         date_stored: dateStored || undefined,
-        microscopy_images: images,
-        supporting_docs: docs,
+        microscopy_images: finalImages,
+        supporting_docs: finalDocs,
         storage_labels: {
           fridge_code: fridge,
           shelf_code: shelf,

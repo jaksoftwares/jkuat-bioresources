@@ -4,15 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Microscope, Filter, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { MicroorganismRepository } from "@/repositories/microorganism.repository";
 
-const mockStrains = [
-  { id: "MIC-0012-B", taxa: "Bacillus subtilis", type: "Bacteria", isolation: "Rhizosphere", accessions: 4 },
-  { id: "MIC-0088-F", taxa: "Trichoderma harzianum", type: "Fungi", isolation: "Soil", accessions: 2 },
-  { id: "MIC-0105-B", taxa: "Pseudomonas aeruginosa", type: "Bacteria", isolation: "Water sample", accessions: 7 },
-  { id: "MIC-0211-A", taxa: "Streptomyces griseus", type: "Actinomycete", isolation: "Deep soil", accessions: 1 },
-];
+export const dynamic = 'force-dynamic';
 
-export default function MicroorganismsPage() {
+export default async function MicroorganismsPage() {
+  const strains = await MicroorganismRepository.list();
+
   return (
     <div className="min-h-screen">
       {/* Category Header */}
@@ -52,14 +50,14 @@ export default function MicroorganismsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {mockStrains.map((strain, i) => (
+            {strains.map((strain: any, i: number) => (
               <Link key={i} href={`/microorganisms/${strain.id}`} className="group">
                 <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-sidebar-primary/30 transition-all flex flex-col h-full relative cursor-pointer">
                   {/* Visual Image */}
                   <div className="h-40 relative bg-muted border-b border-border">
                     <Image
-                      src="/assets/images/microorganism.png"
-                      alt={strain.taxa}
+                      src={strain.microscopy_images?.[0]?.secure_url || "/assets/images/microorganism.png"}
+                      alt={strain.scientific_name}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                       className="object-cover opacity-90 group-hover:scale-110 transition-transform duration-500"
@@ -67,7 +65,7 @@ export default function MicroorganismsPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60" />
                     <div className="absolute top-3 right-3">
                        <Badge className="bg-white/90 backdrop-blur-sm text-black border-none font-mono text-[10px]">
-                         {strain.id}
+                         {strain.strain_code || strain.id.substring(0, 8)}
                        </Badge>
                     </div>
                   </div>
@@ -75,16 +73,16 @@ export default function MicroorganismsPage() {
                   {/* Content */}
                   <div className="p-5 flex flex-col flex-grow bg-white dark:bg-slate-900">
                     <h3 className="text-xl font-bold italic text-foreground mb-1 group-hover:text-primary transition-colors tracking-tight">
-                      {strain.taxa}
+                      {strain.scientific_name}
                     </h3>
                     <p className="text-sm font-bold text-primary/70 uppercase tracking-widest mb-4">
-                      {strain.type}
+                      {strain.category || "Microorganism"}
                     </p>
                     
                     <div className="mt-auto pt-4 border-t border-border/50">
                        <p className="text-xs text-muted-foreground flex items-center justify-between">
                          <span className="font-semibold uppercase tracking-tighter">Isolation Source</span>
-                         <span className="text-foreground font-bold">{strain.isolation}</span>
+                         <span className="text-foreground font-bold">{strain.source_isolated_from || "Unknown"}</span>
                        </p>
                     </div>
                   </div>

@@ -20,7 +20,7 @@ export async function GET() {
     // Attempt the join without any 'order' clauses first to ensure base connectivity
     const { data: fullData, error: joinError } = await supabase
       .from('lab_fridges')
-      .select('id, code, description, lab_shelves(id, code, lab_trays(id, code))')
+      .select('id, code, description, lab_shelves(id, code, lab_trays(id, code, lab_partitions(id, code)))')
 
     if (joinError) {
       console.error('Infrastructure Join Error:', joinError);

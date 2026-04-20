@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { HerbariumRepository } from '@/repositories/herbarium.repository'
-
 /**
  * GET /api/herbarium
  * Fetch specimens

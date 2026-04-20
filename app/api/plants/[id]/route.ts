@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PlantRepository } from '@/repositories/plant.repository'
 
+export const dynamic = 'force-dynamic'
+
 // Define the context type for Next.js 15+ params
 type Params = Promise<{ id: string }>
 

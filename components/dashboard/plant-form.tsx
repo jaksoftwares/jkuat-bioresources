@@ -102,7 +102,24 @@ export default function PlantForm({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setErrorMessage(''); setIsSubmitting(true)
+
     try {
+      let finalImages = [...images];
+      if (pendingImages.length > 0) {
+        setUploading(true);
+        const results: CloudinaryMedia[] = [];
+        for (const file of pendingImages) {
+          const reader = new FileReader()
+          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file) })
+          const res = await uploadToCloudinary(base64, 'plants/images')
+          results.push(res);
+        }
+        finalImages = [...finalImages, ...results];
+        setImages(finalImages);
+        setPendingImages([]);
+        setUploading(false);
+      }
+
       const payload = {
         scientific_name: scientificName,
         common_name: commonName || undefined,
@@ -117,7 +134,7 @@ export default function PlantForm({
         nutritional_value: nutritionalValue || undefined,
         medicinal_value: medicinalValue || undefined,
         cultural_significance: culturalSignificance || undefined,
-        images,
+        images: finalImages,
         local_names: localNames.filter(n => n.local_name),
         recommendations: recommendations.filter(r => r.recommendation_text),
       }

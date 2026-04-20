@@ -27,12 +27,23 @@ interface MicroorganismDetailModalProps {
 }
 
 export function MicroorganismDetailModal({ micro }: MicroorganismDetailModalProps) {
-  const getVal = (val: any) => Array.isArray(val) ? val[0] : val;
+  const getProp = (obj: any, key: string) => {
+    if (!obj) return null;
+    const variations = [key, key.replace(/s$/, ''), `lab_${key}`, `lab_${key.replace(/s$/, '')}`];
+    for (const v of variations) {
+      if (obj[v]) {
+        const val = obj[v];
+        return Array.isArray(val) ? val[0] : val;
+      }
+    }
+    return null;
+  };
+
   const storage = micro.lab_test_tubes?.[0];
-  const partition = getVal(storage?.lab_partitions);
-  const tray = getVal(partition?.lab_trays);
-  const shelf = getVal(tray?.lab_shelves);
-  const fridge = getVal(shelf?.lab_fridges);
+  const partition = getProp(storage, 'lab_partitions');
+  const tray = getProp(partition, 'lab_trays');
+  const shelf = getProp(tray, 'lab_shelves');
+  const fridge = getProp(shelf, 'lab_fridges');
 
   return (
     <Dialog>

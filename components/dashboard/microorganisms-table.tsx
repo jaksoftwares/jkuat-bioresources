@@ -98,9 +98,25 @@ export function MicroorganismsTable({ initialMicros, role }: MicroorganismsTable
                 ) : (
                   microorganisms.map((item) => {
                     const storage = item.lab_test_tubes?.[0];
-                    const fridge = storage?.lab_partitions?.lab_trays?.lab_shelves?.lab_fridges;
-                    const locationCode = fridge ? `${fridge.code}` : null;
-                    const storageString = storage ? `${fridge?.code || 'F'} › SHL-${storage.lab_partitions?.lab_trays?.lab_shelves?.code} › TRY-${storage.lab_partitions?.lab_trays?.code}` : null;
+                    const getProp = (obj: any, key: string) => {
+                      if (!obj) return null;
+                      // Check for plural, singular, and table-prefixed variations
+                      const variations = [key, key.replace(/s$/, ''), `lab_${key}`, `lab_${key.replace(/s$/, '')}`];
+                      for (const v of variations) {
+                        if (obj[v]) {
+                          const val = obj[v];
+                          return Array.isArray(val) ? val[0] : val;
+                        }
+                      }
+                      return null;
+                    };
+
+                    const partition = getProp(storage, 'lab_partitions');
+                    const tray = getProp(partition, 'lab_trays');
+                    const shelf = getProp(tray, 'lab_shelves');
+                    const fridge = getProp(shelf, 'lab_fridges');
+                    
+                    const storageString = storage ? `${fridge?.code || 'F'} › SHL-${shelf?.code || '?'} › TRY-${tray?.code || '?'}` : null;
 
                     return (
                       <tr key={item.id} className="hover:bg-jkuat-green-light/5 transition-colors group">

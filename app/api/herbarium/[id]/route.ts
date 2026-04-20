@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { HerbariumRepository } from '@/repositories/herbarium.repository'
 
+export const dynamic = 'force-dynamic'
+
 type Params = Promise<{ id: string }>
 
 /**

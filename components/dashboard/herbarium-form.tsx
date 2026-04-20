@@ -98,7 +98,40 @@ export default function HerbariumForm({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setErrorMessage(''); setIsSubmitting(true)
+
     try {
+      let finalImages = [...images];
+      if (pendingImages.length > 0) {
+        setUploading(true);
+        const resultsImg: CloudinaryMedia[] = [];
+        for (const file of pendingImages) {
+          const reader = new FileReader();
+          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file); });
+          const res = await uploadToCloudinary(base64, 'herbarium/images');
+          resultsImg.push(res);
+        }
+        finalImages = [...finalImages, ...resultsImg];
+        setImages(finalImages);
+        setPendingImages([]);
+        setUploading(false);
+      }
+
+      let finalDocs = [...docs];
+      if (pendingDocs.length > 0) {
+        setUploading(true);
+        const resultsDoc: CloudinaryMedia[] = [];
+        for (const file of pendingDocs) {
+          const reader = new FileReader();
+          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file); });
+          const res = await uploadToCloudinary(base64, 'herbarium/docs');
+          resultsDoc.push(res);
+        }
+        finalDocs = [...finalDocs, ...resultsDoc];
+        setDocs(finalDocs);
+        setPendingDocs([]);
+        setUploading(false);
+      }
+
       const payload = {
         herbarium_code: herbariumCode,
         scientific_name: scientificName,
@@ -109,8 +142,8 @@ export default function HerbariumForm({
         habitat_description: habitat || undefined,
         ecological_notes: ecological || undefined,
         medicinal_notes: medicinal || undefined,
-        specimen_images: images,
-        supporting_documents: docs,
+        specimen_images: finalImages,
+        supporting_documents: finalDocs,
       }
 
       const res = await fetch(submitUrl, {

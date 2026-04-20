@@ -6,14 +6,10 @@ import {
   Download, 
   Share2, 
   MapPin, 
-  Calendar, 
-  User, 
-  Database, 
   Info,
   Leaf,
   FileText,
   Clock,
-  FlaskConical,
   HeartPulse,
   Globe,
   Droplets
@@ -22,6 +18,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { PlantRepository } from "@/repositories/plant.repository";
+import ImageGallery from "@/components/public/image-gallery";
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -43,8 +40,7 @@ export default async function PlantDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-jkuat-gray-50/50 pb-20 animate-in fade-in duration-1000">
-      {/* Immersive Header */}
-      <div className="relative h-[50vh] w-full overflow-hidden">
+      <div className="relative h-[40vh] w-full overflow-hidden">
         <Image
           src={mainImage}
           alt={plant.scientific_name}
@@ -57,27 +53,24 @@ export default async function PlantDetailPage({ params }: PageProps) {
         
         <div className="absolute bottom-0 left-0 w-full p-6 md:p-12">
           <div className="mx-auto max-w-7xl">
-            <Link href="/plants" className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors text-sm font-bold uppercase tracking-widest">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Registry
+            <Link href="/plants" className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors text-sm font-bold">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Plants
             </Link>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div>
-                <Badge className="mb-4 bg-jkuat-gold text-white border-none px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">
-                  {plant.category || 'Plant Specimen'}
-                </Badge>
-                <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tight mb-2">
+                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
                   {plant.scientific_name}
                 </h1>
                 <p className="text-xl md:text-2xl text-jkuat-green-light font-bold">
-                  {plant.common_name || 'No common name registered'}
+                  {plant.common_name || 'No common name'}
                 </p>
               </div>
               <div className="flex gap-3">
-                <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md font-bold rounded-xl h-12">
+                <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md rounded-xl font-bold">
                   <Share2 className="mr-2 h-4 w-4" /> Share
                 </Button>
-                <Button variant="secondary" className="bg-jkuat-green hover:bg-jkuat-green-dark text-white border-none shadow-xl font-bold rounded-xl h-12 px-8">
-                  <Download className="mr-2 h-4 w-4" /> Export Data
+                <Button variant="secondary" className="bg-jkuat-green hover:bg-jkuat-green-dark text-white border-none shadow-xl rounded-xl font-bold px-8">
+                  <Download className="mr-2 h-4 w-4" /> Export
                 </Button>
               </div>
             </div>
@@ -88,60 +81,59 @@ export default async function PlantDetailPage({ params }: PageProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            {/* Scientific Profile */}
             <Card className="border-none shadow-sm overflow-hidden rounded-2xl bg-white">
-              <CardHeader className="border-b border-jkuat-gray-100 bg-jkuat-gray-50/50 pb-4">
-                <div className="flex items-center gap-2 text-jkuat-green-dark font-black uppercase tracking-widest text-xs">
+              <CardHeader className="border-b border-gray-100 bg-gray-50/50 pb-4">
+                <div className="flex items-center gap-2 text-jkuat-green-dark font-bold text-sm">
                   <Info className="h-4 w-4" />
-                   Scientific Profile
+                   Profile
                 </div>
               </CardHeader>
               <CardContent className="pt-10">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-jkuat-gray-400">Family</p>
-                    <p className="text-lg font-extrabold text-jkuat-gray-900">{plant.family_name || '—'}</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase">Family</p>
+                    <p className="text-lg font-bold text-gray-900">{plant.family_name || '—'}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-jkuat-gray-400">Genus</p>
-                    <p className="text-lg font-extrabold text-jkuat-gray-900 italic">{plant.genus || '—'}</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase">Genus</p>
+                    <p className="text-lg font-bold text-gray-900">{plant.genus || '—'}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-jkuat-gray-400">Species</p>
-                    <p className="text-lg font-extrabold text-jkuat-gray-900 italic">{plant.species || '—'}</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase">Species</p>
+                    <p className="text-lg font-bold text-gray-900">{plant.species || '—'}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-jkuat-gray-400">Status</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase">Status</p>
                     {plant.is_aiv ? (
-                       <Badge className="bg-emerald-600 text-white border-none font-black text-[9px] uppercase tracking-widest">Indigenous</Badge>
+                       <Badge className="bg-emerald-600 text-white border-none font-bold text-[10px]">Indigenous</Badge>
                     ) : (
-                       <Badge variant="outline" className="text-jkuat-gray-400 border-jkuat-gray-200 font-black text-[9px] uppercase tracking-widest">Standard</Badge>
+                       <Badge variant="outline" className="text-gray-500 border-gray-200 font-bold text-[10px]">Standard</Badge>
                     )}
                   </div>
                 </div>
 
                 <div className="space-y-10">
                   <section>
-                    <h3 className="text-sm font-black text-jkuat-gray-900 uppercase tracking-widest flex items-center gap-2 mb-4">
+                    <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
                       <Leaf className="h-4 w-4 text-jkuat-green" />
-                      Biological Description
+                      Description
                     </h3>
-                    <p className="text-jkuat-gray-700 leading-relaxed font-medium">
-                      {plant.description || 'No detailed description available for this record.'}
+                    <p className="text-gray-700">
+                      {plant.description || 'None provided.'}
                     </p>
                   </section>
 
                   {plant.plant_local_names?.length > 0 && (
-                    <section className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                      <h3 className="text-sm font-black text-jkuat-gray-900 uppercase tracking-widest flex items-center gap-2 mb-4">
+                    <section className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                      <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4">
                         <Globe className="h-4 w-4 text-jkuat-green" />
-                        Ethnobotanical Nomenclature
+                        Local Names
                       </h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                          {plant.plant_local_names.map((ln: any) => (
-                            <div key={ln.id} className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                               <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{ln.language_code}</p>
-                               <p className="font-bold text-slate-800">{ln.local_name}</p>
+                            <div key={ln.id} className="bg-white p-3 rounded-lg border border-gray-200">
+                               <p className="text-xs font-bold text-gray-400 mb-1 uppercase">{ln.language_code}</p>
+                               <p className="font-bold text-gray-800">{ln.local_name}</p>
                             </div>
                          ))}
                       </div>
@@ -149,18 +141,18 @@ export default async function PlantDetailPage({ params }: PageProps) {
                   )}
 
                   <section>
-                    <h3 className="text-sm font-black text-jkuat-gray-900 uppercase tracking-widest flex items-center gap-2 mb-4">
+                    <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-4">
                       <FileText className="h-4 w-4 text-jkuat-green" />
-                      Research Context
+                      Uses
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                        <div className="space-y-2">
-                          <p className="text-[10px] font-black uppercase text-jkuat-gray-400">Nutritional Value</p>
-                          <p className="text-sm font-medium text-jkuat-gray-700">{plant.nutritional_value || 'Data pending analysis.'}</p>
+                          <p className="text-xs font-bold text-gray-500 uppercase">Nutritional</p>
+                          <p className="text-sm text-gray-700">{plant.nutritional_value || 'None provided.'}</p>
                        </div>
                        <div className="space-y-2">
-                          <p className="text-[10px] font-black uppercase text-jkuat-gray-400">Medicinal Value</p>
-                          <p className="text-sm font-medium text-jkuat-gray-700">{plant.medicinal_value || 'Data pending clinical review.'}</p>
+                          <p className="text-xs font-bold text-gray-500 uppercase">Medicinal</p>
+                          <p className="text-sm text-gray-700">{plant.medicinal_value || 'None provided.'}</p>
                        </div>
                     </div>
                   </section>
@@ -168,18 +160,27 @@ export default async function PlantDetailPage({ params }: PageProps) {
               </CardContent>
             </Card>
 
-             {/* Recommendations Section */}
+             {/* Images */}
+            <h2 className="text-xl font-bold text-gray-900 pt-4 pb-2">
+               Images
+            </h2>
+            <ImageGallery 
+               images={plant.images} 
+               altBase={plant.scientific_name} 
+               imageClassName="aspect-video"
+            />
+
              {plant.plant_recommendations?.length > 0 && (
-                <div className="space-y-6">
-                   <h2 className="text-xl font-black text-jkuat-gray-900 tracking-tight flex items-center gap-2">
-                      <HeartPulse className="w-5 h-5 text-rose-500" /> Clinical & Dietary Guidelines
+                <div className="space-y-4">
+                   <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2 pt-2">
+                      <HeartPulse className="w-5 h-5 text-rose-500" /> Recommendations
                    </h2>
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {plant.plant_recommendations.map((rec: any) => (
-                         <Card key={rec.id} className="border-none shadow-sm bg-emerald-50/50 rounded-2xl">
-                            <CardContent className="p-6 space-y-2">
-                               <p className="text-xs font-black uppercase tracking-widest text-emerald-800">{rec.use_case}</p>
-                               <p className="text-sm font-medium text-emerald-900 leading-relaxed">{rec.recommendation_text}</p>
+                         <Card key={rec.id} className="border-none shadow-sm bg-emerald-50 rounded-xl">
+                            <CardContent className="p-5 space-y-2">
+                               <p className="text-xs font-bold text-emerald-700 uppercase">{rec.use_case}</p>
+                               <p className="text-sm text-emerald-900">{rec.recommendation_text}</p>
                             </CardContent>
                          </Card>
                       ))}
@@ -190,47 +191,46 @@ export default async function PlantDetailPage({ params }: PageProps) {
 
           <div className="space-y-8">
             <Card className="border-none shadow-sm rounded-2xl bg-white overflow-hidden">
-               <div className="bg-jkuat-green h-1.5 w-full" />
                <CardHeader className="pb-2">
-                 <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400">Collection Metadata</CardTitle>
+                 <CardTitle className="text-sm font-bold text-gray-900">Information</CardTitle>
                </CardHeader>
-               <CardContent className="space-y-6">
+               <CardContent className="space-y-6 pt-4">
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-xl bg-jkuat-green-light flex items-center justify-center text-jkuat-green">
+                    <div className="h-10 w-10 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
                       <Clock className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase text-jkuat-gray-400">Added On</p>
-                      <p className="font-bold text-jkuat-gray-900">{new Date(plant.created_at).toLocaleDateString()}</p>
+                      <p className="text-xs font-bold text-gray-500 uppercase">Added On</p>
+                      <p className="font-bold text-gray-900">{new Date(plant.created_at).toLocaleDateString()}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-xl bg-jkuat-green-light flex items-center justify-center text-jkuat-green">
+                    <div className="h-10 w-10 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
                       <MapPin className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase text-jkuat-gray-400">Climate Distribution</p>
-                      <p className="font-bold text-jkuat-gray-900">{plant.geographic_distribution?.join(', ') || 'Global'}</p>
+                      <p className="text-xs font-bold text-gray-500 uppercase">Distribution</p>
+                      <p className="font-bold text-gray-900">{plant.geographic_distribution?.join(', ') || '—'}</p>
                     </div>
                   </div>
 
-                  <div className="mt-8 pt-8 border-t border-jkuat-gray-100">
-                    <p className="text-[10px] font-black uppercase text-jkuat-gray-400 mb-3 flex items-center gap-1">
+                  <div className="mt-8 pt-8 border-t border-gray-100">
+                    <p className="text-xs font-bold text-gray-500 uppercase mb-4 flex items-center gap-1">
                       <Droplets className="h-3 w-3" /> Growth Conditions
                     </p>
-                    <div className="space-y-2">
-                       <div className="flex justify-between text-xs">
-                          <span className="font-black text-slate-400 uppercase tracking-widest">Soil</span>
-                          <span className="font-bold text-slate-800">{plant.growth_conditions?.soil_type || '—'}</span>
+                    <div className="space-y-3">
+                       <div className="flex justify-between text-sm">
+                          <span className="font-medium text-gray-500">Soil</span>
+                          <span className="font-bold text-gray-800">{plant.growth_conditions?.soil_type || '—'}</span>
                        </div>
-                       <div className="flex justify-between text-xs">
-                          <span className="font-black text-slate-400 uppercase tracking-widest">Rainfall</span>
-                          <span className="font-bold text-slate-800">{plant.growth_conditions?.rainfall || '—'}</span>
+                       <div className="flex justify-between text-sm">
+                          <span className="font-medium text-gray-500">Rainfall</span>
+                          <span className="font-bold text-gray-800">{plant.growth_conditions?.rainfall || '—'}</span>
                        </div>
-                       <div className="flex justify-between text-xs">
-                          <span className="font-black text-slate-400 uppercase tracking-widest">Sun</span>
-                          <span className="font-bold text-slate-800">{plant.growth_conditions?.sunlight || '—'}</span>
+                       <div className="flex justify-between text-sm">
+                          <span className="font-medium text-gray-500">Sun</span>
+                          <span className="font-bold text-gray-800">{plant.growth_conditions?.sunlight || '—'}</span>
                        </div>
                     </div>
                   </div>
@@ -238,12 +238,12 @@ export default async function PlantDetailPage({ params }: PageProps) {
             </Card>
 
             {plant.cultural_significance && (
-               <Card className="border-none shadow-sm rounded-2xl bg-jkuat-gray-900 text-white overflow-hidden">
+               <Card className="border-none shadow-sm rounded-2xl bg-gray-900 text-white">
                   <CardHeader>
-                    <CardTitle className="text-sm font-black uppercase tracking-[0.2em] text-jkuat-gold">Cultural Significance</CardTitle>
+                    <CardTitle className="text-sm font-bold text-gray-200">Cultural Significance</CardTitle>
                   </CardHeader>
                   <CardContent>
-                     <p className="text-sm font-medium leading-relaxed opacity-90 italic">
+                     <p className="text-sm text-gray-300">
                         "{plant.cultural_significance}"
                      </p>
                   </CardContent>

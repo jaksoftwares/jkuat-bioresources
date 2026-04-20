@@ -4,14 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Search, BookOpen, Filter, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { HerbariumRepository } from "@/repositories/herbarium.repository";
 
-const mockHerbarium = [
-  { id: "HERB-99-881", taxa: "Prunus africana", location: "Mt. Kenya Forest", date: "12 Oct 1999", collector: "Dr. Omondi" },
-  { id: "HERB-02-145", taxa: "Warburgia ugandensis", location: "Kakamega Forest", date: "05 Mar 2002", collector: "Prof. Njuguna" },
-  { id: "HERB-15-022", taxa: "Vitex keniensis", location: "Aberdare Ranges", date: "18 Jun 2015", collector: "Research Team A" },
-];
+export const dynamic = 'force-dynamic';
 
-export default function HerbariumPage() {
+export default async function HerbariumPage() {
+  const specimens = await HerbariumRepository.list({});
+
   return (
     <div className="min-h-screen">
       {/* Category Header */}
@@ -49,14 +48,14 @@ export default function HerbariumPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mockHerbarium.map((specimen, i) => (
+            {specimens.map((specimen: any, i: number) => (
               <Link key={i} href={`/herbarium/${specimen.id}`} className="group">
                 <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all flex flex-col h-full relative cursor-pointer">
                   {/* Specimen Visual */}
                   <div className="h-56 relative bg-muted border-b border-border overflow-hidden">
                     <Image
-                      src="/assets/images/herbarium_collection.png"
-                      alt={specimen.taxa}
+                      src={specimen.specimen_images?.[0]?.secure_url || "/assets/images/herbarium_collection.png"}
+                      alt={specimen.scientific_name}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover opacity-80 group-hover:scale-110 transition-transform duration-700 brightness-[0.85] contrast-[1.1]"
@@ -64,7 +63,7 @@ export default function HerbariumPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
                     <div className="absolute top-4 right-4">
                        <Badge className="bg-white/90 backdrop-blur-md text-amber-700 border-none font-mono text-[10px] px-2 py-0.5">
-                         {specimen.id}
+                         {specimen.herbarium_code || specimen.id.substring(0, 8)}
                        </Badge>
                     </div>
                   </div>
@@ -72,17 +71,17 @@ export default function HerbariumPage() {
                   {/* Specimen Content */}
                   <div className="p-6 bg-white dark:bg-slate-900 flex-grow flex flex-col">
                     <h3 className="text-2xl font-bold italic text-foreground mb-4 group-hover:text-primary transition-colors tracking-tight">
-                      {specimen.taxa}
+                      {specimen.scientific_name}
                     </h3>
                     
                     <div className="mt-auto pt-4 border-t border-border/60 flex flex-col gap-3">
                        <div className="flex items-center text-sm text-muted-foreground font-medium">
                          <MapPin className="h-4 w-4 mr-2 text-primary" />
-                         <span>{specimen.location}</span>
+                         <span className="truncate">{specimen.habitat_description || specimen.physical_storage_location || "Unknown location"}</span>
                        </div>
                        <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                          <span>Coll. {specimen.date}</span>
-                          <span className="text-foreground">{specimen.collector}</span>
+                          <span>{specimen.collection_date ? `Coll. ${specimen.collection_date}` : "Date Unknown"}</span>
+                          <span className="text-foreground truncate max-w-[100px] text-right">{specimen.collector_id ? "Institution" : "Unknown"}</span>
                        </div>
                     </div>
                   </div>
