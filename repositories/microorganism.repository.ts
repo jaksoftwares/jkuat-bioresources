@@ -176,7 +176,8 @@ export class MicroorganismRepository {
              .select('*, lab_test_tubes(*, lab_partitions(*, lab_trays(*)))')
              .eq('id', id)
              .single();
-           console.log('🧐 Final Record Storage State:', JSON.stringify(final?.lab_test_tubes?.[0], null, 2));
+           const finalTube = Array.isArray(final?.lab_test_tubes) ? final.lab_test_tubes[0] : final?.lab_test_tubes;
+           console.log('🧐 Final Record Storage State:', JSON.stringify(finalTube, null, 2));
         }
       } else {
         // Check if all labels are empty to determine if user wants to CLEAR storage

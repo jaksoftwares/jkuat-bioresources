@@ -39,7 +39,9 @@ export function MicroorganismDetailModal({ micro }: MicroorganismDetailModalProp
     return null;
   };
 
-  const storage = micro.lab_test_tubes?.[0];
+  const rawStorage = micro.lab_test_tubes;
+  const storage = Array.isArray(rawStorage) ? rawStorage[0] : rawStorage;
+  
   const partition = getProp(storage, 'lab_partitions');
   const tray = getProp(partition, 'lab_trays');
   const shelf = getProp(tray, 'lab_shelves');

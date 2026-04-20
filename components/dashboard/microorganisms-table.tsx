@@ -97,10 +97,9 @@ export function MicroorganismsTable({ initialMicros, role }: MicroorganismsTable
                   </tr>
                 ) : (
                   microorganisms.map((item) => {
-                    const storage = item.lab_test_tubes?.[0];
                     const getProp = (obj: any, key: string) => {
                       if (!obj) return null;
-                      // Check for plural, singular, and table-prefixed variations
+                      // Handle the case where obj itself might be the result of a plural/singular join
                       const variations = [key, key.replace(/s$/, ''), `lab_${key}`, `lab_${key.replace(/s$/, '')}`];
                       for (const v of variations) {
                         if (obj[v]) {
@@ -111,6 +110,10 @@ export function MicroorganismsTable({ initialMicros, role }: MicroorganismsTable
                       return null;
                     };
 
+                    // Handle both One-to-One (Object) and One-to-Many (Array) from Supabase
+                    const rawStorage = item.lab_test_tubes;
+                    const storage = Array.isArray(rawStorage) ? rawStorage[0] : rawStorage;
+                    
                     const partition = getProp(storage, 'lab_partitions');
                     const tray = getProp(partition, 'lab_trays');
                     const shelf = getProp(tray, 'lab_shelves');

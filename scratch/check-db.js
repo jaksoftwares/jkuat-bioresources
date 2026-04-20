@@ -12,11 +12,12 @@ async function check() {
   if (tError) console.error('Error fetching tubes:', tError);
   else console.log('Found tubes:', tubes);
 
-  console.log('--- Checking microorganisms join ---');
+  console.log('--- Checking specific micro join ---');
   const { data: micro, error: mError } = await supabase
     .from('microorganisms')
     .select('id, scientific_name, lab_test_tubes(*)')
-    .limit(1);
+    .eq('id', '79b476d1-5cfc-4b0f-920b-eb32dcffb12a')
+    .single();
   if (mError) console.error('Error joining tubes:', mError);
   else console.log('Micro with storage:', JSON.stringify(micro, null, 2));
 }

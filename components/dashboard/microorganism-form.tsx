@@ -71,8 +71,10 @@ export default function MicroorganismForm({
     // Fetch researchers
     fetch('/api/researchers').then(res => res.json()).then(setResearchers).catch(() => {})
 
-    if (initialValues?.lab_test_tubes?.[0]) {
-      const tube = initialValues.lab_test_tubes[0];
+    const rawStorage = initialValues?.lab_test_tubes;
+    const tube = Array.isArray(rawStorage) ? rawStorage[0] : rawStorage;
+    
+    if (tube) {
       setTubeLabel(tube.tube_label || '');
       
       const getP = (obj: any, key: string) => {
