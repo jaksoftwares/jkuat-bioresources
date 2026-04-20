@@ -49,21 +49,21 @@ export default async function DashboardOverview() {
 
   const stats = [
     { 
-      name: isAdminOrTech ? 'Global Biodiversity' : 'My Contributions', 
+      name: 'Plants', 
       value: plantCount || 0, 
       icon: Leaf, 
       color: 'text-jkuat-green', 
       bg: 'bg-jkuat-green-light' 
     },
     { 
-      name: isAdminOrTech ? 'Total Microbes' : 'My Cultures', 
+      name: 'Microorganisms', 
       value: microCount || 0, 
       icon: Microscope, 
       color: 'text-jkuat-green-dark', 
       bg: 'bg-jkuat-green-light/60' 
     },
     { 
-      name: isAdminOrTech ? 'Specimens' : 'My Specimens', 
+      name: 'Herbarium', 
       value: herbariumCount || 0, 
       icon: BookOpen, 
       color: 'text-jkuat-gold', 
@@ -77,21 +77,19 @@ export default async function DashboardOverview() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-4xl font-extrabold text-jkuat-gray-900 tracking-tight">
-            {isAdminOrTech ? 'Management' : 'Researcher Portal'}
+            Overview
           </h1>
           <p className="text-jkuat-gray-500 mt-1 text-sm font-semibold uppercase tracking-widest leading-relaxed">
-            {isAdminOrTech 
-              ? 'Platform performance and institutional data overview' 
-              : "Welcome back. Overview of your contributions."}
+            Biological repository status and records
           </p>
         </div>
         {isAdminOrTech && (
           <div className="flex items-center gap-3">
              <Link href="/dashboard/audit" className="text-xs font-bold uppercase tracking-widest text-jkuat-gray-400 hover:text-jkuat-green transition-colors px-4">
-                View Audit logs
+                Logs
              </Link>
              <Link href="/dashboard/reports" className="px-6 py-3 rounded-xl bg-jkuat-green hover:bg-jkuat-green-dark text-xs font-bold uppercase tracking-widest transition-all shadow-card text-white">
-                Analytics
+                Reports
              </Link>
           </div>
         )}
@@ -111,11 +109,8 @@ export default async function DashboardOverview() {
                   <stat.icon className={cn("w-6 h-6", stat.color)} />
                 </div>
               </div>
-              <div className="mt-4 pt-4 border-t border-jkuat-gray-100 flex items-center justify-between">
-                <div className="text-[10px] font-bold text-jkuat-gray-400 uppercase tracking-widest">
-                  {isAdminOrTech ? 'System Growth' : 'Contribution Status'}
-                </div>
-                <Link href={stat.name.includes('Plant') ? '/dashboard/plants' : stat.name.includes('Microbe') ? '/dashboard/microorganisms' : '/dashboard/herbarium'} className="text-[10px] font-bold text-jkuat-green uppercase tracking-widest hover:underline">
+              <div className="mt-4 pt-4 border-t border-jkuat-gray-100 flex items-center justify-end">
+                <Link href={stat.name.includes('Plant') ? '/dashboard/plants' : stat.name.includes('Micro') ? '/dashboard/microorganisms' : '/dashboard/herbarium'} className="text-[10px] font-bold text-jkuat-green uppercase tracking-widest hover:underline">
                   Manage
                 </Link>
               </div>
@@ -125,7 +120,6 @@ export default async function DashboardOverview() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* Module-Specific Content for Admin vs Researcher */}
         <Card className="xl:col-span-2 border-jkuat-gray-200 shadow-card overflow-hidden bg-white rounded-xl">
           <CardHeader className="border-b border-jkuat-gray-100 bg-jkuat-gray-50/50">
               <CardTitle className="text-xs font-semibold text-jkuat-gray-400 uppercase tracking-widest">
@@ -154,7 +148,6 @@ export default async function DashboardOverview() {
           </CardContent>
         </Card>
 
-        {/* Global Activity / Contributions */}
         <Card className="border-jkuat-gray-200 shadow-card flex flex-col rounded-xl">
           <CardHeader className="border-b border-jkuat-gray-100 bg-jkuat-gray-50/50 py-4.5">
             <CardTitle className="text-xs font-semibold text-jkuat-gray-400 uppercase tracking-widest">
@@ -170,7 +163,7 @@ export default async function DashboardOverview() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-jkuat-gray-700 truncate text-xs uppercase tracking-tight">
-                        {i === 2 ? 'Bacillus subtilis' : 'Solanum nigrum'}
+                        {i === 2 ? 'Microbial Strain' : 'Botanical Record'}
                       </p>
                       <p className="text-[10px] text-jkuat-gray-400 font-semibold uppercase tracking-widest mt-0.5">
                         {i + 1}h ago

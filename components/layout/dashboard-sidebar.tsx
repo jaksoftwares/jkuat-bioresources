@@ -61,7 +61,7 @@ const navigation: (NavItem & { section?: string })[] = [
   },
   // Section: System
   { 
-    name: 'Reports & Analytics', 
+    name: 'Reports', 
     href: '/dashboard/reports', 
     icon: FileText, 
     section: 'System',
@@ -75,7 +75,7 @@ const navigation: (NavItem & { section?: string })[] = [
     roles: ['technical_team', 'administrator']
   },
   { 
-    name: 'Audit Logs', 
+    name: 'Logs', 
     href: '/dashboard/audit', 
     icon: History, 
     section: 'System',
@@ -89,7 +89,7 @@ const navigation: (NavItem & { section?: string })[] = [
     roles: ['technical_team', 'administrator']
   },
   { 
-    name: 'Platform Settings', 
+    name: 'Settings', 
     href: '/dashboard/settings', 
     icon: Settings, 
     section: 'System',

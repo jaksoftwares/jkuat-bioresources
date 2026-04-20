@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { uploadToCloudinary } from '@/actions/media-actions'
 import type { Plant, CloudinaryMedia } from '@/types'
 
@@ -28,9 +29,14 @@ export default function PlantForm({
   const [scientificName, setScientificName] = useState(initialValues?.scientific_name ?? '')
   const [commonName, setCommonName] = useState(initialValues?.common_name ?? '')
   const [familyName, setFamilyName] = useState(initialValues?.family_name ?? '')
-  const [description, setDescription] = useState(initialValues?.description ?? '')
-  const [medicinalValue, setMedicinalValue] = useState(initialValues?.medicinal_value ?? '')
+  const [genus, setGenus] = useState(initialValues?.genus ?? '')
+  const [species, setSpecies] = useState(initialValues?.species ?? '')
+  const [isAiv, setIsAiv] = useState(initialValues?.is_aiv ?? false)
   const [category, setCategory] = useState(initialValues?.category ?? '')
+  const [description, setDescription] = useState(initialValues?.description ?? '')
+  const [nutritionalValue, setNutritionalValue] = useState(initialValues?.nutritional_value ?? '')
+  const [medicinalValue, setMedicinalValue] = useState(initialValues?.medicinal_value ?? '')
+  const [culturalSignificance, setCulturalSignificance] = useState(initialValues?.cultural_significance ?? '')
   const [images, setImages] = useState<CloudinaryMedia[]>(initialValues?.images || [])
   const [documents, setDocuments] = useState<CloudinaryMedia[]>(initialValues?.documents || [])
   const [uploadingImages, setUploadingImages] = useState(false)
@@ -61,7 +67,7 @@ export default function PlantForm({
       }
       event.currentTarget.value = ''
     } catch (err) {
-      setErrorMessage(`Image upload failed: ${(err as Error).message}`)
+      setErrorMessage(`Upload failed: ${(err as Error).message}`)
     } finally {
       setUploadingImages(false)
     }
@@ -81,7 +87,7 @@ export default function PlantForm({
       }
       event.currentTarget.value = ''
     } catch (err) {
-      setErrorMessage(`Document upload failed: ${(err as Error).message}`)
+      setErrorMessage(`Upload failed: ${(err as Error).message}`)
     } finally {
       setUploadingDocuments(false)
     }
@@ -105,9 +111,14 @@ export default function PlantForm({
         scientific_name: scientificName,
         common_name: commonName || undefined,
         family_name: familyName || undefined,
-        description: description || undefined,
-        medicinal_value: medicinalValue || undefined,
+        genus: genus || undefined,
+        species: species || undefined,
+        is_aiv: isAiv,
         category: category || undefined,
+        description: description || undefined,
+        nutritional_value: nutritionalValue || undefined,
+        medicinal_value: medicinalValue || undefined,
+        cultural_significance: culturalSignificance || undefined,
         images,
         documents,
       }
@@ -122,7 +133,7 @@ export default function PlantForm({
 
       if (!response.ok) {
         const body = await response.json()
-        throw new Error(body?.error || 'Unable to save plant record')
+        throw new Error(body?.error || 'Unable to save record')
       }
 
       if (onSuccess) {
@@ -140,72 +151,126 @@ export default function PlantForm({
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="scientificName" className="text-sm font-semibold text-jkuat-gray-700">Scientific Name</Label>
+              <Input
+                id="scientificName"
+                value={scientificName}
+                onChange={(event) => setScientificName(event.target.value)}
+                required
+                className="h-12 bg-white border-jkuat-gray-200 font-medium"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="commonName" className="text-sm font-semibold text-jkuat-gray-700">Common Name</Label>
+              <Input
+                id="commonName"
+                value={commonName}
+                onChange={(event) => setCommonName(event.target.value)}
+                className="h-12 bg-white border-jkuat-gray-200 font-medium"
+              />
+            </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div className="space-y-2">
-            <Label htmlFor="scientificName" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Scientific Name *</Label>
-            <Input
-              id="scientificName"
-              value={scientificName}
-              onChange={(event) => setScientificName(event.target.value)}
-              required
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="commonName" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Common Name</Label>
-            <Input
-              id="commonName"
-              value={commonName}
-              onChange={(event) => setCommonName(event.target.value)}
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="familyName" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Family</Label>
+            <Label htmlFor="familyName" className="text-sm font-semibold text-jkuat-gray-700">Family</Label>
             <Input
               id="familyName"
               value={familyName}
               onChange={(event) => setFamilyName(event.target.value)}
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
+              className="h-12 bg-white border-jkuat-gray-200 font-medium"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Category</Label>
+            <Label htmlFor="genus" className="text-sm font-semibold text-jkuat-gray-700">Genus</Label>
             <Input
-              id="category"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-              placeholder="e.g. Indigenous Vegetable"
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
+              id="genus"
+              value={genus}
+              onChange={(event) => setGenus(event.target.value)}
+              className="h-12 bg-white border-jkuat-gray-200 font-medium"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="species" className="text-sm font-semibold text-jkuat-gray-700">Species</Label>
+            <Input
+              id="species"
+              value={species}
+              onChange={(event) => setSpecies(event.target.value)}
+              className="h-12 bg-white border-jkuat-gray-200 font-medium"
             />
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 bg-jkuat-gray-50/50 p-6 rounded-2xl border border-jkuat-gray-100">
+           <div className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-sm font-semibold text-jkuat-gray-700">Category</Label>
+                <Input
+                  id="category"
+                  value={category}
+                  onChange={(event) => setCategory(event.target.value)}
+                  className="h-12 bg-white border-jkuat-gray-200 font-medium"
+                />
+              </div>
+              <div className="flex items-center space-x-3 p-4 bg-white rounded-xl border border-jkuat-gray-100 shadow-sm">
+                <Checkbox 
+                  id="isAiv" 
+                  checked={isAiv} 
+                  onCheckedChange={(checked) => setIsAiv(!!checked)}
+                  className="w-5 h-5 border-jkuat-gray-300 data-[state=checked]:bg-jkuat-green"
+                />
+                <Label htmlFor="isAiv" className="text-sm font-bold text-jkuat-gray-900 cursor-pointer tracking-tight">Indigenous Vegetable</Label>
+              </div>
+           </div>
+           <div className="space-y-2">
+              <Label htmlFor="nutritionalValue" className="text-sm font-semibold text-jkuat-gray-700">Nutritional Value</Label>
+              <textarea
+                id="nutritionalValue"
+                className="w-full min-h-[120px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all"
+                value={nutritionalValue}
+                onChange={(event) => setNutritionalValue(event.target.value)}
+              />
+           </div>
+        </div>
+
+        <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Description</Label>
+            <Label htmlFor="description" className="text-sm font-semibold text-jkuat-gray-700">Description</Label>
             <textarea
               id="description"
-              className="w-full min-h-[100px] rounded-md border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all"
+              className="w-full min-h-[100px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="medicinalValue" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Medicinal Value & Properties</Label>
-            <textarea
-              id="medicinalValue"
-              className="w-full min-h-[100px] rounded-md border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all"
-              value={medicinalValue}
-              onChange={(event) => setMedicinalValue(event.target.value)}
-            />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="medicinalValue" className="text-sm font-semibold text-jkuat-gray-700">Medicinal Value</Label>
+              <textarea
+                id="medicinalValue"
+                className="w-full min-h-[100px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
+                value={medicinalValue}
+                onChange={(event) => setMedicinalValue(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="culturalSignificance" className="text-sm font-semibold text-jkuat-gray-700">Cultural Significance</Label>
+              <textarea
+                id="culturalSignificance"
+                className="w-full min-h-[100px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
+                value={culturalSignificance}
+                onChange={(event) => setCulturalSignificance(event.target.value)}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 py-6 border-t border-jkuat-gray-100">
           <div className="space-y-2">
-            <Label htmlFor="images" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Plant Images</Label>
+            <Label htmlFor="images" className="text-sm font-semibold text-jkuat-gray-700">Images</Label>
             <Input
               id="images"
               type="file"
@@ -213,27 +278,11 @@ export default function PlantForm({
               accept="image/*"
               onChange={handleImageUpload}
               disabled={uploadingImages}
-              className="bg-white border-jkuat-gray-200 file:text-jkuat-green font-medium"
+              className="bg-jkuat-gray-50 border-jkuat-gray-200 file:text-jkuat-green font-medium rounded-xl h-12 pt-2 file:bg-white file:border file:border-jkuat-gray-200 file:rounded-md file:text-[10px] file:uppercase file:font-semibold file:px-3"
             />
-            {images.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {images.map((img, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs bg-jkuat-green-light/20 p-2 rounded-lg border border-jkuat-green/10 font-semibold leading-relaxed">
-                    <span className="text-jkuat-green-dark truncate">{img.public_id}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(idx)}
-                      className="text-rose-600 hover:text-rose-700 font-bold px-1"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="documents" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Supporting Documents</Label>
+            <Label htmlFor="documents" className="text-sm font-semibold text-jkuat-gray-700">Documents</Label>
             <Input
               id="documents"
               type="file"
@@ -241,40 +290,24 @@ export default function PlantForm({
               accept=".pdf,.doc,.docx,.xls,.xlsx"
               onChange={handleDocumentUpload}
               disabled={uploadingDocuments}
-              className="bg-white border-jkuat-gray-200 file:text-jkuat-green font-medium"
+              className="bg-jkuat-gray-50 border-jkuat-gray-200 file:text-jkuat-green font-medium rounded-xl h-12 pt-2 file:bg-white file:border file:border-jkuat-gray-200 file:rounded-md file:text-[10px] file:uppercase file:font-semibold file:px-3"
             />
-            {documents.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {documents.map((doc, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs bg-jkuat-gray-50 font-semibold text-jkuat-gray-600 p-2 rounded-lg border border-jkuat-gray-200">
-                    <span className="truncate">{doc.public_id}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeDocument(idx)}
-                      className="text-rose-600 hover:text-rose-700 font-bold px-1"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
         {errorMessage ? (
           <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-800">
-            {errorMessage}
+             {errorMessage}
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end pt-6 border-t border-jkuat-gray-100">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end pt-8 border-t border-jkuat-gray-100">
           <Button 
             type="submit" 
             disabled={isSubmitting || uploadingImages || uploadingDocuments}
-            className="bg-jkuat-green hover:bg-jkuat-green-dark text-white font-semibold h-12 px-12 rounded-xl shadow-lg transition-all"
+            className="bg-jkuat-green hover:bg-jkuat-green-dark text-white font-extrabold h-14 px-16 rounded-2xl shadow-xl transition-all"
           >
-            {isSubmitting ? 'Saving...' : 'Save Plant'}
+            {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </form>

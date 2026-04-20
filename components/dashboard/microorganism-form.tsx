@@ -68,7 +68,7 @@ export default function MicroorganismForm({
       }
       event.currentTarget.value = ''
     } catch (err) {
-      setErrorMessage(`Image upload failed: ${(err as Error).message}`)
+      setErrorMessage(`Upload failed`)
     } finally {
       setUploadingImages(false)
     }
@@ -88,18 +88,10 @@ export default function MicroorganismForm({
       }
       event.currentTarget.value = ''
     } catch (err) {
-      setErrorMessage(`Document upload failed: ${(err as Error).message}`)
+      setErrorMessage(`Upload failed`)
     } finally {
       setUploadingDocs(false)
     }
-  }
-
-  const removeImage = (index: number) => {
-    setMicroscopyImages(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const removeDocument = (index: number) => {
-    setSupportingDocs(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -132,16 +124,10 @@ export default function MicroorganismForm({
         body: JSON.stringify(payload),
       })
 
-      if (!response.ok) {
-        const body = await response.json()
-        throw new Error(body?.error || 'Unable to save microorganism record')
-      }
+      if (!response.ok) throw new Error('Unable to save record')
 
-      if (onSuccess) {
-        onSuccess()
-      } else {
-        router.push('/dashboard/microorganisms')
-      }
+      if (onSuccess) onSuccess()
+      else router.push('/dashboard/microorganisms')
       router.refresh()
     } catch (error) {
       setErrorMessage((error as Error).message)
@@ -152,186 +138,115 @@ export default function MicroorganismForm({
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="scientificName" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Scientific Name *</Label>
-            <Input
-              id="scientificName"
-              value={scientificName}
-              onChange={(event) => setScientificName(event.target.value)}
-              required
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="strainCode" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Strain Code</Label>
-            <Input
-              id="strainCode"
-              value={strainCode}
-              onChange={(event) => setStrainCode(event.target.value)}
-              placeholder="e.g., JKUAT-B001"
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="sourceIsolatedFrom" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Source Isolated From</Label>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="scientificName" className="text-sm font-semibold text-jkuat-gray-700">Scientific Name</Label>
+              <Input
+                id="scientificName"
+                value={scientificName}
+                onChange={(event) => setScientificName(event.target.value)}
+                required
+                className="h-12 bg-white border-jkuat-gray-200 font-medium italic"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="strainCode" className="text-sm font-semibold text-jkuat-gray-700">Strain Code</Label>
+              <Input
+                id="strainCode"
+                value={strainCode}
+                onChange={(event) => setStrainCode(event.target.value)}
+                className="h-12 bg-white border-jkuat-gray-200 font-medium"
+              />
+            </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="md:col-span-2 space-y-2">
+            <Label htmlFor="sourceIsolatedFrom" className="text-sm font-semibold text-jkuat-gray-700">Source</Label>
             <Input
               id="sourceIsolatedFrom"
               value={sourceIsolatedFrom}
               onChange={(event) => setSourceIsolatedFrom(event.target.value)}
-              placeholder="e.g., Soil from maize rhizosphere"
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <Label htmlFor="growthMedium" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Growth Medium</Label>
-            <Input
-              id="growthMedium"
-              value={growthMedium}
-              onChange={(event) => setGrowthMedium(event.target.value)}
-              placeholder="e.g., Nutrient agar"
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
+              className="h-12 bg-white border-jkuat-gray-200 font-medium"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="optimumTemperature" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Optimum Temp (°C)</Label>
-            <Input
-              id="optimumTemperature"
-              type="number"
-              step="0.1"
-              value={optimumTemperature}
-              onChange={(event) => setOptimumTemperature(event.target.value)}
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="dateStored" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Date Stored</Label>
+            <Label htmlFor="dateStored" className="text-sm font-semibold text-jkuat-gray-700">Storage Date</Label>
             <Input
               id="dateStored"
               type="date"
               value={dateStored}
               onChange={(event) => setDateStored(event.target.value)}
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
+              className="h-12 bg-white border-jkuat-gray-200 font-medium"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="minPh" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Minimum pH</Label>
-            <Input
-              id="minPh"
-              type="number"
-              step="0.1"
-              value={minPh}
-              onChange={(event) => setMinPh(event.target.value)}
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="maxPh" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Maximum pH</Label>
-            <Input
-              id="maxPh"
-              type="number"
-              step="0.1"
-              value={maxPh}
-              onChange={(event) => setMaxPh(event.target.value)}
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
+        <div className="space-y-4 bg-jkuat-gray-50/50 p-6 rounded-2xl border border-jkuat-gray-100">
+           <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+              <div className="md:col-span-2 space-y-2">
+                <Label htmlFor="growthMedium" className="text-sm font-semibold text-jkuat-gray-700">Growth Medium</Label>
+                <Input
+                  id="growthMedium"
+                  value={growthMedium}
+                  onChange={(event) => setGrowthMedium(event.target.value)}
+                  className="h-12 bg-white border-jkuat-gray-200 font-medium"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="optimumTemperature" className="text-sm font-semibold text-jkuat-gray-700">Optimum Temp (°C)</Label>
+                <Input
+                  id="optimumTemperature"
+                  type="number"
+                  step="0.1"
+                  value={optimumTemperature}
+                  onChange={(event) => setOptimumTemperature(event.target.value)}
+                  className="h-12 bg-white border-jkuat-gray-200 font-medium"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                 <div className="space-y-2">
+                    <Label className="text-[10px] uppercase font-bold text-jkuat-gray-400">Min pH</Label>
+                    <Input type="number" step="0.1" value={minPh} onChange={(e) => setMinPh(e.target.value)} className="h-12 bg-white" />
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] uppercase font-bold text-jkuat-gray-400">Max pH</Label>
+                    <Input type="number" step="0.1" value={maxPh} onChange={(e) => setMaxPh(e.target.value)} className="h-12 bg-white" />
+                 </div>
+              </div>
+           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="characteristics" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Characteristics</Label>
+            <Label htmlFor="characteristics" className="text-sm font-semibold text-jkuat-gray-700">Characteristics</Label>
             <textarea
               id="characteristics"
-              className="w-full min-h-[80px] rounded-md border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all font-bold"
+              className="w-full min-h-[100px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
               value={characteristics}
               onChange={(event) => setCharacteristics(event.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="enzymaticActivity" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Enzymatic Activity</Label>
+            <Label htmlFor="enzymaticActivity" className="text-sm font-semibold text-jkuat-gray-700">Enzymatic Activity</Label>
             <textarea
               id="enzymaticActivity"
-              className="w-full min-h-[80px] rounded-md border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all font-bold"
+              className="w-full min-h-[100px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
               value={enzymaticActivity}
               onChange={(event) => setEnzymaticActivity(event.target.value)}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="experimentDetails" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Experiment Details</Label>
-            <textarea
-              id="experimentDetails"
-              className="w-full min-h-[80px] rounded-md border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all font-bold"
-              value={experimentDetails}
-              onChange={(event) => setExperimentDetails(event.target.value)}
-            />
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="microscopyImages" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Microscopy Images</Label>
-            <Input
-              id="microscopyImages"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageUpload}
-              disabled={uploadingImages}
-              className="bg-white border-jkuat-gray-200 file:text-jkuat-green font-medium"
-            />
-            {microscopyImages.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {microscopyImages.map((img, idx) => (
-                   <div key={idx} className="flex items-center justify-between text-xs bg-jkuat-green-light/40 p-2 rounded-lg border border-jkuat-green/10 font-semibold leading-relaxed">
-                    <span className="text-jkuat-green-dark truncate">{img.public_id}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(idx)}
-                      className="text-rose-600 hover:text-rose-700 font-bold px-1"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="supportingDocs" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Supporting Documents</Label>
-            <Input
-              id="supportingDocs"
-              type="file"
-              multiple
-              accept=".pdf,.doc,.docx,.xls,.xlsx"
-              onChange={handleDocumentUpload}
-              disabled={uploadingDocs}
-              className="bg-white border-jkuat-gray-200 file:text-jkuat-green font-medium"
-            />
-            {supportingDocs.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {supportingDocs.map((doc, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs bg-jkuat-gray-50 font-semibold text-jkuat-gray-600 p-2 rounded-lg border border-jkuat-gray-200">
-                    <span className="truncate">{doc.public_id}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeDocument(idx)}
-                      className="text-rose-600 hover:text-rose-700 font-bold px-1"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="experimentDetails" className="text-sm font-semibold text-jkuat-gray-700">Notes</Label>
+          <textarea
+            id="experimentDetails"
+            className="w-full min-h-[100px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
+            value={experimentDetails}
+            onChange={(event) => setExperimentDetails(event.target.value)}
+          />
         </div>
 
         {errorMessage ? (
@@ -340,13 +255,13 @@ export default function MicroorganismForm({
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end pt-6 border-t border-jkuat-gray-100">
+        <div className="flex justify-end pt-8 border-t border-jkuat-gray-100">
           <Button 
             type="submit" 
             disabled={isSubmitting || uploadingImages || uploadingDocs}
-            className="bg-jkuat-green hover:bg-jkuat-green-dark text-white font-semibold h-12 px-12 rounded-xl shadow-lg transition-all"
+            className="bg-jkuat-green hover:bg-jkuat-green-dark text-white font-extrabold h-14 px-16 rounded-2xl shadow-xl transition-all"
           >
-            {isSubmitting ? 'Saving...' : 'Save Strain'}
+            {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </form>

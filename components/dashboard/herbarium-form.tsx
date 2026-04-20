@@ -28,6 +28,7 @@ export default function HerbariumForm({
   const [scientificName, setScientificName] = useState(initialValues?.scientific_name ?? '')
   const [commonName, setCommonName] = useState(initialValues?.common_name ?? '')
   const [collectionDate, setCollectionDate] = useState(initialValues?.collection_date ?? '')
+  const [collectorName, setCollectorName] = useState((initialValues as any)?.collector_name ?? '')
   const [habitatDescription, setHabitatDescription] = useState(initialValues?.habitat_description ?? '')
   const [ecologicalNotes, setEcologicalNotes] = useState(initialValues?.ecological_notes ?? '')
   const [medicinalNotes, setMedicinalNotes] = useState(initialValues?.medicinal_notes ?? '')
@@ -66,7 +67,7 @@ export default function HerbariumForm({
       }
       event.currentTarget.value = ''
     } catch (err) {
-      setErrorMessage(`Image upload failed: ${(err as Error).message}`)
+      setErrorMessage(`Upload failed`)
     } finally {
       setUploadingImages(false)
     }
@@ -86,18 +87,10 @@ export default function HerbariumForm({
       }
       event.currentTarget.value = ''
     } catch (err) {
-      setErrorMessage(`Document upload failed: ${(err as Error).message}`)
+      setErrorMessage(`Upload failed`)
     } finally {
       setUploadingDocs(false)
     }
-  }
-
-  const removeImage = (index: number) => {
-    setSpecimenImages(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const removeDocument = (index: number) => {
-    setSupportingDocuments(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -111,6 +104,7 @@ export default function HerbariumForm({
         scientific_name: scientificName,
         common_name: commonName || undefined,
         collection_date: collectionDate || undefined,
+        collector_name: collectorName || undefined,
         habitat_description: habitatDescription || undefined,
         ecological_notes: ecologicalNotes || undefined,
         medicinal_notes: medicinalNotes || undefined,
@@ -127,16 +121,10 @@ export default function HerbariumForm({
         body: JSON.stringify(payload),
       })
 
-      if (!response.ok) {
-        const body = await response.json()
-        throw new Error(body?.error || 'Unable to save herbarium record')
-      }
+      if (!response.ok) throw new Error('Unable to save record')
 
-      if (onSuccess) {
-        onSuccess()
-      } else {
-        router.push('/dashboard/herbarium')
-      }
+      if (onSuccess) onSuccess()
+      else router.push('/dashboard/herbarium')
       router.refresh()
     } catch (error) {
       setErrorMessage((error as Error).message)
@@ -147,94 +135,108 @@ export default function HerbariumForm({
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="herbariumCode" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Herbarium Code *</Label>
-            <Input
-              id="herbariumCode"
-              value={herbariumCode}
-              onChange={(event) => setHerbariumCode(event.target.value)}
-              placeholder="e.g., JKUAT-2026-001"
-              required
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="scientificName" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Scientific Name *</Label>
-            <Input
-              id="scientificName"
-              value={scientificName}
-              onChange={(event) => setScientificName(event.target.value)}
-              required
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="commonName" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Common Name</Label>
-            <Input
-              id="commonName"
-              value={commonName}
-              onChange={(event) => setCommonName(event.target.value)}
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="collectionDate" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Collection Date</Label>
-            <Input
-              id="collectionDate"
-              type="date"
-              value={collectionDate}
-              onChange={(event) => setCollectionDate(event.target.value)}
-              className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="herbariumCode" className="text-sm font-semibold text-jkuat-gray-700">Herbarium Code</Label>
+              <Input
+                id="herbariumCode"
+                value={herbariumCode}
+                onChange={(event) => setHerbariumCode(event.target.value)}
+                required
+                className="h-12 bg-white border-jkuat-gray-200 font-medium"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="physicalStorageLocation" className="text-sm font-semibold text-jkuat-gray-700">Storage Location</Label>
+              <Input
+                id="physicalStorageLocation"
+                value={physicalStorageLocation}
+                onChange={(event) => setPhysicalStorageLocation(event.target.value)}
+                className="h-12 bg-white border-jkuat-gray-200 font-medium"
+              />
+            </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="physicalStorageLocation" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Physical Storage Location</Label>
-          <Input
-            id="physicalStorageLocation"
-            value={physicalStorageLocation}
-            onChange={(event) => setPhysicalStorageLocation(event.target.value)}
-            placeholder="e.g., Building A, Room 102, Cabinet 3"
-            className="bg-white border-jkuat-gray-200 font-medium focus:ring-jkuat-green/20"
-          />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="scientificName" className="text-sm font-semibold text-jkuat-gray-700">Scientific Name</Label>
+              <Input
+                id="scientificName"
+                value={scientificName}
+                onChange={(event) => setScientificName(event.target.value)}
+                required
+                className="h-12 bg-white border-jkuat-gray-200 font-medium italic"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="commonName" className="text-sm font-semibold text-jkuat-gray-700">Common Name</Label>
+              <Input
+                id="commonName"
+                value={commonName}
+                onChange={(event) => setCommonName(event.target.value)}
+                className="h-12 bg-white border-jkuat-gray-200 font-medium"
+              />
+            </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="collectorName" className="text-sm font-semibold text-jkuat-gray-700">Collector</Label>
+              <Input
+                id="collectorName"
+                value={collectorName}
+                onChange={(event) => setCollectorName(event.target.value)}
+                className="h-12 bg-white border-jkuat-gray-200 font-medium"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="collectionDate" className="text-sm font-semibold text-jkuat-gray-700">Collection Date</Label>
+              <Input
+                id="collectionDate"
+                type="date"
+                value={collectionDate}
+                onChange={(event) => setCollectionDate(event.target.value)}
+                className="h-12 bg-white border-jkuat-gray-200 font-medium"
+              />
+            </div>
+        </div>
+
+        <div className="space-y-6 bg-jkuat-gray-50/50 p-6 rounded-2xl border border-jkuat-gray-100">
           <div className="space-y-2">
-            <Label htmlFor="habitatDescription" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Habitat Description</Label>
+            <Label htmlFor="habitatDescription" className="text-sm font-semibold text-jkuat-gray-700">Habitat</Label>
             <textarea
               id="habitatDescription"
-              className="w-full min-h-[80px] rounded-md border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all font-bold"
+              className="w-full min-h-[80px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
               value={habitatDescription}
               onChange={(event) => setHabitatDescription(event.target.value)}
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="ecologicalNotes" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Ecological Notes</Label>
-            <textarea
-              id="ecologicalNotes"
-              className="w-full min-h-[80px] rounded-md border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all font-bold"
-              value={ecologicalNotes}
-              onChange={(event) => setEcologicalNotes(event.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="medicinalNotes" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Medicinal Notes</Label>
-            <textarea
-              id="medicinalNotes"
-              className="w-full min-h-[80px] rounded-md border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium shadow-sm focus:border-jkuat-green focus:outline-none focus:ring-2 focus:ring-jkuat-green/10 transition-all font-bold"
-              value={medicinalNotes}
-              onChange={(event) => setMedicinalNotes(event.target.value)}
-            />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="ecologicalNotes" className="text-sm font-semibold text-jkuat-gray-700">Ecological Notes</Label>
+              <textarea
+                id="ecologicalNotes"
+                className="w-full min-h-[100px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
+                value={ecologicalNotes}
+                onChange={(event) => setEcologicalNotes(event.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="medicinalNotes" className="text-sm font-semibold text-jkuat-gray-700">Medicinal Notes</Label>
+              <textarea
+                id="medicinalNotes"
+                className="w-full min-h-[100px] rounded-xl border border-jkuat-gray-200 bg-white px-3 py-2 text-sm text-jkuat-gray-900 font-medium"
+                value={medicinalNotes}
+                onChange={(event) => setMedicinalNotes(event.target.value)}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 py-6 border-t border-jkuat-gray-100">
           <div className="space-y-2">
-            <Label htmlFor="specimenImages" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Specimen Images</Label>
+            <Label htmlFor="specimenImages" className="text-sm font-semibold text-jkuat-gray-700">Images</Label>
             <Input
               id="specimenImages"
               type="file"
@@ -242,52 +244,20 @@ export default function HerbariumForm({
               accept="image/*"
               onChange={handleImageUpload}
               disabled={uploadingImages}
-              className="bg-white border-jkuat-gray-200 file:text-jkuat-green font-medium"
+              className="bg-jkuat-gray-50 border-jkuat-gray-200 file:text-jkuat-green font-medium rounded-xl h-12 pt-2"
             />
-            {specimenImages.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {specimenImages.map((img, idx) => (
-                   <div key={idx} className="flex items-center justify-between text-xs bg-jkuat-green-light/20 p-2 rounded-lg border border-jkuat-green/10 font-semibold leading-relaxed">
-                    <span className="text-jkuat-green-dark truncate">{img.public_id}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(idx)}
-                      className="text-rose-600 hover:text-rose-700 font-bold px-1"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="supportingDocuments" className="text-sm font-semibold text-jkuat-gray-700 pl-1">Supporting Documents</Label>
+            <Label htmlFor="supportingDocuments" className="text-sm font-semibold text-jkuat-gray-700">Documents</Label>
             <Input
               id="supportingDocuments"
               type="file"
               multiple
-              accept=".pdf,.doc,.docx,.xls,.xlsx"
+              accept=".pdf,.doc,.docx"
               onChange={handleDocumentUpload}
               disabled={uploadingDocs}
-              className="bg-white border-jkuat-gray-200 file:text-jkuat-green font-medium"
+              className="bg-jkuat-gray-50 border-jkuat-gray-200 file:text-jkuat-green font-medium rounded-xl h-12 pt-2"
             />
-            {supportingDocuments.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {supportingDocuments.map((doc, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs bg-jkuat-gray-50 font-semibold text-jkuat-gray-600 p-2 rounded-lg border border-jkuat-gray-200">
-                    <span className="truncate">{doc.public_id}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeDocument(idx)}
-                      className="text-rose-600 hover:text-rose-700 font-bold px-1"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
@@ -297,13 +267,13 @@ export default function HerbariumForm({
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end pt-6 border-t border-jkuat-gray-100">
+        <div className="flex justify-end pt-8 border-t border-jkuat-gray-100">
           <Button 
             type="submit" 
             disabled={isSubmitting || uploadingImages || uploadingDocs}
-            className="bg-jkuat-green hover:bg-jkuat-green-dark text-white font-semibold h-12 px-12 rounded-xl shadow-lg transition-all"
+            className="bg-jkuat-green hover:bg-jkuat-green-dark text-white font-extrabold h-14 px-16 rounded-2xl shadow-xl transition-all"
           >
-            {isSubmitting ? 'Saving...' : 'Save Specimen'}
+            {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </form>
