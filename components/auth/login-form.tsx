@@ -84,7 +84,7 @@ export function LoginForm() {
       {/* Header */}
       <div>
         <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Sign In</h2>
-        <p className="mt-2 text-slate-500 font-medium">Welcome back to the Bioresources portal.</p>
+        <p className="mt-2 text-slate-500 font-medium">Welcome back to the Bioresources Repository.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -167,7 +167,7 @@ export function LoginForm() {
 
       <div className="pt-4 border-t border-slate-100 flex flex-col items-center gap-3">
         <p className="text-slate-500 text-sm font-medium">
-          New to the portal? 
+          New to the platform? 
           <Link 
             href="/register" 
             className="ml-1 text-teal-600 font-black hover:text-teal-700 hover:underline"

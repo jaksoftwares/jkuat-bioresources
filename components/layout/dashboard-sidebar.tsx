@@ -17,7 +17,8 @@ import {
   LogOut,
   ShieldCheck,
   History,
-  Globe
+  Globe,
+  HardDrive
 } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -58,6 +59,13 @@ const navigation: (NavItem & { section?: string })[] = [
     icon: BookOpen, 
     section: 'Bioresources',
     roles: ['technical_team', 'administrator', 'researcher', 'public_user']
+  },
+  { 
+    name: 'Infrastructure', 
+    href: '/dashboard/infrastructure', 
+    icon: HardDrive, 
+    section: 'Bioresources',
+    roles: ['technical_team', 'administrator']
   },
   // Section: System
   { 

@@ -83,7 +83,7 @@ export function RegisterForm() {
         <div>
           <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Check your Email</h2>
           <p className="mt-4 text-slate-500 font-medium text-lg leading-relaxed max-w-[340px] mx-auto">
-            We've sent a verification link to your institutional email. Please confirm it to access the portal.
+            We've sent a verification link to your institutional email. Please confirm it to access the registry.
           </p>
         </div>
         <div className="pt-8">

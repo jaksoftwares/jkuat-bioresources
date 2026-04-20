@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Eye, Edit, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { HerbariumModal } from './herbarium-modal'
+import { HerbariumDetailModal } from './herbarium-view-modal'
 import { HerbariumSpecimen } from '@/types'
 
 interface HerbariumRowActionsProps {
@@ -42,13 +43,7 @@ export function HerbariumRowActions({ specimen }: HerbariumRowActionsProps) {
 
   return (
     <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-      <Link
-        href={`/portal/herbarium/${specimen.id}`}
-        target="_blank"
-        className="text-xs font-semibold text-jkuat-gray-400 hover:text-jkuat-green transition-colors"
-      >
-        View
-      </Link>
+      <HerbariumDetailModal specimen={specimen} />
       
       <HerbariumModal 
         mode="edit" 

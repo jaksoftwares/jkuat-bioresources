@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Eye, Edit, Trash2 } from 'lucide-react'
 import { PlantModal } from './plant-modal'
+import { PlantDetailModal } from './plant-view-modal'
 import { Plant } from '@/types'
 
 interface PlantRowActionsProps {
@@ -42,13 +43,7 @@ export function PlantRowActions({ plant }: PlantRowActionsProps) {
 
   return (
     <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-      <Link
-        href={`/portal/plants/${plant.id}`}
-        target="_blank"
-        className="text-xs font-semibold text-jkuat-gray-400 hover:text-jkuat-green transition-colors"
-      >
-        View
-      </Link>
+      <PlantDetailModal plant={plant} />
       
       <PlantModal 
         mode="edit" 

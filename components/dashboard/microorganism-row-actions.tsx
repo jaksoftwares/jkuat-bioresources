@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Eye, Edit, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { MicroorganismModal } from './microorganism-modal'
+import { MicroorganismDetailModal } from './microorganism-view-modal'
 import { Microorganism } from '@/types'
 
 interface MicroorganismRowActionsProps {
@@ -42,13 +43,7 @@ export function MicroorganismRowActions({ microorganism }: MicroorganismRowActio
 
   return (
     <div className="flex items-center justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-      <Link
-        href={`/portal/microorganisms/${microorganism.id}`}
-        target="_blank"
-        className="text-xs font-semibold text-jkuat-gray-400 hover:text-jkuat-green transition-colors"
-      >
-        View
-      </Link>
+      <MicroorganismDetailModal micro={microorganism} />
       
       <MicroorganismModal 
         mode="edit" 

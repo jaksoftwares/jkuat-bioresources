@@ -49,14 +49,16 @@ export class HerbariumRepository {
     return data as HerbariumSpecimen
   }
 
-  static async create(data: Partial<HerbariumSpecimen>) {
+  static async create(data: any) {
     const supabase = await this.getClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Unauthorized')
 
+    const { id, created_at, updated_at, ...specimenData } = data
+
     const { data: newSpecimen, error } = await supabase
       .from('herbarium_specimens')
-      .insert([{ ...data, created_by: user.id }])
+      .insert([{ ...specimenData, created_by: user.id }])
       .select()
       .single()
 
@@ -64,11 +66,13 @@ export class HerbariumRepository {
     return newSpecimen as HerbariumSpecimen
   }
 
-  static async update(id: string, data: Partial<HerbariumSpecimen>) {
+  static async update(id: string, data: any) {
     const supabase = await this.getClient()
+    const { id: recordId, created_at, updated_at, ...specimenData } = data
+
     const { data: updatedSpecimen, error } = await supabase
       .from('herbarium_specimens')
-      .update(data)
+      .update({ ...specimenData, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single()

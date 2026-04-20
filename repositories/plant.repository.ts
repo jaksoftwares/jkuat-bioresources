@@ -57,32 +57,82 @@ export class PlantRepository {
     return data
   }
 
-  static async create(data: Partial<Plant>) {
+  static async create(data: any) {
     const supabase = await this.getClient()
     const { data: { user } } = await supabase.auth.getUser()
-    
     if (!user) throw new Error('Unauthorized')
+
+    const { local_names, recommendations, id, created_at, updated_at, ...plantData } = data
+    
+    // Explicitly exclude any relational joined data that might be in the object
+    const cleanedPlantData = { ...plantData }
+    delete (cleanedPlantData as any).plant_local_names
+    delete (cleanedPlantData as any).plant_recommendations
 
     const { data: newPlant, error } = await supabase
       .from('plants')
-      .insert([{ ...data, created_by: user.id, updated_by: user.id }])
+      .insert([{ ...cleanedPlantData, created_by: user.id, updated_by: user.id }])
       .select()
       .single()
 
     if (error) throw error
+
+    if (local_names && local_names.length > 0) {
+      const namesPayload = local_names.map((ln: any) => ({ ...ln, plant_id: newPlant.id }))
+      await supabase.from('plant_local_names').insert(namesPayload)
+    }
+
+    if (recommendations && recommendations.length > 0) {
+      const recsPayload = recommendations.map((r: any) => ({ ...r, plant_id: newPlant.id }))
+      await supabase.from('plant_recommendations').insert(recsPayload)
+    }
+
     return newPlant as Plant
   }
 
-  static async update(id: string, data: Partial<Plant>) {
+  static async update(id: string, data: any) {
     const supabase = await this.getClient()
+    const { local_names, recommendations, id: rId, created_at, updated_at, ...plantData } = data
+
+    const cleanedPlantData = { ...plantData }
+    delete (cleanedPlantData as any).plant_local_names
+    delete (cleanedPlantData as any).plant_recommendations
+
     const { data: updatedPlant, error } = await supabase
       .from('plants')
-      .update({ ...data, updated_at: new Date().toISOString() })
+      .update({ ...cleanedPlantData, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single()
 
     if (error) throw error
+
+    if (local_names) {
+      await supabase.from('plant_local_names').delete().eq('plant_id', id)
+      if (local_names.length > 0) {
+        const namesPayload = local_names.map((ln: any) => ({
+          language: ln.language,
+          name: ln.name,
+          region: ln.region,
+          plant_id: id 
+        }))
+        await supabase.from('plant_local_names').insert(namesPayload)
+      }
+    }
+
+    if (recommendations) {
+      await supabase.from('plant_recommendations').delete().eq('plant_id', id)
+      if (recommendations.length > 0) {
+        const recsPayload = recommendations.map((r: any) => ({
+          recommendation_type: r.recommendation_type,
+          description: r.description,
+          source_reference: r.source_reference,
+          plant_id: id
+        }))
+        await supabase.from('plant_recommendations').insert(recsPayload)
+      }
+    }
+
     return updatedPlant as Plant
   }
 
@@ -91,29 +141,5 @@ export class PlantRepository {
     const { error } = await supabase.from('plants').delete().eq('id', id)
     if (error) throw error
     return true
-  }
-
-  static async addLocalName(plant_id: string, language_code: string, local_name: string) {
-    const supabase = await this.getClient()
-    const { data, error } = await supabase
-      .from('plant_local_names')
-      .insert([{ plant_id, language_code, local_name }])
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
-  }
-
-  static async addRecommendation(plant_id: string, use_case: string, recommendation_text: string) {
-    const supabase = await this.getClient()
-    const { data, error } = await supabase
-      .from('plant_recommendations')
-      .insert([{ plant_id, use_case, recommendation_text }])
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { MicroorganismRepository } from '@/repositories/microorganism.repository'
 
 type Params = Promise<{ id: string }>
@@ -31,6 +32,7 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     const updatedMicro = await MicroorganismRepository.update(id, body)
+    revalidatePath('/dashboard/microorganisms')
     return NextResponse.json(updatedMicro)
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 })
