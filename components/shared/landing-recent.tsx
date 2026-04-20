@@ -26,9 +26,9 @@ export async function LandingRecent() {
       taxa: latestPlant.scientific_name,
       localName: latestPlant.common_name || "Indigenous Specimen",
       repository: "Botanical Collection",
-      icon: Sprout,
       time: new Date(latestPlant.created_at).toLocaleDateString(),
-      url: `/plants/${latestPlant.id}`
+      url: `/plants/${latestPlant.id}`,
+      image: latestPlant.images?.[0]?.secure_url || '/plants.png'
     });
   }
 
@@ -39,9 +39,9 @@ export async function LandingRecent() {
       taxa: latestMicro.scientific_name,
       localName: latestMicro.source_isolated_from || "Culture Isolate",
       repository: "Microorganisms Registry",
-      icon: Microscope,
       time: new Date(latestMicro.created_at).toLocaleDateString(),
-      url: `/microorganisms/${latestMicro.id}`
+      url: `/microorganisms/${latestMicro.id}`,
+      image: latestMicro.microscopy_images?.[0]?.secure_url || '/microorganism.png'
     });
   }
 
@@ -52,9 +52,9 @@ export async function LandingRecent() {
       taxa: latestHerb.scientific_name,
       localName: latestHerb.habitat_description || latestHerb.physical_storage_location || "Preserved Specimen",
       repository: "Herbarium Collection",
-      icon: BookOpen,
       time: new Date(latestHerb.created_at).toLocaleDateString(),
-      url: `/herbarium/${latestHerb.id}`
+      url: `/herbarium/${latestHerb.id}`,
+      image: latestHerb.specimen_images?.[0]?.secure_url || '/herbarium.png'
     });
   }
 
@@ -80,20 +80,31 @@ export async function LandingRecent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {recentAssets.map((asset, index) => (
             <Link key={index} href={asset.url} className="group block">
-              <div className="h-full rounded-[16px] border border-border bg-card p-6 shadow-card hover:border-primary/30 transition-all flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <Badge variant="secondary" className="bg-primary/10 text-primary font-mono text-xs border-none hover:bg-primary/20">
-                    {asset.id}
-                  </Badge>
-                  <asset.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              <div className="h-full rounded-[16px] border border-border bg-card overflow-hidden shadow-card hover:border-primary/30 transition-all flex flex-col group">
+                <div className="relative h-48 overflow-hidden bg-slate-100">
+                   <img 
+                      src={asset.image} 
+                      alt={asset.taxa}
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" 
+                   />
+                   <div className="absolute top-4 left-4">
+                      <Badge variant="secondary" className="bg-white/90 backdrop-blur-sm text-primary font-mono text-xs border-none shadow-sm capitalize">
+                        {asset.type}
+                      </Badge>
+                   </div>
                 </div>
-                
-                <h3 className="italic font-semibold text-foreground text-lg mb-1 leading-snug">{asset.taxa}</h3>
-                <p className="text-sm font-medium text-foreground/70 mb-4 truncate">{asset.localName}</p>
-                
-                <div className="mt-auto pt-4 border-t border-border/50 flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-primary/80 uppercase tracking-widest">{asset.repository}</span>
-                  <span className="text-[11px] font-bold text-muted-foreground">{asset.time}</span>
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{asset.id}</span>
+                  </div>
+                  
+                  <h3 className="italic font-semibold text-foreground text-lg mb-1 leading-snug group-hover:text-primary transition-colors">{asset.taxa}</h3>
+                  <p className="text-sm font-medium text-foreground/70 mb-4 line-clamp-2">{asset.localName}</p>
+                  
+                  <div className="mt-auto pt-4 border-t border-border/50 flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-primary/80 uppercase tracking-widest">{asset.repository}</span>
+                    <span className="text-[11px] font-bold text-muted-foreground">{asset.time}</span>
+                  </div>
                 </div>
               </div>
             </Link>
