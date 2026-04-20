@@ -142,4 +142,16 @@ export class PlantRepository {
     if (error) throw error
     return true
   }
+
+  static async addLocalName(plant_id: string, language: string, name: string) {
+    const supabase = await this.getClient()
+    const { data, error } = await supabase
+      .from('plant_local_names')
+      .insert([{ plant_id, language, name }])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  }
 }

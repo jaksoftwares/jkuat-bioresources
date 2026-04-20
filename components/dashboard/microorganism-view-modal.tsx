@@ -18,7 +18,8 @@ import {
   FlaskConical,
   Activity,
   History,
-  Globe
+  Globe,
+  FileText
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 

@@ -206,6 +206,22 @@ export class MicroorganismRepository {
     return true
   }
 
+  static async assignStorage(data: { microorganism_id: string, partition_id: string, tube_label: string }) {
+    const supabase = await this.getClient()
+    
+    // First remove any existing mapping for this microorganism
+    await supabase.from('lab_test_tubes').delete().eq('microorganism_id', data.microorganism_id)
+    
+    const { data: result, error } = await supabase
+      .from('lab_test_tubes')
+      .insert([data])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return result
+  }
+
   static async getStorageView() {
     const supabase = await this.getClient()
     const { data, error } = await supabase

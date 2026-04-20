@@ -8,13 +8,11 @@ import { cn } from "@/lib/utils"
 function Separator({
   className,
   orientation = "horizontal",
-  decorative = true,
   ...props
 }: React.ComponentProps<typeof SeparatorPrimitive>) {
   return (
     <SeparatorPrimitive
       data-slot="separator"
-      decorative={decorative}
       orientation={orientation}
       className={cn(
         "bg-border shrink-0",
