@@ -10,10 +10,13 @@ import {
   SheetHeader,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   const navLinks = [
     { href: "/search", label: "Search & Explore", icon: Search },
@@ -37,16 +40,25 @@ export function Navbar() {
               priority
             />
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav className="hidden md:flex items-center gap-6 h-20">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "relative h-full flex items-center text-sm font-medium transition-colors hover:text-primary",
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  {link.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 h-0.5 w-full bg-primary" />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
@@ -80,20 +92,33 @@ export function Navbar() {
                     <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 mb-2">Navigation</p>
                     {navLinks.map((link) => {
                       const Icon = link.icon;
+                      const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
                       return (
                         <Link
                           key={link.href}
                           href={link.href}
                           onClick={() => setIsOpen(false)}
-                          className="flex items-center justify-between gap-3 px-3 py-3 rounded-xl hover:bg-secondary/80 group transition-all duration-200"
+                          className={cn(
+                            "flex items-center justify-between gap-3 px-3 py-3 rounded-xl transition-all duration-200 group",
+                            isActive ? "bg-primary/10" : "hover:bg-secondary/80"
+                          )}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/5 group-hover:bg-primary/10 transition-colors">
-                              <Icon className="h-4 w-4 text-primary" />
+                            <div className={cn(
+                              "p-2 rounded-lg transition-colors",
+                              isActive ? "bg-primary/20" : "bg-primary/5 group-hover:bg-primary/10"
+                            )}>
+                              <Icon className={cn("h-4 w-4", isActive ? "text-primary" : "text-primary")} />
                             </div>
-                            <span className="text-sm font-medium text-foreground">{link.label}</span>
+                            <span className={cn(
+                              "text-sm font-medium",
+                              isActive ? "text-primary" : "text-foreground"
+                            )}>{link.label}</span>
                           </div>
-                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors" />
+                          <ChevronRight className={cn(
+                             "h-3.5 w-3.5 transition-colors",
+                             isActive ? "text-primary" : "text-muted-foreground/40 group-hover:text-primary"
+                          )} />
                         </Link>
                       );
                     })}
