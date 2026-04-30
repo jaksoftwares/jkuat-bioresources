@@ -69,7 +69,7 @@ export function LandingHero() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-3xl text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed"
           >
-            Explore our collections of indigenous vegetables, microorganisms, and herbarium specimens from across Jomo Kenyatta University.
+            The JKUAT bioresource is a digital gateway to curated collections of microorganisms, herbarium specimens, and African indigenous vegetables. It provides accessible representations of biological diversity for research, education, and discovery.
           </motion.p>
           
           <motion.div 

@@ -89,7 +89,7 @@ export default function AboutPage() {
               About JKUAT <br/> <span className="text-primary">Bioresources</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Our platform is the official home for biological research at JKUAT—helping you find and track valuable information about our natural resources.
+              A digital gateway to curated collections of microorganisms, herbarium specimens, and African indigenous vegetables, providing accessible representations of biological diversity.
             </p>
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function AboutPage() {
               <div>
                 <h2 className="text-3xl font-bold text-foreground mb-4">Our Mission</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  JKUAT Bioresources is the official home for biological research findings at our university. We provide the tools for faculty and students to record and explore their scientific work.
+                  Reflecting the University’s repository systems, our mission is to collect, preserve, and share knowledge resources. We support science and innovation by providing a comprehensive gateway to biological diversity for research, education, and discovery.
                 </p>
               </div>
               
@@ -199,7 +199,7 @@ export default function AboutPage() {
             <div className="lg:w-1/3">
               <h2 className="text-3xl font-bold mb-6">What You Can Do</h2>
               <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-                JKUAT Bioresources gives researchers and students the right tools to record and share their scientific findings easily.
+                Leverage our digital repository systems to collect, preserve, and share knowledge resources. Connect with curated representations of biological diversity.
               </p>
               <Link href="/register">
                 <Button className="h-12 px-8 font-bold rounded-xl shadow-lg shadow-primary/20">

@@ -127,11 +127,11 @@ export function Navbar() {
 
                 <div className="p-6 border-t bg-secondary/30">
                   <div className="space-y-3">
-                    <Button render={<Link href="/login" onClick={() => setIsOpen(false)} />} variant="outline" className="w-full justify-start gap-2 h-11 border-primary/20 hover:bg-primary/5 hover:text-primary text-primary font-medium">
+                    <Button nativeButton={false} render={<Link href="/login" onClick={() => setIsOpen(false)} />} variant="outline" className="w-full justify-start gap-2 h-11 border-primary/20 hover:bg-primary/5 hover:text-primary text-primary font-medium">
                         <LogIn className="h-4 w-4" />
                         Researcher Login
                     </Button>
-                    <Button render={<Link href="/register" onClick={() => setIsOpen(false)} />} className="w-full justify-start gap-2 h-11 shadow-sm font-medium">
+                    <Button nativeButton={false} render={<Link href="/register" onClick={() => setIsOpen(false)} />} className="w-full justify-start gap-2 h-11 shadow-sm font-medium">
                         <UserPlus className="h-4 w-4" />
                         Access Portal
                     </Button>
@@ -145,10 +145,10 @@ export function Navbar() {
           </Sheet>
 
           <div className="hidden md:flex items-center gap-4">
-            <Button render={<Link href="/login" />} variant="ghost" className="font-semibold text-primary hover:bg-primary/5">
+            <Button nativeButton={false} render={<Link href="/login" />} variant="ghost" className="font-semibold text-primary hover:bg-primary/5">
                 Researcher Login
             </Button>
-            <Button render={<Link href="/register" />} className="font-semibold shadow-sm rounded-lg px-6">
+            <Button nativeButton={false} render={<Link href="/register" />} className="font-semibold shadow-sm rounded-lg px-6">
                 Access Portal
             </Button>
           </div>

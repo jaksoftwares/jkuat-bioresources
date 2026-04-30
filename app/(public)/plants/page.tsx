@@ -90,7 +90,7 @@ export default async function PlantsRepositoryPage() {
                         </Link>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Button render={<Link href={`/plants/${plant.id}`} />} variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10 transition-transform group-hover:translate-x-1">
+                        <Button nativeButton={false} render={<Link href={`/plants/${plant.id}`} />} variant="ghost" size="sm" className="text-primary hover:text-primary hover:bg-primary/10 transition-transform group-hover:translate-x-1">
                              Detail <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </td>
