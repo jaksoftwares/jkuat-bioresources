@@ -14,13 +14,15 @@ export class MicroorganismRepository {
     const supabase = await this.getClient()
     let query = supabase.from('microorganisms').select('*, lab_test_tubes(*, lab_partitions(*, lab_trays(*, lab_shelves(*, lab_fridges(*)))))')
 
-    if (filters?.strain_code) query = query.ilike('strain_code', `%${filters.strain_code}%`)
-    if (filters?.scientific_name) query = query.ilike('scientific_name', `%${filters.scientific_name}%`)
+    if (filters?.strain_code) query = query.ilike('taxonomic_information->>strain_number', `%${filters.strain_code}%`)
+    if (filters?.scientific_name) {
+      query = query.or(`taxonomic_information->>genus.ilike.%${filters.scientific_name}%,taxonomic_information->>species.ilike.%${filters.scientific_name}%`)
+    }
     if (filters?.search) {
-      query = query.or(`scientific_name.ilike.%${filters.search}%,strain_code.ilike.%${filters.search}%,characteristics.ilike.%${filters.search}%`)
+      query = query.or(`taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%,taxonomic_information->>strain_number.ilike.%${filters.search}%`)
     }
 
-    const { data, error } = await query.order('scientific_name', { ascending: true })
+    const { data, error } = await query.order('created_at', { ascending: false })
     if (error) throw error
     return data
   }

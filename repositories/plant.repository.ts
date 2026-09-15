@@ -19,18 +19,18 @@ export class PlantRepository {
       query = query.eq('is_aiv', filters.is_aiv)
     }
     if (filters?.category) {
-      query = query.ilike('category', `%${filters.category}%`)
+      query = query.ilike('botanical_information->>life_form', `%${filters.category}%`)
     }
     if (filters?.family_name) {
-      query = query.ilike('family_name', `%${filters.family_name}%`)
+      query = query.ilike('taxonomic_information->>family', `%${filters.family_name}%`)
     }
     if (filters?.search) {
-      query = query.or(`scientific_name.ilike.%${filters.search}%,common_name.ilike.%${filters.search}%`)
+      query = query.or(`taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%`)
     }
 
-    const { data, error } = await query.order('scientific_name', { ascending: true })
+    const { data, error } = await query.order('created_at', { ascending: false })
     if (error) throw error
-    return data as Plant[]
+    return data as any[]
   }
 
   static async listByUserId(userId: string) {

@@ -1,25 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  ArrowLeft, 
-  Download, 
-  Share2, 
-  MapPin, 
-  Database, 
-  Microscope,
-  FileText,
-  Clock,
-  FlaskConical,
-  Beaker,
-  ShieldCheck,
-  Thermometer
-} from "lucide-react";
+import { ArrowLeft, Download, Share2, MapPin, AlertTriangle, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { MicroorganismRepository } from "@/repositories/microorganism.repository";
-import ImageGallery from "@/components/public/image-gallery";
+import { TaxonomicInformation, GrowthRelatedInformation, DetailsOfIsolation, PathogenicityInformation, IdentificationInformation, CBDInformation } from "@/features/microorganisms/types";
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -37,171 +22,221 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
 
   if (!micro) return notFound()
 
-  const mainImage = micro.microscopy_images?.[0]?.secure_url || "/assets/images/microorganism.png";
+  // Cast JSONB fields
+  const taxInfo = (micro.taxonomic_information || {}) as TaxonomicInformation;
+  const growthInfo = (micro.growth_related_information || {}) as GrowthRelatedInformation;
+  const isolationInfo = (micro.details_of_isolation || {}) as DetailsOfIsolation;
+  const pathInfo = (micro.pathogenicity_information || {}) as PathogenicityInformation;
+  const identInfo = (micro.identification_information || {}) as IdentificationInformation;
+  const cbdInfo = (micro.cbd_information || {}) as CBDInformation;
+
+  const strainNo = taxInfo.strain_number || micro.id.substring(0, 8);
+  const fullName = `${taxInfo.genus || 'Unknown'} ${taxInfo.species || ''}`.trim();
 
   return (
-    <div className="min-h-screen bg-jkuat-gray-50/50 pb-20 animate-in fade-in duration-1000">
-      <div className="relative h-[40vh] w-full overflow-hidden">
-        <Image
-          src={mainImage}
-          alt={micro.scientific_name}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-jkuat-green-dark via-jkuat-green-dark/60 to-transparent" />
-        
-        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12">
-          <div className="mx-auto max-w-7xl">
-            <Link href="/microorganisms" className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors text-sm font-bold">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Microorganisms
-            </Link>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div>
-                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
-                  {micro.scientific_name}
-                </h1>
-                <p className="text-xl md:text-2xl text-jkuat-green-light font-bold font-mono">
-                   ID: {micro.strain_code || 'N/A'}
-                </p>
+    <div className="min-h-screen bg-background pb-20">
+      {/* Header Section */}
+      <div className="bg-secondary border-b border-border py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Link href="/microorganisms" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors text-sm font-semibold">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Catalogue
+          </Link>
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <Badge variant="outline" className="font-mono bg-background text-foreground border-border">
+                  {strainNo}
+                </Badge>
+                {taxInfo.is_type_strain && (
+                  <Badge variant="default" className="bg-primary/20 text-primary hover:bg-primary/30 border-none">
+                    Type Strain
+                  </Badge>
+                )}
+                {pathInfo.biohazard_group && (
+                  <Badge variant="destructive" className="font-mono flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> Risk Group {pathInfo.biohazard_group}
+                  </Badge>
+                )}
               </div>
-              <div className="flex gap-3">
-                <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md rounded-xl font-bold">
-                  <Share2 className="mr-2 h-4 w-4" /> Share
-                </Button>
-                <Button variant="secondary" className="bg-jkuat-green hover:bg-jkuat-green-dark text-white border-none shadow-xl rounded-xl font-bold px-8">
-                  <Download className="mr-2 h-4 w-4" /> Export
-                </Button>
-              </div>
+              <h1 className="text-3xl md:text-5xl font-extrabold text-foreground tracking-tight italic mb-2">
+                {fullName}
+              </h1>
+              <p className="text-muted-foreground font-medium">
+                Type of Organism: <strong className="text-foreground">{taxInfo.type_of_organism || 'Unknown'}</strong>
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button variant="outline" className="bg-background shadow-sm rounded-md font-semibold">
+                <Share2 className="mr-2 h-4 w-4" /> Share
+              </Button>
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm rounded-md font-semibold px-6">
+                <Download className="mr-2 h-4 w-4" /> Export Data Sheet
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <Card className="border-none shadow-sm overflow-hidden rounded-2xl bg-white">
-              <CardHeader className="border-b border-jkuat-gray-100 bg-jkuat-gray-50/50 pb-4">
-                <div className="flex items-center gap-2 text-jkuat-green-dark font-bold text-sm">
-                  <Beaker className="h-4 w-4" />
-                   Profile
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          
+          {/* Main Content Area (DSMZ Style Tables) */}
+          <div className="lg:col-span-3 space-y-10">
+            
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60">Taxonomy & Designation</h2>
+              <div className="bg-card border border-border/60 rounded-lg overflow-hidden shadow-sm text-sm">
+                <div className="grid grid-cols-3 p-3 border-b border-border/40">
+                  <div className="font-semibold text-muted-foreground">Genus</div>
+                  <div className="col-span-2 text-foreground font-medium italic">{taxInfo.genus || '—'}</div>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-10">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-12">
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-500 uppercase">Opt. Temperature</p>
-                    <p className="text-lg font-bold text-gray-900">{micro.optimum_temperature ? `${micro.optimum_temperature}°C` : '—'}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-500 uppercase">pH Range</p>
-                    <p className="text-lg font-bold text-gray-900">{micro.min_ph || '-'} to {micro.max_ph || '-'}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-gray-500 uppercase">Biosafety Level</p>
-                    <p className="text-lg font-bold text-gray-900 flex items-center gap-1">
-                       <ShieldCheck className="h-4 w-4 text-emerald-600" /> BSL-1
-                    </p>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40 bg-muted/20">
+                  <div className="font-semibold text-muted-foreground">Species</div>
+                  <div className="col-span-2 text-foreground font-medium italic">{taxInfo.species || '—'}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40">
+                  <div className="font-semibold text-muted-foreground">Strain Number</div>
+                  <div className="col-span-2 text-foreground font-medium font-mono">{strainNo}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40 bg-muted/20">
+                  <div className="font-semibold text-muted-foreground">Type Strain</div>
+                  <div className="col-span-2 text-foreground font-medium">{taxInfo.is_type_strain ? "Yes" : "No"}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3">
+                  <div className="font-semibold text-muted-foreground">NCBI 16S Accession</div>
+                  <div className="col-span-2 text-foreground font-medium">
+                    {taxInfo.ncbi_16s_accession_number ? (
+                      <a href={`https://www.ncbi.nlm.nih.gov/nuccore/${taxInfo.ncbi_16s_accession_number}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                        {taxInfo.ncbi_16s_accession_number} <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ) : '—'}
                   </div>
                 </div>
+              </div>
+            </section>
 
-                <div className="space-y-10">
-                  <section>
-                    <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
-                      <Microscope className="h-4 w-4 text-jkuat-green" />
-                      Characteristics
-                    </h3>
-                    <p className="text-gray-700">
-                      {micro.characteristics || 'None provided.'}
-                    </p>
-                  </section>
-
-                  <section>
-                    <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
-                      <FlaskConical className="h-4 w-4 text-jkuat-green" />
-                      Enzymatic Activity
-                    </h3>
-                    <p className="text-gray-700">
-                      {micro.enzymatic_activity || 'None provided.'}
-                    </p>
-                  </section>
-
-                  <section>
-                    <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
-                      <FileText className="h-4 w-4 text-jkuat-green" />
-                      Notes
-                    </h3>
-                    <p className="text-gray-700">
-                      {micro.experiment_details || 'None provided.'}
-                    </p>
-                  </section>
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60">Origin & Isolation</h2>
+              <div className="bg-card border border-border/60 rounded-lg overflow-hidden shadow-sm text-sm">
+                <div className="grid grid-cols-3 p-3 border-b border-border/40">
+                  <div className="font-semibold text-muted-foreground">Source of Isolation</div>
+                  <div className="col-span-2 text-foreground font-medium">{isolationInfo.source_of_isolation || '—'}</div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40 bg-muted/20">
+                  <div className="font-semibold text-muted-foreground">Country</div>
+                  <div className="col-span-2 text-foreground font-medium">{isolationInfo.country || '—'}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40">
+                  <div className="font-semibold text-muted-foreground">Geographic Coordinates</div>
+                  <div className="col-span-2 text-foreground font-medium font-mono">{isolationInfo.gps_coordinates || '—'}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40 bg-muted/20">
+                  <div className="font-semibold text-muted-foreground">Isolated By</div>
+                  <div className="col-span-2 text-foreground font-medium">{isolationInfo.isolated_by || '—'}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40">
+                  <div className="font-semibold text-muted-foreground">Nagoya Protocol / CBD</div>
+                  <div className="col-span-2 text-foreground font-medium">
+                    {cbdInfo.pic_taken ? `PIC Issued by ${cbdInfo.pic_issuing_authority || 'Authority'}` : "Data not provided"}
+                  </div>
+                </div>
+              </div>
+            </section>
 
-            <h2 className="text-xl font-bold text-gray-900 pt-4 pb-2">
-               Images
-            </h2>
-            <ImageGallery 
-               images={micro.microscopy_images} 
-               altBase={micro.scientific_name} 
-               imageClassName="aspect-video"
-            />
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60">Cultivation Conditions</h2>
+              <div className="bg-card border border-border/60 rounded-lg overflow-hidden shadow-sm text-sm">
+                <div className="grid grid-cols-3 p-3 border-b border-border/40">
+                  <div className="font-semibold text-muted-foreground">Growth Medium</div>
+                  <div className="col-span-2 text-foreground font-medium">{growthInfo.growth_medium_name || '—'}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40 bg-muted/20">
+                  <div className="font-semibold text-muted-foreground">Optimum Temperature</div>
+                  <div className="col-span-2 text-foreground font-medium">{growthInfo.optimum_temperature_celsius ? `${growthInfo.optimum_temperature_celsius} °C` : '—'}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40">
+                  <div className="font-semibold text-muted-foreground">pH Range (Optimum)</div>
+                  <div className="col-span-2 text-foreground font-medium">
+                    {growthInfo.ph_range ? growthInfo.ph_range : '—'} 
+                    {growthInfo.optimum_ph ? ` (Optimum: ${growthInfo.optimum_ph})` : ''}
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40 bg-muted/20">
+                  <div className="font-semibold text-muted-foreground">Oxygen Requirement</div>
+                  <div className="col-span-2 text-foreground font-medium">{growthInfo.oxygen_requirement || '—'}</div>
+                </div>
+                <div className="grid grid-cols-3 p-3 border-b border-border/40">
+                  <div className="font-semibold text-muted-foreground">Incubation Time</div>
+                  <div className="col-span-2 text-foreground font-medium">{growthInfo.incubation_time_days ? `${growthInfo.incubation_time_days} days` : '—'}</div>
+                </div>
+              </div>
+            </section>
+
+            {/* Images Section */}
+            {(micro.images && micro.images.length > 0) && (
+              <section>
+                <h2 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60">Microscopy & Media Images</h2>
+                <div className="bg-card border border-border/60 rounded-lg p-5 shadow-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {micro.images.map((img: any, idx: number) => (
+                      <div key={idx} className="relative aspect-video rounded-md overflow-hidden bg-muted border border-border">
+                        <img 
+                          src={img.secure_url || img.url || img} 
+                          alt={`${fullName} microscopy image`}
+                          className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+
           </div>
 
-          <div className="space-y-8">
-            <Card className="border-none shadow-sm rounded-2xl bg-white overflow-hidden">
-               <CardHeader className="pb-2">
-                 <CardTitle className="text-sm font-bold text-gray-900">Storage Information</CardTitle>
-               </CardHeader>
-               <CardContent className="space-y-6 pt-4">
-                  <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
-                      <Clock className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-gray-500 uppercase">Date Stored</p>
-                      <p className="font-bold text-gray-900">{micro.date_stored || '—'}</p>
-                    </div>
-                  </div>
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-card border border-border/60 shadow-sm rounded-lg p-5">
+              <h3 className="font-bold text-foreground mb-4 pb-2 border-b border-border/40">Deposit Action</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                Request this strain for academic or industrial research purposes. Must comply with Material Transfer Agreement (MTA).
+              </p>
+              <Button className="w-full font-bold">Add to Cart</Button>
+            </div>
 
-                  <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
-                      <Database className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-gray-500 uppercase">Growth Medium</p>
-                      <p className="font-bold text-gray-900">{micro.growth_medium || '—'}</p>
-                    </div>
-                  </div>
+            <div className="bg-muted/40 border border-border/60 shadow-sm rounded-lg p-5">
+              <h3 className="font-bold text-foreground mb-4 pb-2 border-b border-border/40 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-destructive" /> Safety Information
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground font-medium">Risk Group</span>
+                  <span className="font-bold text-destructive">RG-{pathInfo.biohazard_group || '1'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground font-medium">Human Pathogen</span>
+                  <span className="font-bold text-foreground">{pathInfo.pathogenic_to_human ? 'Yes' : 'No'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground font-medium">Plant Pathogen</span>
+                  <span className="font-bold text-foreground">{pathInfo.pathogenic_to_plant ? 'Yes' : 'No'}</span>
+                </div>
+              </div>
+            </div>
 
-                  <div className="mt-8 pt-8 border-t border-gray-100">
-                    <p className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-1">
-                       <MapPin className="h-3 w-3" /> Isolation Source
-                    </p>
-                    <div className="p-4 rounded-xl bg-gray-50 border border-gray-100 text-sm font-medium text-gray-700">
-                      {micro.source_isolated_from || '—'}
-                    </div>
-                  </div>
-               </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-sm rounded-2xl bg-gray-900 text-white overflow-hidden">
-               <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Thermometer className="h-5 w-5 text-gray-300" />
-                    <CardTitle className="text-sm font-bold">Storage Temperature</CardTitle>
-                  </div>
-               </CardHeader>
-               <CardContent>
-                  <div className="p-5 rounded-xl bg-white/10 border border-white/20">
-                    <p className="text-2xl font-bold">{micro.optimum_temperature || '—'}°C Target</p>
-                  </div>
-               </CardContent>
-            </Card>
+            {identInfo.identified_by && (
+              <div className="bg-card border border-border/60 shadow-sm rounded-lg p-5">
+                <h3 className="font-bold text-foreground mb-3 pb-2 border-b border-border/40">Authentication</h3>
+                <p className="text-sm text-muted-foreground">
+                  Identified by: <strong className="text-foreground">{identInfo.identified_by}</strong><br/>
+                  {identInfo.identification_date && <span>Date: {identInfo.identification_date}</span>}
+                </p>
+              </div>
+            )}
           </div>
+          
         </div>
       </div>
     </div>

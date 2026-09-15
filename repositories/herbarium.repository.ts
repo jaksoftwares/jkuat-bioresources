@@ -14,15 +14,17 @@ export class HerbariumRepository {
     const supabase = await this.getClient()
     let query = supabase.from('herbarium_specimens').select('*')
 
-    if (filters?.herbarium_code) query = query.ilike('herbarium_code', `%${filters.herbarium_code}%`)
-    if (filters?.scientific_name) query = query.ilike('scientific_name', `%${filters.scientific_name}%`)
+    if (filters?.herbarium_code) query = query.ilike('specimen_details->>herbarium_code', `%${filters.herbarium_code}%`)
+    if (filters?.scientific_name) {
+      query = query.or(`taxonomic_information->>genus.ilike.%${filters.scientific_name}%,taxonomic_information->>species.ilike.%${filters.scientific_name}%`)
+    }
     if (filters?.search) {
-      query = query.or(`scientific_name.ilike.%${filters.search}%,herbarium_code.ilike.%${filters.search}%`)
+      query = query.or(`taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%,specimen_details->>herbarium_code.ilike.%${filters.search}%`)
     }
 
-    const { data, error } = await query.order('herbarium_code', { ascending: true })
+    const { data, error } = await query.order('created_at', { ascending: false })
     if (error) throw error
-    return data as HerbariumSpecimen[]
+    return data as any[]
   }
 
   static async listByUserId(userId: string) {
