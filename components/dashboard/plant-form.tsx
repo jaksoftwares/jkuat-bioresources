@@ -2,14 +2,13 @@
 
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Trash2, Globe, HeartPulse, Droplets, Upload } from 'lucide-react'
+import { Trash2, Globe, HeartPulse, Droplets } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { uploadToCloudinary } from '@/actions/media-actions'
 import type { Plant, CloudinaryMedia } from '@/types'
-import { toast } from 'sonner'
+import ImageManager from '@/components/dashboard/image-manager'
 
 interface PlantFormProps {
   initialValues?: Partial<Plant> & { plant_local_names?: any[], plant_recommendations?: any[] }
@@ -67,59 +66,14 @@ export default function PlantForm({
 
   // Media
   const [images, setImages] = useState<CloudinaryMedia[]>(initialValues?.images || [])
-  const [pendingImages, setPendingImages] = useState<File[]>([])
-  const [uploading, setUploading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-
-  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = event.target.files; if (!selected) return;
-    setPendingImages(prev => [...prev, ...Array.from(selected)]);
-  }
-
-  const performUpload = async () => {
-    if (pendingImages.length === 0) return;
-    setUploading(true)
-    try {
-      const results: CloudinaryMedia[] = [];
-      for (const file of pendingImages) {
-        const reader = new FileReader()
-        const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file) })
-        const res = await uploadToCloudinary(base64, 'plants/images')
-        results.push(res);
-      }
-      setImages(prev => [...prev, ...results]);
-      setPendingImages([]);
-      toast.success('Botanical media synced');
-    } catch { 
-      setErrorMessage('Media sync failed');
-      toast.error('Upload failed');
-    } finally { 
-      setUploading(false);
-    }
-  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setErrorMessage(''); setIsSubmitting(true)
 
     try {
-      let finalImages = [...images];
-      if (pendingImages.length > 0) {
-        setUploading(true);
-        const results: CloudinaryMedia[] = [];
-        for (const file of pendingImages) {
-          const reader = new FileReader()
-          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file) })
-          const res = await uploadToCloudinary(base64, 'plants/images')
-          results.push(res);
-        }
-        finalImages = [...finalImages, ...results];
-        setImages(finalImages);
-        setPendingImages([]);
-        setUploading(false);
-      }
-
       const payload = {
         scientific_name: scientificName,
         common_name: commonName || undefined,
@@ -134,7 +88,7 @@ export default function PlantForm({
         nutritional_value: nutritionalValue || undefined,
         medicinal_value: medicinalValue || undefined,
         cultural_significance: culturalSignificance || undefined,
-        images: finalImages,
+        images,
         local_names: localNames.filter(n => n.local_name),
         recommendations: recommendations.filter(r => r.recommendation_text),
       }
@@ -235,47 +189,11 @@ export default function PlantForm({
 
         <div className="flex flex-col gap-4 py-8 border-t border-slate-100">
            <div className="space-y-2">
-              <Label className="text-sm font-bold">Research Photographs</Label>
-              <div className="flex gap-2">
-                <Input type="file" multiple accept="image/*" onChange={handleFileSelection} disabled={uploading} className="h-11 bg-white pt-2 border-slate-200" />
-                <Button type="button" onClick={performUpload} disabled={uploading || pendingImages.length === 0} variant="outline" className="h-11 border-emerald-200 text-emerald-600 gap-2">
-                   <Upload className="w-4 h-4" /> {uploading ? '...' : 'Upload'}
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-4 md:grid-cols-6 gap-3 mt-4">
-                 {pendingImages.map((file, idx) => (
-                   <div key={`pending-plant-${idx}`} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group shadow-sm transition-all">
-                      <img src={URL.createObjectURL(file)} alt="Pending Upload" className="w-full h-full object-cover opacity-70" />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                         <span className="text-[10px] font-bold text-white uppercase tracking-widest">Pending</span>
-                      </div>
-                      <button 
-                        type="button" 
-                        onClick={() => setPendingImages(pendingImages.filter((_, i) => i !== idx))}
-                        className="absolute top-2 right-2 p-1.5 bg-rose-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                         <Trash2 className="w-3 h-3" />
-                      </button>
-                   </div>
-                 ))}
-                 {images.map((img, idx) => (
-                   <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group shadow-sm transition-all hover:shadow-md">
-                      <img src={img.secure_url} alt="Plant" className="w-full h-full object-cover" />
-                      <button 
-                        type="button" 
-                        onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                        className="absolute inset-0 bg-rose-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                         <Trash2 className="w-5 h-5" />
-                      </button>
-                   </div>
-                 ))}
-              </div>
+                <ImageManager images={images} onChange={setImages} folder="plants/images" label="Research Photographs" />
            </div>
            {errorMessage && <p className="text-rose-600 text-xs font-bold bg-rose-50 p-3 rounded-xl border border-rose-100">{errorMessage}</p>}
            <div className="flex justify-end gap-3 pt-6">
-              <Button type="submit" disabled={isSubmitting || uploading} className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold h-14 px-16 rounded-2xl shadow-xl transition-all">
+              <Button type="submit" disabled={isSubmitting} className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold h-14 px-16 rounded-2xl shadow-xl transition-all">
                 {isSubmitting ? 'Syncing...' : 'Save Record'}
               </Button>
            </div>

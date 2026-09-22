@@ -16,7 +16,7 @@ export default async function PlantsRepositoryPage() {
       {/* Category Header */}
       <div className="relative py-20 border-b border-sidebar-border overflow-hidden">
         <Image
-          src="/assets/images/avis.png"
+          src="/Thumbnail to AIVs.jpg"
           alt="Botanical Header"
           fill
           sizes="100vw"

@@ -24,9 +24,7 @@ export function Navbar() {
     { href: "/microorganisms", label: "Microbial Strains" },
     { href: "/plants", label: "Plant Resources" },
     { href: "/herbarium", label: "Herbarium" },
-    { href: "/services", label: "Services" },
-    { href: "/deposits", label: "Deposits" },
-    { href: "/about", label: "About Us" },
+    { href: "/about", label: "About" },
   ];
 
   return (
@@ -37,13 +35,14 @@ export function Navbar() {
           <div className="flex items-center gap-8 lg:gap-12 w-full justify-between lg:justify-start">
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <Image
-                src="/assets/logos/logo-primary.svg"
-                alt="JKUAT Bioresources"
-                width={260}
-                height={70}
-                className="h-10 w-auto sm:h-12"
+                src="/assets/images/jkuat-logo.jpg"
+                alt="Jomo Kenyatta University of Agriculture and Technology"
+                width={56}
+                height={56}
+                className="h-12 w-12 object-contain sm:h-14 sm:w-14"
                 priority
               />
+              <span className="hidden text-sm font-extrabold leading-tight text-primary sm:block"><span className="block">JKUAT</span><span className="block">Bioresources</span></span>
             </Link>
             
             <nav className="hidden lg:flex items-center gap-8 h-24 flex-1">
@@ -89,12 +88,13 @@ export function Navbar() {
                 <div className="flex flex-col h-full bg-background">
                   <SheetHeader className="p-6 border-b border-border text-left">
                     <Image
-                      src="/assets/logos/logo-primary.svg"
-                      alt="JKUAT Bioresources"
-                      width={180}
-                      height={50}
-                      className="h-8 w-auto"
+                      src="/assets/images/jkuat-logo.jpg"
+                      alt="Jomo Kenyatta University of Agriculture and Technology"
+                      width={48}
+                      height={48}
+                      className="h-12 w-12 object-contain"
                     />
+                    <span className="text-sm font-extrabold leading-tight text-primary"><span className="block">JKUAT</span><span className="block">Bioresources</span></span>
                   </SheetHeader>
 
                   <div className="flex-1 overflow-y-auto py-6">

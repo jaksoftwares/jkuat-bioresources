@@ -2,13 +2,14 @@
 
 import { FormEvent, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Microscope, MapPin, Search, Settings, Save, Smartphone, History, Trash2, Upload } from 'lucide-react'
+import { Microscope, MapPin, Settings, Trash2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { uploadToCloudinary } from '@/actions/media-actions'
 import type { Microorganism, CloudinaryMedia } from '@/types'
 import { toast } from 'sonner'
+import ImageManager from '@/components/dashboard/image-manager'
 
 interface MicroorganismFormProps {
   initialValues?: Partial<Microorganism> & { lab_test_tubes?: any[] }
@@ -60,7 +61,6 @@ export default function MicroorganismForm({
   // Media
   const [images, setImages] = useState<CloudinaryMedia[]>(initialValues?.microscopy_images || [])
   const [docs, setDocs] = useState<CloudinaryMedia[]>(initialValues?.supporting_docs || [])
-  const [pendingImages, setPendingImages] = useState<File[]>([])
   const [pendingDocs, setPendingDocs] = useState<File[]>([])
 
   // Initialize data
@@ -113,12 +113,11 @@ export default function MicroorganismForm({
 
   const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>, type: 'img' | 'doc') => {
     const selected = event.target.files; if (!selected) return;
-    if (type === 'img') setPendingImages(prev => [...prev, ...Array.from(selected)]);
-    else setPendingDocs(prev => [...prev, ...Array.from(selected)]);
+    if (type === 'doc') setPendingDocs(prev => [...prev, ...Array.from(selected)]);
   }
 
-  const performUpload = async (type: 'img' | 'doc') => {
-    const files = type === 'img' ? pendingImages : pendingDocs;
+  const performUpload = async () => {
+    const files = pendingDocs;
     if (files.length === 0) return;
     
     setUploading(true)
@@ -127,16 +126,11 @@ export default function MicroorganismForm({
       for (const file of files) {
         const reader = new FileReader()
         const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file) })
-        const res = await uploadToCloudinary(base64, `microorganisms/${type === 'img' ? 'images' : 'docs'}`)
+        const res = await uploadToCloudinary(base64, 'microorganisms/docs')
         results.push(res);
       }
-      if (type === 'img') {
-        setImages(prev => [...prev, ...results]);
-        setPendingImages([]);
-      } else {
-        setDocs(prev => [...prev, ...results]);
-        setPendingDocs([]);
-      }
+      setDocs(prev => [...prev, ...results]);
+      setPendingDocs([]);
       toast.success('Files uploaded to archive');
     } catch { 
       setErrorMessage('Media sync failed');
@@ -151,22 +145,6 @@ export default function MicroorganismForm({
     setErrorMessage(''); setIsSubmitting(true)
 
     try {
-      let finalImages = [...images];
-      if (pendingImages.length > 0) {
-        setUploading(true);
-        const resultsImg: CloudinaryMedia[] = [];
-        for (const file of pendingImages) {
-          const reader = new FileReader();
-          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file); });
-          const res = await uploadToCloudinary(base64, 'microorganisms/images');
-          resultsImg.push(res);
-        }
-        finalImages = [...finalImages, ...resultsImg];
-        setImages(finalImages);
-        setPendingImages([]);
-        setUploading(false);
-      }
-
       let finalDocs = [...docs];
       if (pendingDocs.length > 0) {
         setUploading(true);
@@ -196,7 +174,7 @@ export default function MicroorganismForm({
         enzymatic_activity: enzymatic || undefined,
         experiment_details: notes || undefined,
         date_stored: dateStored || undefined,
-        microscopy_images: finalImages,
+        microscopy_images: images,
         supporting_docs: finalDocs,
         storage_labels: {
           fridge_code: fridge,
@@ -292,50 +270,14 @@ export default function MicroorganismForm({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
            <div className="space-y-4">
-              <Label className="text-xs font-black uppercase text-slate-400">Microscopy Images</Label>
-              <div className="flex gap-2">
-                <Input type="file" multiple accept="image/*" onChange={e => handleFileSelection(e, 'img')} disabled={uploading} className="h-11 bg-white pt-2 border-slate-200" />
-                <Button type="button" onClick={() => performUpload('img')} disabled={uploading || pendingImages.length === 0} variant="outline" className="h-11 border-emerald-200 text-emerald-600 gap-2">
-                   <Upload className="w-4 h-4" /> {uploading ? '...' : 'Upload'}
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-2 mt-4">
-                 {pendingImages.map((file, idx) => (
-                   <div key={`pending-img-${idx}`} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group">
-                      <img src={URL.createObjectURL(file)} alt="Pending Upload" className="w-full h-full object-cover opacity-70" />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                         <span className="text-[10px] font-bold text-white uppercase tracking-widest">Pending</span>
-                      </div>
-                      <button 
-                        type="button" 
-                        onClick={() => setPendingImages(pendingImages.filter((_, i) => i !== idx))}
-                        className="absolute top-2 right-2 p-1.5 bg-rose-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                         <Trash2 className="w-3 h-3" />
-                      </button>
-                   </div>
-                 ))}
-                 {images.map((img, idx) => (
-                   <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 group">
-                      <img src={img.secure_url} alt="Microscopy" className="w-full h-full object-cover" />
-                      <button 
-                        type="button" 
-                        onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                        className="absolute inset-0 bg-rose-600/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                         <Trash2 className="w-4 h-4" />
-                      </button>
-                   </div>
-                 ))}
-              </div>
+                <ImageManager images={images} onChange={setImages} folder="microorganisms/images" label="Microscopy Images" />
            </div>
 
            <div className="space-y-4">
               <Label className="text-xs font-black uppercase text-slate-400">Supporting Documentation (PDF)</Label>
               <div className="flex gap-2">
                 <Input type="file" multiple accept=".pdf" onChange={e => handleFileSelection(e, 'doc')} disabled={uploading} className="h-11 bg-white pt-2 border-slate-200" />
-                <Button type="button" onClick={() => performUpload('doc')} disabled={uploading || pendingDocs.length === 0} variant="outline" className="h-11 border-emerald-200 text-emerald-600 gap-2">
+                <Button type="button" onClick={performUpload} disabled={uploading || pendingDocs.length === 0} variant="outline" className="h-11 border-emerald-200 text-emerald-600 gap-2">
                    <Upload className="w-4 h-4" /> {uploading ? '...' : 'Upload'}
                 </Button>
               </div>

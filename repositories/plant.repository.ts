@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Plant } from '@/types'
+import { deleteMediaAssets, deleteRemovedMedia } from '@/actions/media-actions'
 
 export class PlantRepository {
   private static async getClient() {
@@ -92,6 +93,7 @@ export class PlantRepository {
 
   static async update(id: string, data: any) {
     const supabase = await this.getClient()
+    const { data: previousPlant } = await supabase.from('plants').select('images').eq('id', id).single()
     const { local_names, recommendations, id: rId, created_at, updated_at, ...plantData } = data
 
     const cleanedPlantData = { ...plantData }
@@ -133,13 +135,16 @@ export class PlantRepository {
       }
     }
 
+    await deleteRemovedMedia(previousPlant?.images, updatedPlant.images)
     return updatedPlant as Plant
   }
 
   static async delete(id: string) {
     const supabase = await this.getClient()
+    const { data: plant } = await supabase.from('plants').select('images').eq('id', id).single()
     const { error } = await supabase.from('plants').delete().eq('id', id)
     if (error) throw error
+    await deleteMediaAssets(plant?.images)
     return true
   }
 

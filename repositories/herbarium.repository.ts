@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { deleteMediaAssets, deleteRemovedMedia } from '@/actions/media-actions'
 import { HerbariumSpecimen } from '@/types'
 
 export class HerbariumRepository {
@@ -70,6 +71,7 @@ export class HerbariumRepository {
 
   static async update(id: string, data: any) {
     const supabase = await this.getClient()
+    const { data: previousSpecimen } = await supabase.from('herbarium_specimens').select('specimen_images').eq('id', id).single()
     const { id: recordId, created_at, updated_at, ...specimenData } = data
 
     const { data: updatedSpecimen, error } = await supabase
@@ -80,13 +82,16 @@ export class HerbariumRepository {
       .single()
 
     if (error) throw error
+    await deleteRemovedMedia(previousSpecimen?.specimen_images, updatedSpecimen.specimen_images)
     return updatedSpecimen as HerbariumSpecimen
   }
 
   static async delete(id: string) {
     const supabase = await this.getClient()
+    const { data: specimen } = await supabase.from('herbarium_specimens').select('specimen_images').eq('id', id).single()
     const { error } = await supabase.from('herbarium_specimens').delete().eq('id', id)
     if (error) throw error
+    await deleteMediaAssets(specimen?.specimen_images)
     return true
   }
 }

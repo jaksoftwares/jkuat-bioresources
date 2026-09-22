@@ -1,12 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Share2, MapPin, AlertTriangle, ExternalLink } from "lucide-react";
+import { ArrowLeft, AlertTriangle, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { MicroorganismRepository } from "@/repositories/microorganism.repository";
 import { TaxonomicInformation, GrowthRelatedInformation, DetailsOfIsolation, PathogenicityInformation, IdentificationInformation, CBDInformation } from "@/features/microorganisms/types";
 import ImageGallery from "@/components/public/image-gallery";
+import MicroorganismExportActions from "@/components/public/microorganism-export-actions";
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -18,7 +17,7 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
   let micro;
   try {
     micro = await MicroorganismRepository.getById(id)
-  } catch (error) {
+  } catch {
     return notFound()
   }
 
@@ -34,6 +33,9 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
 
   const strainNo = taxInfo.strain_number || micro.id.substring(0, 8);
   const fullName = `${taxInfo.genus || 'Unknown'} ${taxInfo.species || ''}`.trim();
+  const nagoyaProtocolText = cbdInfo.pic_taken === true
+    ? `PIC Issued by ${cbdInfo.pic_issuing_authority || 'Authority'}`
+    : "There are NO known Nagoya Protocol restrictions for this strain.";
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -69,14 +71,7 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
               </p>
             </div>
             
-            <div className="flex gap-3">
-              <Button variant="outline" className="bg-background shadow-sm rounded-md font-semibold">
-                <Share2 className="mr-2 h-4 w-4" /> Share
-              </Button>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm rounded-md font-semibold px-6">
-                <Download className="mr-2 h-4 w-4" /> Export Data Sheet
-              </Button>
-            </div>
+            <MicroorganismExportActions record={micro as Record<string, unknown>} title={`${fullName} - ${strainNo}`} />
           </div>
         </div>
       </div>
@@ -133,14 +128,10 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
                   <div className="font-semibold text-muted-foreground">Geographic Coordinates</div>
                   <div className="col-span-2 text-foreground font-medium font-mono">{isolationInfo.gps_coordinates || '—'}</div>
                 </div>
-                <div className="grid grid-cols-3 p-3 border-b border-border/40 bg-muted/20">
-                  <div className="font-semibold text-muted-foreground">Isolated By</div>
-                  <div className="col-span-2 text-foreground font-medium">{isolationInfo.isolated_by || '—'}</div>
-                </div>
                 <div className="grid grid-cols-3 p-3 border-b border-border/40">
                   <div className="font-semibold text-muted-foreground">Nagoya Protocol / CBD</div>
                   <div className="col-span-2 text-foreground font-medium">
-                    {cbdInfo.pic_taken ? `PIC Issued by ${cbdInfo.pic_issuing_authority || 'Authority'}` : "Data not provided"}
+                    {nagoyaProtocolText}
                   </div>
                 </div>
               </div>
@@ -168,32 +159,20 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
                   <div className="font-semibold text-muted-foreground">Oxygen Requirement</div>
                   <div className="col-span-2 text-foreground font-medium">{growthInfo.oxygen_requirement || '—'}</div>
                 </div>
-                <div className="grid grid-cols-3 p-3 border-b border-border/40">
-                  <div className="font-semibold text-muted-foreground">Incubation Time</div>
-                  <div className="col-span-2 text-foreground font-medium">{growthInfo.incubation_time_days ? `${growthInfo.incubation_time_days} days` : '—'}</div>
-                </div>
               </div>
             </section>
 
-            {/* Images Section */}
-            {(micro.images && micro.images.length > 0) && (
-              <section>
-                <h2 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60">Microscopy & Media Images</h2>
-                <div className="bg-card border border-border/60 rounded-lg p-5 shadow-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {micro.images.map((img: any, idx: number) => (
-                      <div key={idx} className="relative aspect-video rounded-md overflow-hidden bg-muted border border-border">
-                        <img 
-                          src={img.secure_url || img.url || img} 
-                          alt={`${fullName} microscopy image`}
-                          className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            )}
+            <section>
+              <h2 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60">Microscopy & Media Images</h2>
+              <div className="bg-card border border-border/60 rounded-lg p-5 shadow-sm">
+                <ImageGallery
+                  images={micro.microscopy_images || []}
+                  altBase={`${fullName} microscopy`}
+                  gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  imageClassName="aspect-video"
+                />
+              </div>
+            </section>
 
           </div>
 

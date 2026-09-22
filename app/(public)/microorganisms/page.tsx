@@ -2,10 +2,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, ChevronRight, FileText } from "lucide-react";
+import { Search, Filter, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MicroorganismRepository } from "@/repositories/microorganism.repository";
 import { TaxonomicInformation, PathogenicityInformation, DetailsOfIsolation } from "@/features/microorganisms/types";
+import Image from "next/image";
+
+type StrainRecord = {
+  id: string;
+  taxonomic_information?: TaxonomicInformation;
+  details_of_isolation?: DetailsOfIsolation;
+  pathogenicity_information?: PathogenicityInformation;
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -21,8 +29,9 @@ export default async function MicroorganismsPage({
   return (
     <div className="min-h-screen bg-background">
       {/* Category Header */}
-      <div className="bg-secondary border-b border-border py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative overflow-hidden bg-secondary border-b border-border py-12">
+        <Image src="/Thumbnail to bacteria repository.png" alt="Microbial strains repository" fill sizes="100vw" className="pointer-events-none object-cover opacity-10" />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 font-medium">
             <Link href="/" className="hover:text-primary transition-colors">Home</Link>
             <ChevronRight className="h-4 w-4" />
@@ -86,7 +95,36 @@ export default async function MicroorganismsPage({
               </Button>
             </div>
 
-            <div className="border border-border/60 rounded-xl overflow-hidden bg-card shadow-sm">
+            <div className="space-y-3 md:hidden">
+              {strains.map((strain: StrainRecord) => {
+                const taxInfo = strain.taxonomic_information as TaxonomicInformation;
+                const isoInfo = strain.details_of_isolation as DetailsOfIsolation;
+                const pathInfo = strain.pathogenicity_information as PathogenicityInformation;
+
+                return (
+                  <article key={strain.id} className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="font-mono text-xs font-semibold text-muted-foreground">{taxInfo?.strain_number || strain.id.substring(0, 8)}</p>
+                        <h2 className="mt-1 break-words text-base font-semibold italic text-foreground">{taxInfo?.genus} {taxInfo?.species}</h2>
+                        {taxInfo?.is_type_strain && <Badge variant="outline" className="mt-2 text-[10px] uppercase tracking-wider border-primary/30 text-primary">Type Strain</Badge>}
+                      </div>
+                      <Badge variant={pathInfo?.biohazard_group === "1" ? "secondary" : "destructive"} className="shrink-0 font-mono shadow-none">RG-{pathInfo?.biohazard_group || "1"}</Badge>
+                    </div>
+                    <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border/60 pt-4 text-sm">
+                      <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Organism</dt><dd className="mt-1 text-foreground">{taxInfo?.type_of_organism || "Unknown"}</dd></div>
+                      <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Isolation source</dt><dd className="mt-1 break-words text-foreground">{isoInfo?.source_of_isolation || "Unknown"}</dd></div>
+                    </dl>
+                    <Link href={`/microorganisms/${strain.id}`} className="mt-4 block">
+                      <Button className="h-10 w-full justify-center">View details <ChevronRight className="ml-1 h-4 w-4" /></Button>
+                    </Link>
+                  </article>
+                );
+              })}
+              {strains.length === 0 && <div className="rounded-xl border border-border/60 bg-card p-8 text-center text-muted-foreground">No strains found matching your criteria.</div>}
+            </div>
+
+            <div className="hidden overflow-x-auto border border-border/60 rounded-xl bg-card shadow-sm md:block">
               <Table>
                 <TableHeader className="bg-muted/50">
                   <TableRow className="hover:bg-transparent">
@@ -99,7 +137,7 @@ export default async function MicroorganismsPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {strains.map((strain: any) => {
+                  {strains.map((strain: StrainRecord) => {
                     // Type casting based on the JSONB structure
                     const taxInfo = strain.taxonomic_information as TaxonomicInformation;
                     const isoInfo = strain.details_of_isolation as DetailsOfIsolation;

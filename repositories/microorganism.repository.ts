@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { deleteMediaAssets, deleteRemovedMedia } from '@/actions/media-actions'
 import { Microorganism, LabStorageView } from '@/types'
 
 export class MicroorganismRepository {
@@ -140,6 +141,7 @@ export class MicroorganismRepository {
 
   static async update(id: string, data: any) {
     const supabase = await this.getClient()
+    const { data: previousMicro } = await supabase.from('microorganisms').select('microscopy_images').eq('id', id).single()
     const { storage_labels, id: recordId, created_at, updated_at, lab_test_tubes, ...microData } = data
 
     const { data: updatedMicro, error } = await supabase
@@ -198,13 +200,16 @@ export class MicroorganismRepository {
       }
     }
 
+    await deleteRemovedMedia(previousMicro?.microscopy_images, updatedMicro.microscopy_images)
     return updatedMicro
   }
 
   static async delete(id: string) {
     const supabase = await this.getClient()
+    const { data: micro } = await supabase.from('microorganisms').select('microscopy_images').eq('id', id).single()
     const { error } = await supabase.from('microorganisms').delete().eq('id', id)
     if (error) throw error
+    await deleteMediaAssets(micro?.microscopy_images)
     return true
   }
 

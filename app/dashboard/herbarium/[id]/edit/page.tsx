@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+  import { notFound } from 'next/navigation'
 import { HerbariumRepository } from '@/repositories/herbarium.repository'
 import HerbariumForm from '@/components/dashboard/herbarium-form'
 import type { HerbariumSpecimen } from '@/types'

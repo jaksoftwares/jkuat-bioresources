@@ -9,12 +9,13 @@ export function Footer() {
           {/* Brand Info */}
           <div className="md:col-span-1 space-y-6">
             <Image
-              src="/assets/logos/logo-white.svg"
-              alt="JKUAT Bioresources"
-              width={200}
-              height={50}
-              className="h-10 w-auto"
+              src="/assets/images/jkuat-logo.jpg"
+              alt="Jomo Kenyatta University of Agriculture and Technology"
+              width={64}
+              height={64}
+              className="h-16 w-16 rounded-full object-contain"
             />
+            <p className="text-lg font-extrabold text-white">JKUAT Bioresources</p>
             <p className="text-slate-200/80 text-sm leading-relaxed max-w-xs">
               The official website for biological research at Jomo Kenyatta University of Agriculture and Technology.
             </p>
@@ -35,7 +36,7 @@ export function Footer() {
           <div>
             <h3 className="font-bold text-white mb-6">Institution</h3>
             <ul className="space-y-4">
-              <li><Link href="/about" className="text-sm text-slate-200/80 hover:text-white transition-colors">About JKUAT Bioresources</Link></li>
+              <li><Link href="/about" className="text-sm text-slate-200/80 hover:text-white transition-colors">About</Link></li>
               <li><a href="https://jkuat.ac.ke" target="_blank" rel="noreferrer" className="text-sm text-slate-200/80 hover:text-white transition-colors">JKUAT Main Website</a></li>
               <li><Link href="/researchers" className="text-sm text-slate-200/80 hover:text-white transition-colors">Researcher Directory</Link></li>
               <li><Link href="/contact" className="text-sm text-slate-200/80 hover:text-white transition-colors">Contact Support</Link></li>

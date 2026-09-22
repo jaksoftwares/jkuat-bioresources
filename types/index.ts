@@ -37,7 +37,7 @@ export interface Plant {
   nutritional_value?: string;
   medicinal_value?: string;
   cultural_significance?: string;
-  growth_conditions: Record<string, any>;
+  growth_conditions: Record<string, string>;
   geographic_distribution: string[];
   images: CloudinaryMedia[];
   documents: CloudinaryMedia[];
@@ -92,6 +92,12 @@ export interface CloudinaryMedia {
   format: string;
   resource_type: string;
   secure_url: string;
+  width?: number;
+  height?: number;
+  alt?: string;
+  caption?: string;
+  sort_order?: number;
+  is_primary?: boolean;
 }
 
 export interface LabStorageView {

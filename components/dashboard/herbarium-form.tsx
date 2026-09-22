@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { uploadToCloudinary } from '@/actions/media-actions'
 import type { HerbariumSpecimen, CloudinaryMedia } from '@/types'
 import { toast } from 'sonner'
+import ImageManager from '@/components/dashboard/image-manager'
 
 interface HerbariumFormProps {
   initialValues?: Partial<HerbariumSpecimen>
@@ -45,7 +46,6 @@ export default function HerbariumForm({
   // Media
   const [images, setImages] = useState<CloudinaryMedia[]>(initialValues?.specimen_images || [])
   const [docs, setDocs] = useState<CloudinaryMedia[]>(initialValues?.supporting_documents || [])
-  const [pendingImages, setPendingImages] = useState<File[]>([])
   const [pendingDocs, setPendingDocs] = useState<File[]>([])
 
   // Researchers List
@@ -62,12 +62,11 @@ export default function HerbariumForm({
 
   const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>, type: 'img' | 'doc') => {
     const selected = event.target.files; if (!selected) return;
-    if (type === 'img') setPendingImages(prev => [...prev, ...Array.from(selected)]);
-    else setPendingDocs(prev => [...prev, ...Array.from(selected)]);
+    if (type === 'doc') setPendingDocs(prev => [...prev, ...Array.from(selected)]);
   }
 
-  const performUpload = async (type: 'img' | 'doc') => {
-    const files = type === 'img' ? pendingImages : pendingDocs;
+  const performUpload = async () => {
+    const files = pendingDocs;
     if (files.length === 0) return;
     
     setUploading(true)
@@ -76,16 +75,11 @@ export default function HerbariumForm({
       for (const file of files) {
         const reader = new FileReader()
         const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file) })
-        const res = await uploadToCloudinary(base64, `herbarium/${type === 'img' ? 'images' : 'docs'}`)
+        const res = await uploadToCloudinary(base64, 'herbarium/docs')
         results.push(res);
       }
-      if (type === 'img') {
-        setImages(prev => [...prev, ...results]);
-        setPendingImages([]);
-      } else {
-        setDocs(prev => [...prev, ...results]);
-        setPendingDocs([]);
-      }
+      setDocs(prev => [...prev, ...results]);
+      setPendingDocs([]);
       toast.success('Archival media synced successfully');
     } catch { 
       setErrorMessage('Media sync failed');
@@ -100,22 +94,6 @@ export default function HerbariumForm({
     setErrorMessage(''); setIsSubmitting(true)
 
     try {
-      let finalImages = [...images];
-      if (pendingImages.length > 0) {
-        setUploading(true);
-        const resultsImg: CloudinaryMedia[] = [];
-        for (const file of pendingImages) {
-          const reader = new FileReader();
-          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file); });
-          const res = await uploadToCloudinary(base64, 'herbarium/images');
-          resultsImg.push(res);
-        }
-        finalImages = [...finalImages, ...resultsImg];
-        setImages(finalImages);
-        setPendingImages([]);
-        setUploading(false);
-      }
-
       let finalDocs = [...docs];
       if (pendingDocs.length > 0) {
         setUploading(true);
@@ -142,7 +120,7 @@ export default function HerbariumForm({
         habitat_description: habitat || undefined,
         ecological_notes: ecological || undefined,
         medicinal_notes: medicinal || undefined,
-        specimen_images: finalImages,
+        specimen_images: images,
         supporting_documents: finalDocs,
       }
 
@@ -228,50 +206,14 @@ export default function HerbariumForm({
         {/* Section: Visual & Scanned Documentation */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
            <div className="space-y-4">
-              <Label className="text-xs font-black uppercase text-slate-400 flex items-center gap-2"><FileText className="w-3.5 h-3.5" /> Specimen Scans / Photographs</Label>
-              <div className="flex gap-2">
-                <Input type="file" multiple accept="image/*" onChange={e => handleFileSelection(e, 'img')} disabled={uploading} className="h-11 bg-white pt-2 border-slate-200" />
-                <Button type="button" onClick={() => performUpload('img')} disabled={uploading || pendingImages.length === 0} variant="outline" className="h-11 border-emerald-200 text-emerald-600 gap-2">
-                   <Upload className="w-4 h-4" /> {uploading ? '...' : 'Upload'}
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-3 mt-4">
-                 {pendingImages.map((file, idx) => (
-                   <div key={`pending-img-${idx}`} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group shadow-sm transition-all">
-                      <img src={URL.createObjectURL(file)} alt="Pending Upload" className="w-full h-full object-cover opacity-70" />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                         <span className="text-[10px] font-bold text-white uppercase tracking-widest">Pending</span>
-                      </div>
-                      <button 
-                        type="button" 
-                        onClick={() => setPendingImages(pendingImages.filter((_, i) => i !== idx))}
-                        className="absolute top-2 right-2 p-1.5 bg-rose-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                         <Trash2 className="w-3 h-3" />
-                      </button>
-                   </div>
-                 ))}
-                 {images.map((img, idx) => (
-                   <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group shadow-sm">
-                      <img src={img.secure_url} alt="Specimen" className="w-full h-full object-cover" />
-                      <button 
-                        type="button" 
-                        onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                        className="absolute inset-0 bg-rose-600/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                         <Trash2 className="w-4 h-4" />
-                      </button>
-                   </div>
-                 ))}
-              </div>
+                <ImageManager images={images} onChange={setImages} folder="herbarium/images" label="Specimen Scans / Photographs" />
            </div>
 
            <div className="space-y-4">
               <Label className="text-xs font-black uppercase text-slate-400 flex items-center gap-2"><FileText className="w-3.5 h-3.5" /> Supporting Field Notes (PDF)</Label>
               <div className="flex gap-2">
                 <Input type="file" multiple accept=".pdf" onChange={e => handleFileSelection(e, 'doc')} disabled={uploading} className="h-11 bg-white pt-2 border-slate-200" />
-                <Button type="button" onClick={() => performUpload('doc')} disabled={uploading || pendingDocs.length === 0} variant="outline" className="h-11 border-emerald-200 text-emerald-600 gap-2">
+                <Button type="button" onClick={performUpload} disabled={uploading || pendingDocs.length === 0} variant="outline" className="h-11 border-emerald-200 text-emerald-600 gap-2">
                    <Upload className="w-4 h-4" /> {uploading ? '...' : 'Upload'}
                 </Button>
               </div>

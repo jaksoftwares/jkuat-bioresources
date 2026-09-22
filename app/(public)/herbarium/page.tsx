@@ -16,7 +16,7 @@ export default async function HerbariumPage() {
       {/* Category Header */}
       <div className="relative py-20 border-b border-sidebar-border overflow-hidden">
         <Image
-          src="/assets/images/herbarium_collection.png"
+          src="/Thumbnail to herbarium collection.jpeg"
           alt="Herbarium Header"
           fill
           sizes="100vw"
@@ -54,7 +54,7 @@ export default async function HerbariumPage() {
                   {/* Specimen Visual */}
                   <div className="h-56 relative bg-muted border-b border-border overflow-hidden">
                     <Image
-                      src={specimen.specimen_images?.[0]?.secure_url || "/assets/images/herbarium_collection.png"}
+                      src={specimen.specimen_images?.[0]?.secure_url || "/Thumbnail to herbarium collection.jpeg"}
                       alt={specimen.scientific_name}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

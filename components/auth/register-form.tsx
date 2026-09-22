@@ -16,16 +16,12 @@ import {
   Mail, 
   Lock, 
   User, 
-  AlertCircle, 
-  Sparkles, 
-  Database, 
   Hash, 
   Building2, 
   School,
   CheckCircle2
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
 
 type FormData = z.infer<typeof signUpSchema>
 
@@ -67,7 +63,7 @@ export function RegisterForm() {
         setIsSuccess(true)
         toast.success('Registration successful. Please verify your email.')
       }
-    } catch (err: any) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsPending(false)
@@ -83,7 +79,7 @@ export function RegisterForm() {
         <div>
           <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Check your Email</h2>
           <p className="mt-4 text-slate-500 font-medium text-lg leading-relaxed max-w-[340px] mx-auto">
-            We've sent a verification link to your institutional email. Please confirm it to access the registry.
+            We&apos;ve sent a verification link to your institutional email. Please confirm it to access the registry.
           </p>
         </div>
         <div className="pt-8">
@@ -100,7 +96,7 @@ export function RegisterForm() {
       {/* Header */}
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Create Account</h2>
-        <p className="text-slate-500 text-sm font-medium">Join the researcher community today.</p>
+        <p className="text-slate-500 text-sm font-medium">Create an account for the JKUAT Bioresources catalog.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -271,7 +267,6 @@ export function RegisterForm() {
           ) : (
             <>
               Register
-              <Sparkles className="ml-2 w-4 h-4" />
             </>
           )}
         </Button>

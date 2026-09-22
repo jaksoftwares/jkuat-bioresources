@@ -3,13 +3,24 @@
 import { useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import type { CloudinaryMedia } from "@/types";
 
 interface ImageGalleryProps {
-  images: any[];
+  images: Array<CloudinaryMedia | string>;
   altBase: string;
   gridClassName?: string;
   imageClassName?: string;
   fallbackText?: string;
+}
+
+function getImageSource(image: CloudinaryMedia | string) {
+  if (typeof image === "string") return image;
+  return image.secure_url || image.url;
+}
+
+function getImageAlt(image: CloudinaryMedia | string, altBase: string, index: number) {
+  if (typeof image === "string") return `${altBase} Image ${index + 1}`;
+  return image.alt || `${altBase} Image ${index + 1}`;
 }
 
 export default function ImageGallery({
@@ -47,15 +58,15 @@ export default function ImageGallery({
     <>
       {/* Grid View */}
       <div className={gridClassName}>
-        {images.map((img: any, idx: number) => (
+        {images.map((img, idx) => (
           <div
             key={idx}
             onClick={() => setSelectedIndex(idx)}
             className={`block relative rounded-xl overflow-hidden border border-gray-200 hover:border-jkuat-green transition-colors cursor-pointer group ${imageClassName}`}
           >
             <Image
-              src={img.secure_url}
-              alt={`${altBase} Image ${idx + 1}`}
+              src={getImageSource(img)}
+              alt={getImageAlt(img, altBase, idx)}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
@@ -84,8 +95,8 @@ export default function ImageGallery({
 
           <div className="relative w-full h-full max-w-5xl max-h-[85vh] mx-4 md:mx-20 flex items-center justify-center">
             <Image
-              src={images[selectedIndex].secure_url}
-              alt={`${altBase} Image ${selectedIndex + 1}`}
+              src={getImageSource(images[selectedIndex])}
+              alt={getImageAlt(images[selectedIndex], altBase, selectedIndex)}
               fill
               className="object-contain"
               priority
