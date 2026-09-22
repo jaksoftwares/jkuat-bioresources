@@ -10,6 +10,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "JKUAT Bioresources",
   description: "Digital platform for managing and accessing bioresource information at JKUAT.",
+  icons: {
+    icon: "/assets/images/jkuat-logo.jpg",
+    shortcut: "/assets/images/jkuat-logo.jpg",
+    apple: "/assets/images/jkuat-logo.jpg",
+  },
 };
 
 export default function RootLayout({
