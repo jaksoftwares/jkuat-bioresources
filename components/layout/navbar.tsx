@@ -135,9 +135,6 @@ export function Navbar() {
                            Register
                         </Link>
                      </div>
-                     <Link href="/cart" onClick={() => setIsOpen(false)} className="block w-full text-sm font-semibold text-center py-2.5 rounded-lg border border-border bg-background hover:bg-secondary transition-colors">
-                        Cart (0)
-                     </Link>
                   </div>
                 </div>
               </SheetContent>

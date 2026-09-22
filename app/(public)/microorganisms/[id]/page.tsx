@@ -2,9 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Share2, MapPin, AlertTriangle, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { MicroorganismRepository } from "@/repositories/microorganism.repository";
 import { TaxonomicInformation, GrowthRelatedInformation, DetailsOfIsolation, PathogenicityInformation, IdentificationInformation, CBDInformation } from "@/features/microorganisms/types";
+import ImageGallery from "@/components/public/image-gallery";
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -84,7 +86,6 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
           
           {/* Main Content Area (DSMZ Style Tables) */}
           <div className="lg:col-span-3 space-y-10">
-            
             <section>
               <h2 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60">Taxonomy & Designation</h2>
               <div className="bg-card border border-border/60 rounded-lg overflow-hidden shadow-sm text-sm">
@@ -198,14 +199,6 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
 
           {/* Right Sidebar */}
           <div className="space-y-6">
-            <div className="bg-card border border-border/60 shadow-sm rounded-lg p-5">
-              <h3 className="font-bold text-foreground mb-4 pb-2 border-b border-border/40">Deposit Action</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Request this strain for academic or industrial research purposes. Must comply with Material Transfer Agreement (MTA).
-              </p>
-              <Button className="w-full font-bold">Add to Cart</Button>
-            </div>
-
             <div className="bg-muted/40 border border-border/60 shadow-sm rounded-lg p-5">
               <h3 className="font-bold text-foreground mb-4 pb-2 border-b border-border/40 flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-destructive" /> Safety Information

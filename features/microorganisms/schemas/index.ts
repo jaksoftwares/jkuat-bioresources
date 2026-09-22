@@ -92,12 +92,6 @@ export const DepositorInformationSchema = z.object({
   dispatch_date: z.string().optional(),
 });
 
-export const PaymentInformationSchema = z.object({
-  date_of_payment: z.string().optional(),
-  mode_of_payment: z.string().optional(),
-  id_of_payment: z.string().optional(),
-});
-
 export const MorphologicalIdentificationSchema = z.object({
   size: z.string().optional(),
   shape: z.string().optional(),
@@ -147,7 +141,6 @@ export const MicroorganismSchema = z.object({
   identification_information: IdentificationInformationSchema,
   special_feature_information: SpecialFeatureInformationSchema,
   depositor_information: DepositorInformationSchema,
-  payment_information: PaymentInformationSchema.optional(),
   morphological_identification: MorphologicalIdentificationSchema.optional(),
   molecular_identification: MolecularIdentificationSchema.optional(),
   biochemical_information: BiochemicalInformationSchema.optional(),

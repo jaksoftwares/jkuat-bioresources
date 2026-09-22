@@ -14,7 +14,6 @@ ALTER TABLE microorganisms
   ADD COLUMN IF NOT EXISTS identification_information JSONB DEFAULT '{}'::jsonb,
   ADD COLUMN IF NOT EXISTS special_feature_information JSONB DEFAULT '{}'::jsonb,
   ADD COLUMN IF NOT EXISTS depositor_information JSONB DEFAULT '{}'::jsonb,
-  ADD COLUMN IF NOT EXISTS payment_information JSONB DEFAULT '{}'::jsonb,
   ADD COLUMN IF NOT EXISTS morphological_identification JSONB DEFAULT '{}'::jsonb,
   ADD COLUMN IF NOT EXISTS molecular_identification JSONB DEFAULT '{}'::jsonb,
   ADD COLUMN IF NOT EXISTS biochemical_information JSONB DEFAULT '{}'::jsonb,

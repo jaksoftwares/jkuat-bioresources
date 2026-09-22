@@ -90,12 +90,6 @@ export interface DepositorInformation {
   dispatch_date?: string;
 }
 
-export interface PaymentInformation {
-  date_of_payment?: string;
-  mode_of_payment?: string;
-  id_of_payment?: string;
-}
-
 export interface MorphologicalIdentification {
   size?: string;
   shape?: string;
@@ -146,7 +140,6 @@ export interface Microorganism {
   identification_information: IdentificationInformation;
   special_feature_information: SpecialFeatureInformation;
   depositor_information: DepositorInformation;
-  payment_information?: PaymentInformation;
   morphological_identification?: MorphologicalIdentification;
   molecular_identification?: MolecularIdentification;
   biochemical_information?: BiochemicalInformation;
