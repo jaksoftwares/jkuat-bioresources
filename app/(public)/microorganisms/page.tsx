@@ -114,7 +114,7 @@ export default async function MicroorganismsPage({
                     </div>
                     <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border/60 pt-4 text-sm">
                       <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Organism</dt><dd className="mt-1 text-foreground">{taxInfo?.type_of_organism || "Unknown"}</dd></div>
-                      <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Isolation source</dt><dd className="mt-1 break-words text-foreground">{isoInfo?.source_of_isolation || "Unknown"}</dd></div>
+                      <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Accession Number</dt><dd className="mt-1 break-words text-foreground">{taxInfo?.ncbi_16s_accession_number || "N/A"}</dd></div>
                     </dl>
                     <div className="mt-4 flex items-center justify-end text-sm font-medium text-primary">
                       View details <ChevronRight className="ml-1 h-4 w-4" />
@@ -129,10 +129,10 @@ export default async function MicroorganismsPage({
               <Table>
                 <TableHeader className="bg-muted/50">
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="w-[120px] font-bold text-foreground">Strain No.</TableHead>
-                    <TableHead className="font-bold text-foreground">Scientific Name</TableHead>
+                    <TableHead className="w-[120px] font-bold text-foreground">JKUAT Number</TableHead>
                     <TableHead className="font-bold text-foreground">Organism Type</TableHead>
-                    <TableHead className="font-bold text-foreground">Isolation Source</TableHead>
+                    <TableHead className="font-bold text-foreground">Scientific Name</TableHead>
+                    <TableHead className="font-bold text-foreground">Accession Number</TableHead>
                     <TableHead className="w-[100px] font-bold text-foreground text-center">Risk Group</TableHead>
                     <TableHead className="w-[100px]"></TableHead>
                   </TableRow>

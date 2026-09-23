@@ -38,6 +38,9 @@ export function MicroorganismCollectionRow({ strain }: { strain: StrainRecord })
       <TableCell className="font-mono text-xs font-semibold text-muted-foreground">
         {taxInfo?.strain_number || strain.id.substring(0, 8)}
       </TableCell>
+      <TableCell className="text-sm whitespace-normal">
+        {taxInfo?.type_of_organism || "Unknown"}
+      </TableCell>
       <TableCell className="whitespace-normal">
         <span className="italic font-semibold text-foreground group-hover:text-primary transition-colors">
           {taxInfo?.genus} {taxInfo?.species}
@@ -48,11 +51,8 @@ export function MicroorganismCollectionRow({ strain }: { strain: StrainRecord })
           </Badge>
         )}
       </TableCell>
-      <TableCell className="text-sm whitespace-normal">
-        {taxInfo?.type_of_organism || "Unknown"}
-      </TableCell>
       <TableCell className="text-sm text-muted-foreground whitespace-normal">
-        {isoInfo?.source_of_isolation || "Unknown"}
+        {taxInfo?.ncbi_16s_accession_number || "N/A"}
       </TableCell>
       <TableCell className="text-center">
         <Badge variant={pathInfo?.biohazard_group === "1" ? "secondary" : "destructive"} className="font-mono shadow-none">

@@ -36,6 +36,7 @@ const inserts = dataRows.map((row) => {
   const scientificName = [text(row[2]), text(row[3])].filter(Boolean).join(' ') || `Microbial strain ${serial}`;
   const taxonomic = clean({
     catalogue_number: serial,
+    jkuat_number: text(row[4]),
     scientific_name: scientificName,
     type_of_organism: text(row[1]) || 'Other',
     genus: text(row[2]) || 'Unknown',
