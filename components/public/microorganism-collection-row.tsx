@@ -36,7 +36,7 @@ export function MicroorganismCollectionRow({ strain }: { strain: StrainRecord })
       aria-label={`View details for ${taxInfo?.genus || "microbial"} ${taxInfo?.species || "strain"}`}
     >
       <TableCell className="font-mono text-xs font-semibold text-muted-foreground">
-        {taxInfo?.strain_number || strain.id.substring(0, 8)}
+        {taxInfo?.jkuat_number || taxInfo?.strain_number || strain.id.substring(0, 8)}
       </TableCell>
       <TableCell className="text-sm whitespace-normal">
         {taxInfo?.type_of_organism || "Unknown"}

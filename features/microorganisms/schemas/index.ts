@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const TaxonomicInformationSchema = z.object({
   type_of_organism: z.enum(["Bacteria", "Fungi", "Yeast", "Algae", "Virus", "Other"]),
+  jkuat_number: z.string().optional(),
   genus: z.string().min(1, "Genus is required"),
   species: z.string().min(1, "Species is required"),
   is_type_strain: z.boolean(),

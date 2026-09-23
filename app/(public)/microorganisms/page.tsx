@@ -106,7 +106,7 @@ export default async function MicroorganismsPage({
                   <Link key={strain.id} href={`/microorganisms/${strain.id}`} className="block rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-colors hover:border-primary/50 hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <p className="font-mono text-xs font-semibold text-muted-foreground">{taxInfo?.strain_number || strain.id.substring(0, 8)}</p>
+                        <p className="font-mono text-xs font-semibold text-muted-foreground">{taxInfo?.jkuat_number || taxInfo?.strain_number || strain.id.substring(0, 8)}</p>
                         <h2 className="mt-1 break-words text-base font-semibold italic text-foreground">{taxInfo?.genus} {taxInfo?.species}</h2>
                         {taxInfo?.is_type_strain && <Badge variant="outline" className="mt-2 text-[10px] uppercase tracking-wider border-primary/30 text-primary">Type Strain</Badge>}
                       </div>

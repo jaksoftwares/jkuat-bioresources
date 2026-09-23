@@ -1,5 +1,6 @@
 export interface TaxonomicInformation {
   catalogue_number?: number;
+  jkuat_number?: string;
   scientific_name?: string;
   type_of_organism: "Bacteria" | "Fungi" | "Yeast" | "Algae" | "Virus" | "Other";
   genus: string;
