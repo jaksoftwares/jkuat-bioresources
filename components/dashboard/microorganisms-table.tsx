@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { MicroorganismModal } from '@/components/dashboard/microorganism-modal'
 import { MicroorganismRowActions } from '@/components/dashboard/microorganism-row-actions'
 import { Microorganism } from '@/types'
+import { normalizeMicroorganism } from '@/features/microorganisms/normalize'
 
 interface MicroorganismsTableProps {
   initialMicros: (Microorganism & { lab_test_tubes?: any[] })[]
@@ -78,6 +79,7 @@ export function MicroorganismsTable({ initialMicros, role }: MicroorganismsTable
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-jkuat-gray-100 text-[10px] font-black uppercase tracking-widest text-jkuat-gray-400 bg-jkuat-gray-50/20">
+                  <th className="w-20 px-6 py-5">No.</th>
                   <th className="px-6 py-5">Strain Nomenclature</th>
                   <th className="px-6 py-5">Physical Inventory Location</th>
                   <th className="px-6 py-5">Isolation Source</th>
@@ -88,7 +90,7 @@ export function MicroorganismsTable({ initialMicros, role }: MicroorganismsTable
               <tbody className="divide-y divide-jkuat-gray-100 italic-none">
                 {microorganisms.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-24 text-center">
+                    <td colSpan={6} className="px-6 py-24 text-center">
                        <div className="flex flex-col items-center justify-center space-y-4 opacity-30">
                           <Microscope className="w-12 h-12 text-jkuat-gray-400" />
                           <p className="font-bold text-xs uppercase tracking-[0.3em]">No strains detected in repository</p>
@@ -97,6 +99,9 @@ export function MicroorganismsTable({ initialMicros, role }: MicroorganismsTable
                   </tr>
                 ) : (
                   microorganisms.map((item) => {
+                    const canonical = normalizeMicroorganism(item as any);
+                    const taxInfo = canonical.taxonomic_information;
+                    const isolationInfo = canonical.details_of_isolation;
                     const getProp = (obj: any, key: string) => {
                       if (!obj) return null;
                       // Handle the case where obj itself might be the result of a plural/singular join
@@ -123,10 +128,15 @@ export function MicroorganismsTable({ initialMicros, role }: MicroorganismsTable
 
                     return (
                       <tr key={item.id} className="hover:bg-jkuat-green-light/5 transition-colors group">
+                        <td className="px-6 py-5 align-top">
+                          <span className="inline-flex min-w-8 items-center justify-center rounded-md bg-jkuat-green/10 px-2 py-1 font-mono text-sm font-black text-jkuat-green">
+                            {canonical.display_order ?? '—'}
+                          </span>
+                        </td>
                         <td className="px-6 py-5">
                           <div className="flex flex-col">
-                            <span className="font-extrabold text-jkuat-gray-900 group-hover:text-jkuat-green transition-colors italic tracking-tight text-base">{item.scientific_name}</span>
-                            <span className="text-[10px] font-black text-jkuat-gray-400 uppercase tracking-widest mt-1 font-mono">{item.strain_code || 'UNTRACKED'}</span>
+                            <span className="font-extrabold text-jkuat-gray-900 group-hover:text-jkuat-green transition-colors italic tracking-tight text-base">{taxInfo.genus} {taxInfo.species}</span>
+                            <span className="text-[10px] font-black text-jkuat-gray-400 uppercase tracking-widest mt-1 font-mono">{taxInfo.strain_number || 'UNTRACKED'}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5">
@@ -145,7 +155,7 @@ export function MicroorganismsTable({ initialMicros, role }: MicroorganismsTable
                         <td className="px-6 py-5">
                            <div className="flex items-center gap-2">
                               <MapPin className="w-3.5 h-3.5 text-slate-300" />
-                              <span className="text-sm text-jkuat-gray-600 font-bold">{item.source_isolated_from || '—'}</span>
+                              <span className="text-sm text-jkuat-gray-600 font-bold">{isolationInfo.source_of_isolation || '—'}</span>
                            </div>
                         </td>
                         <td className="px-6 py-5">

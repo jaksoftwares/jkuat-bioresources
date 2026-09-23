@@ -1,4 +1,6 @@
 export interface TaxonomicInformation {
+  catalogue_number?: number;
+  scientific_name?: string;
   type_of_organism: "Bacteria" | "Fungi" | "Yeast" | "Algae" | "Virus" | "Other";
   genus: string;
   species: string;
@@ -80,6 +82,7 @@ export interface SpecialFeatureInformation {
   important_properties_applications?: string;
   patent_info?: string;
   references?: string;
+  legacy_experiment_details?: string;
 }
 
 export interface DepositorInformation {
@@ -123,8 +126,27 @@ export interface BiochemicalInformation {
   results: Record<string, string>;
 }
 
+export interface MediaInformation {
+  images: Array<{ url: string; caption?: string }>;
+  documents: Array<{ url: string; caption?: string; name?: string }>;
+}
+
+export interface PaymentInformation {
+  date_of_payment?: string;
+  mode_of_payment?: string;
+  payment_id?: string;
+}
+
+export interface AdministrativeInformation {
+  signature?: string;
+  record_date?: string;
+  mcm_field_1?: string;
+  mcm_field_2?: string;
+}
+
 export interface Microorganism {
   id: string;
+  display_order?: number;
   created_at: string;
   updated_at: string;
   created_by?: string;
@@ -143,6 +165,8 @@ export interface Microorganism {
   morphological_identification?: MorphologicalIdentification;
   molecular_identification?: MolecularIdentification;
   biochemical_information?: BiochemicalInformation;
-  
-  images?: Array<{ url: string; caption?: string }>;
+  media: MediaInformation;
+  payment_information: PaymentInformation;
+  administrative_information: AdministrativeInformation;
+  source_metadata?: Record<string, unknown>;
 }

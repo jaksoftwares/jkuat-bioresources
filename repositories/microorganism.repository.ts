@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { deleteMediaAssets, deleteRemovedMedia } from '@/actions/media-actions'
 import { Microorganism, LabStorageView } from '@/types'
+  import { normalizeMicroorganism } from '@/features/microorganisms/normalize'
+import { MicroorganismSchema } from '@/features/microorganisms/schemas'
 
 export class MicroorganismRepository {
   private static async getClient() {
@@ -17,13 +19,13 @@ export class MicroorganismRepository {
 
     if (filters?.strain_code) query = query.ilike('taxonomic_information->>strain_number', `%${filters.strain_code}%`)
     if (filters?.scientific_name) {
-      query = query.or(`taxonomic_information->>genus.ilike.%${filters.scientific_name}%,taxonomic_information->>species.ilike.%${filters.scientific_name}%`)
+      query = query.or(`taxonomic_information->>genus.ilike.%${filters.scientific_name}%,taxonomic_information->>species.ilike.%${filters.scientific_name}%,taxonomic_information->>scientific_name.ilike.%${filters.scientific_name}%`)
     }
     if (filters?.search) {
-      query = query.or(`taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%,taxonomic_information->>strain_number.ilike.%${filters.search}%`)
+      query = query.or(`taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%,taxonomic_information->>scientific_name.ilike.%${filters.search}%,taxonomic_information->>strain_number.ilike.%${filters.search}%`)
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false })
+    const { data, error } = await query.order('display_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false })
     if (error) throw error
     return data
   }
@@ -34,7 +36,7 @@ export class MicroorganismRepository {
       .from('microorganisms')
       .select('*, lab_test_tubes(*, lab_partitions(*, lab_trays(*, lab_shelves(*, lab_fridges(*)))))')
       .eq('created_by', userId)
-      .order('updated_at', { ascending: false })
+      .order('display_order', { ascending: true, nullsFirst: false })
 
     if (error) throw error
     return data
@@ -115,7 +117,8 @@ export class MicroorganismRepository {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) throw new Error('Unauthorized')
 
-    const { storage_labels, id, created_at, updated_at, lab_test_tubes, ...microData } = data
+    const { storage_labels, id, created_at, updated_at, lab_test_tubes, ...input } = data
+    const microData = MicroorganismSchema.parse(normalizeMicroorganism(input))
 
     const { data: newMicro, error } = await supabase
       .from('microorganisms')
@@ -131,7 +134,7 @@ export class MicroorganismRepository {
         await supabase.from('lab_test_tubes').insert([{
           microorganism_id: newMicro.id,
           partition_id: partition_id,
-          tube_label: storage_labels.tube_label || newMicro.strain_code
+          tube_label: storage_labels.tube_label || newMicro.taxonomic_information?.strain_number
         }])
       }
     }
@@ -141,8 +144,9 @@ export class MicroorganismRepository {
 
   static async update(id: string, data: any) {
     const supabase = await this.getClient()
-    const { data: previousMicro } = await supabase.from('microorganisms').select('microscopy_images').eq('id', id).single()
-    const { storage_labels, id: recordId, created_at, updated_at, lab_test_tubes, ...microData } = data
+    const { data: previousMicro } = await supabase.from('microorganisms').select('media').eq('id', id).single()
+    const { storage_labels, id: recordId, created_at, updated_at, lab_test_tubes, ...input } = data
+    const microData = MicroorganismSchema.partial().parse(normalizeMicroorganism(input))
 
     const { data: updatedMicro, error } = await supabase
       .from('microorganisms')
@@ -167,7 +171,7 @@ export class MicroorganismRepository {
         const { error: storageError } = await supabase.from('lab_test_tubes').insert([{
           microorganism_id: id,
           partition_id: partition_id,
-          tube_label: storage_labels.tube_label || updatedMicro.strain_code
+          tube_label: storage_labels.tube_label || updatedMicro.taxonomic_information?.strain_number
         }])
         
         if (storageError) {
@@ -200,16 +204,16 @@ export class MicroorganismRepository {
       }
     }
 
-    await deleteRemovedMedia(previousMicro?.microscopy_images, updatedMicro.microscopy_images)
+    await deleteRemovedMedia(previousMicro?.media?.images, updatedMicro.media?.images)
     return updatedMicro
   }
 
   static async delete(id: string) {
     const supabase = await this.getClient()
-    const { data: micro } = await supabase.from('microorganisms').select('microscopy_images').eq('id', id).single()
+    const { data: micro } = await supabase.from('microorganisms').select('media').eq('id', id).single()
     const { error } = await supabase.from('microorganisms').delete().eq('id', id)
     if (error) throw error
-    await deleteMediaAssets(micro?.microscopy_images)
+    await deleteMediaAssets(micro?.media?.images)
     return true
   }
 

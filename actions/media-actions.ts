@@ -9,8 +9,10 @@ const ALLOWED_IMAGE_FOLDERS = new Set([
   'microorganisms/images',
   'herbarium/images',
 ])
+const ALLOWED_DOCUMENT_FOLDERS = new Set(['microorganisms/docs'])
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024
 const IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+const DOCUMENT_MIME_TYPES = new Set(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
 
 /**
  * Handle server-side upload to Cloudinary for security
@@ -23,21 +25,25 @@ export async function uploadToCloudinary(fileString: string, folder: string = 'j
       throw new Error('Unauthorized')
     }
 
-    if (!ALLOWED_IMAGE_FOLDERS.has(folder)) {
+    if (!ALLOWED_IMAGE_FOLDERS.has(folder) && !ALLOWED_DOCUMENT_FOLDERS.has(folder)) {
       throw new Error('Unsupported media folder')
     }
 
-    const match = fileString.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/)
-    if (!match) throw new Error('Only JPEG, PNG, and WebP images are supported')
+    const match = fileString.match(/^data:([^;]+);base64,(.+)$/)
+    if (!match) throw new Error('Invalid media data')
 
     const [, mimeType, encodedData] = match
-    if (!IMAGE_MIME_TYPES.has(mimeType)) throw new Error('Unsupported image type')
+    const isImage = IMAGE_MIME_TYPES.has(mimeType)
+    const isDocument = DOCUMENT_MIME_TYPES.has(mimeType)
+    if ((ALLOWED_IMAGE_FOLDERS.has(folder) && !isImage) || (ALLOWED_DOCUMENT_FOLDERS.has(folder) && !isDocument)) {
+      throw new Error('Unsupported media type')
+    }
     const byteSize = Math.ceil((encodedData.length * 3) / 4) - (encodedData.endsWith('==') ? 2 : encodedData.endsWith('=') ? 1 : 0)
     if (byteSize > MAX_IMAGE_SIZE) throw new Error('Image must be 10 MB or smaller')
 
     const uploadResponse = await cloudinary.uploader.upload(fileString, {
       folder,
-      resource_type: 'image',
+      resource_type: isImage ? 'image' : 'raw',
     })
 
     return {

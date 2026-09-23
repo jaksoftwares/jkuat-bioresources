@@ -1,321 +1,93 @@
 'use client'
 
-import { FormEvent, useState, useEffect } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Microscope, MapPin, Settings, Trash2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { uploadToCloudinary } from '@/actions/media-actions'
-import type { Microorganism, CloudinaryMedia } from '@/types'
-import { toast } from 'sonner'
 import ImageManager from '@/components/dashboard/image-manager'
+import { normalizeMicroorganism } from '@/features/microorganisms/normalize'
+import type { CloudinaryMedia } from '@/types'
+import { toast } from 'sonner'
 
-interface MicroorganismFormProps {
-  initialValues?: Partial<Microorganism> & { lab_test_tubes?: any[] }
-  submitUrl: string
-  submitMethod: 'POST' | 'PUT'
-  submitLabel: string
-  onSuccess?: () => void
+type FormState = Record<string, any>
+type Field = [string, string, 'text' | 'number' | 'date' | 'boolean' | 'textarea' | 'select']
+
+const sections: Array<[string, string]> = [
+  ['taxonomic_information', 'Taxonomy and designation'], ['details_of_isolation', 'Origin and isolation'],
+  ['pathogenicity_information', 'Pathogenicity and biosafety'], ['availability_information', 'Availability'],
+  ['cbd_information', 'CBD and Nagoya Protocol'], ['growth_related_information', 'Growth and cultivation'],
+  ['preservation_information', 'Preservation'], ['identification_information', 'Identification'],
+  ['depositor_information', 'Depositor'], ['morphological_identification', 'Morphological identification'],
+  ['molecular_identification', 'Molecular identification'], ['biochemical_information', 'Biochemical information'],
+  ['special_feature_information', 'Special features and references'], ['payment_information', 'Payment information'],
+  ['administrative_information', 'Administrative metadata'],
+]
+
+const fields: Record<string, Field[]> = {
+  taxonomic_information: [['type_of_organism', 'Organism type', 'select'], ['genus', 'Genus', 'text'], ['species', 'Species', 'text'], ['strain_number', 'Strain number', 'text'], ['ncbi_16s_accession_number', 'NCBI 16S accession', 'text'], ['is_type_strain', 'Type strain', 'boolean']],
+  details_of_isolation: [['source_of_isolation', 'Source of isolation', 'text'], ['isolated_by', 'Isolated by', 'text'], ['isolation_date', 'Isolation date', 'date'], ['village', 'Village', 'text'], ['town', 'Town', 'text'], ['county', 'County', 'text'], ['pin_code', 'PIN code', 'text'], ['country', 'Country', 'text'], ['gps_coordinates', 'GPS coordinates', 'text']],
+  pathogenicity_information: [['is_pathogenic', 'Is pathogenic', 'boolean'], ['pathogenic_to_human', 'Pathogenic to humans', 'boolean'], ['pathogenic_to_plant', 'Pathogenic to plants', 'boolean'], ['pathogenic_to_animal', 'Pathogenic to animals', 'boolean'], ['biohazard_group', 'Biohazard group', 'select']],
+  availability_information: [['is_available', 'Available', 'boolean'], ['form_of_supply', 'Forms of supply (comma separated)', 'text'], ['received_from_other_pi', 'Received from another PI', 'boolean'], ['pi_organization_name', 'PI organization', 'text'], ['other_culture_collection_numbers', 'Other culture collection numbers', 'text']],
+  cbd_information: [['pic_taken', 'PIC taken', 'boolean'], ['pic_issuing_authority', 'PIC issuing authority', 'text']],
+  growth_related_information: [['isolation_medium_name', 'Isolation medium', 'text'], ['growth_medium_name', 'Growth medium', 'text'], ['medium_composition', 'Medium composition', 'textarea'], ['ph_range', 'pH range', 'text'], ['optimum_ph', 'Optimum pH', 'number'], ['temperature_range_celsius', 'Temperature range (C)', 'text'], ['optimum_temperature_celsius', 'Optimum temperature (C)', 'number'], ['salt_range_percentage', 'Salt range (%)', 'text'], ['optimum_salt_concentration', 'Optimum salt concentration', 'text'], ['oxygen_requirement', 'Oxygen requirement', 'select'], ['special_growth_requirements', 'Special growth requirements', 'textarea'], ['incubation_time_days', 'Incubation time (days)', 'number'], ['subculturing_period_days', 'Subculturing period (days)', 'number']],
+  preservation_information: [['preservation_in_ln2', 'Preservation in liquid nitrogen', 'boolean'], ['lyophilization', 'Lyophilized', 'boolean'], ['active_form', 'Active form', 'boolean'], ['mineral_oil', 'Mineral oil', 'boolean'], ['at_4_celsius', 'Stored at 4 C', 'boolean'], ['other_preservation_methods', 'Other preservation methods', 'textarea']],
+  identification_information: [['identified_by', 'Identified by', 'text'], ['identification_date', 'Identification date', 'date'], ['gene_accession_number', 'Gene accession number', 'text'], ['sequence_text', 'Sequence text', 'textarea'], ['maldi_system_similarity_index', 'MALDI similarity index', 'number'], ['biolog_system_similarity_index', 'Biolog similarity index', 'number'], ['fame_analysis_similarity_index', 'FAME similarity index', 'number'], ['api_system', 'API system', 'text']],
+  depositor_information: [['depositor_name', 'Depositor name', 'text'], ['address', 'Address', 'textarea'], ['email', 'Email', 'text'], ['phone_number', 'Phone number', 'text'], ['dispatch_date', 'Dispatch date', 'date']],
+  morphological_identification: [['size', 'Size', 'text'], ['shape', 'Shape', 'text'], ['color', 'Color', 'text'], ['margin', 'Margin', 'text'], ['elevation', 'Elevation', 'text'], ['consistency', 'Consistency', 'text'], ['opacity', 'Opacity', 'text'], ['gram_nature', 'Gram nature', 'select'], ['cell_morphology', 'Cell morphology', 'text'], ['capsule', 'Capsule', 'boolean'], ['spore', 'Spore', 'boolean'], ['flagella', 'Flagella', 'boolean'], ['motility', 'Motility', 'boolean']],
+  molecular_identification: [['gene_used_for_identification', 'Gene used for identification', 'text'], ['cultured', 'Cultured result', 'text'], ['cultured_similarity_percentage', 'Cultured similarity (%)', 'number'], ['uncultured', 'Uncultured result', 'text'], ['uncultured_similarity_percentage', 'Uncultured similarity (%)', 'number'], ['type_strain', 'Type strain result', 'text'], ['type_strain_similarity_percentage', 'Type strain similarity (%)', 'number'], ['gc_content_percentage', 'GC content (%)', 'number'], ['tm_celsius', 'Tm (C)', 'number']],
+  biochemical_information: [['results', 'Results (one key:value per line)', 'textarea']],
+  special_feature_information: [['important_properties_applications', 'Important properties and applications', 'textarea'], ['patent_info', 'Patent information', 'textarea'], ['references', 'References', 'textarea'], ['legacy_experiment_details', 'Experiment details', 'textarea']],
+  payment_information: [['date_of_payment', 'Date of payment', 'date'], ['mode_of_payment', 'Mode of payment', 'text'], ['payment_id', 'Payment ID', 'text']],
+  administrative_information: [['signature', 'Signature', 'text'], ['record_date', 'Record date', 'date'], ['mcm_field_1', 'MCM field 1', 'text'], ['mcm_field_2', 'MCM field 2', 'text']],
 }
 
-export default function MicroorganismForm({
-  initialValues,
-  submitUrl,
-  submitMethod,
-  submitLabel,
-  onSuccess,
-}: MicroorganismFormProps) {
+const options: Record<string, string[]> = { type_of_organism: ['Bacteria', 'Fungi', 'Yeast', 'Algae', 'Virus', 'Other'], biohazard_group: ['1', '2', '3', '4'], oxygen_requirement: ['Aerobic', 'Anaerobic', 'Microaerophilic', 'Facultative Anaerobe', 'Unknown'], gram_nature: ['Positive', 'Negative', 'Variable', 'Unknown'] }
+
+function displayValue(state: FormState, section: string, field: string, type: Field[2]) {
+  const value = state[section]?.[field]
+  if (field === 'form_of_supply') return Array.isArray(value) ? value.join(', ') : value || ''
+  if (field === 'results' && value && typeof value === 'object') return Object.entries(value).map(([key, item]) => `${key}:${item}`).join('\n')
+  return value ?? (type === 'boolean' ? false : '')
+}
+
+export default function MicroorganismForm({ initialValues, submitUrl, submitMethod, submitLabel, onSuccess }: any) {
   const router = useRouter()
-  
-  // Basic Info
-  const [scientificName, setScientificName] = useState(initialValues?.scientific_name ?? '')
-  const [strainCode, setStrainCode] = useState(initialValues?.strain_code ?? '')
-  const [source, setSource] = useState(initialValues?.source_isolated_from ?? '')
-  const [researcherId, setResearcherId] = useState(initialValues?.researcher_id ?? '')
-  
-  // Storage
-  const [fridge, setFridge] = useState('')
-  const [shelf, setShelf] = useState('')
-  const [tray, setTray] = useState('')
-  const [partition, setPartition] = useState('')
-  const [tubeLabel, setTubeLabel] = useState('')
-  
-  // Suggestions
-  const [suggestions, setSuggestions] = useState<{ fridges: string[], shelves: string[], trays: string[], partitions: string[] }>({
-    fridges: [], shelves: [], trays: [], partitions: []
-  })
-
-  // Biological Params
-  const [optTemp, setOptTemp] = useState(initialValues?.optimum_temperature?.toString() ?? '')
-  const [minPh, setMinPh] = useState(initialValues?.min_ph?.toString() ?? '')
-  const [maxPh, setMaxPh] = useState(initialValues?.max_ph?.toString() ?? '')
-  const [medium, setMedium] = useState(initialValues?.growth_medium ?? '')
-  
-  // Experimental
-  const [characteristics, setCharacteristics] = useState(initialValues?.characteristics ?? '')
-  const [enzymatic, setEnzymatic] = useState(initialValues?.enzymatic_activity ?? '')
-  const [notes, setNotes] = useState(initialValues?.experiment_details ?? '')
-  const [dateStored, setDateStored] = useState(initialValues?.date_stored ?? '')
-
-  // Media
-  const [images, setImages] = useState<CloudinaryMedia[]>(initialValues?.microscopy_images || [])
-  const [docs, setDocs] = useState<CloudinaryMedia[]>(initialValues?.supporting_docs || [])
+  const normalized = normalizeMicroorganism(initialValues || {}) as FormState
+  const [state, setState] = useState<FormState>(normalized)
+  const [storage, setStorage] = useState({ fridge_code: '', shelf_code: '', tray_code: '', partition_code: '', tube_label: '' })
+  const [images, setImages] = useState<CloudinaryMedia[]>((normalized.media?.images || []) as CloudinaryMedia[])
+  const [documents, setDocuments] = useState<CloudinaryMedia[]>((normalized.media?.documents || []) as CloudinaryMedia[])
   const [pendingDocs, setPendingDocs] = useState<File[]>([])
-
-  // Initialize data
-  useEffect(() => {
-    // Fetch suggestions
-    fetch('/api/storage-codes').then(res => res.json()).then(data => setSuggestions(data)).catch(() => {})
-    
-    // Fetch researchers
-    fetch('/api/researchers').then(res => res.json()).then(setResearchers).catch(() => {})
-
-    const rawStorage = initialValues?.lab_test_tubes;
-    const tube = Array.isArray(rawStorage) ? rawStorage[0] : rawStorage;
-    
-    if (tube) {
-      setTubeLabel(tube.tube_label || '');
-      
-      const getP = (obj: any, key: string) => {
-        if (!obj) return null;
-        const variations = [key, key.replace(/s$/, ''), `lab_${key}`, `lab_${key.replace(/s$/, '')}`];
-        for (const v of variations) {
-          if (obj[v]) {
-            const val = obj[v];
-            return Array.isArray(val) ? val[0] : val;
-          }
-        }
-        return null;
-      };
-      
-      const part = getP(tube, 'lab_partitions');
-      if (part) {
-        setPartition(part.code || '');
-        const t = getP(part, 'lab_trays');
-        if (t) {
-          setTray(t.code || '');
-          const s = getP(t, 'lab_shelves');
-          if (s) {
-            setShelf(s.code || '');
-            const f = getP(s, 'lab_fridges');
-            if (f) setFridge(f.code || '');
-          }
-        }
-      }
-    }
-  }, [initialValues])
-
-  const [researchers, setResearchers] = useState<any[]>([])
-  const [uploading, setUploading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>, type: 'img' | 'doc') => {
-    const selected = event.target.files; if (!selected) return;
-    if (type === 'doc') setPendingDocs(prev => [...prev, ...Array.from(selected)]);
-  }
+  useEffect(() => {
+    const raw = initialValues?.lab_test_tubes; const tube = Array.isArray(raw) ? raw[0] : raw
+    const part = tube?.lab_partitions?.[0] || tube?.lab_partitions; const tray = part?.lab_trays?.[0] || part?.lab_trays; const shelf = tray?.lab_shelves?.[0] || tray?.lab_shelves; const fridge = shelf?.lab_fridges?.[0] || shelf?.lab_fridges
+    if (tube) setStorage({ fridge_code: fridge?.code || '', shelf_code: shelf?.code || '', tray_code: tray?.code || '', partition_code: part?.code || '', tube_label: tube.tube_label || '' })
+  }, [initialValues])
 
-  const performUpload = async () => {
-    const files = pendingDocs;
-    if (files.length === 0) return;
-    
-    setUploading(true)
-    try {
-      const results: CloudinaryMedia[] = [];
-      for (const file of files) {
-        const reader = new FileReader()
-        const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file) })
-        const res = await uploadToCloudinary(base64, 'microorganisms/docs')
-        results.push(res);
-      }
-      setDocs(prev => [...prev, ...results]);
-      setPendingDocs([]);
-      toast.success('Files uploaded to archive');
-    } catch { 
-      setErrorMessage('Media sync failed');
-      toast.error('Upload failed');
-    } finally { 
-      setUploading(false);
-    }
-  }
+  const update = (section: string, field: string, value: any) => setState((current) => ({ ...current, [section]: { ...current[section], [field]: value } }))
+  const uploadDocuments = async () => { const uploaded: CloudinaryMedia[] = []; for (const file of pendingDocs) { const base64 = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result as string); reader.onerror = reject; reader.readAsDataURL(file) }); uploaded.push(await uploadToCloudinary(base64, 'microorganisms/docs')) }; setDocuments((current) => [...current, ...uploaded]); setPendingDocs([]); return uploaded }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setErrorMessage(''); setIsSubmitting(true)
-
+    event.preventDefault(); setIsSubmitting(true); setErrorMessage('')
     try {
-      let finalDocs = [...docs];
-      if (pendingDocs.length > 0) {
-        setUploading(true);
-        const resultsDoc: CloudinaryMedia[] = [];
-        for (const file of pendingDocs) {
-          const reader = new FileReader();
-          const base64 = await new Promise<string>(r => { reader.onload = () => r(reader.result as string); reader.readAsDataURL(file); });
-          const res = await uploadToCloudinary(base64, 'microorganisms/docs');
-          resultsDoc.push(res);
-        }
-        finalDocs = [...finalDocs, ...resultsDoc];
-        setDocs(finalDocs);
-        setPendingDocs([]);
-        setUploading(false);
-      }
-
-      const payload = {
-        scientific_name: scientificName,
-        strain_code: strainCode || undefined,
-        source_isolated_from: source || undefined,
-        researcher_id: researcherId || undefined,
-        optimum_temperature: optTemp ? parseFloat(optTemp) : undefined,
-        min_ph: minPh ? parseFloat(minPh) : undefined,
-        max_ph: maxPh ? parseFloat(maxPh) : undefined,
-        growth_medium: medium || undefined,
-        characteristics: characteristics || undefined,
-        enzymatic_activity: enzymatic || undefined,
-        experiment_details: notes || undefined,
-        date_stored: dateStored || undefined,
-        microscopy_images: images,
-        supporting_docs: finalDocs,
-        storage_labels: {
-          fridge_code: fridge,
-          shelf_code: shelf,
-          tray_code: tray,
-          partition_code: partition,
-          tube_label: tubeLabel || strainCode
-        }
-      }
-
-      const res = await fetch(submitUrl, {
-        method: submitMethod,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      if (!res.ok) throw new Error('Failed to save record')
-      if (onSuccess) onSuccess(); else router.push('/dashboard/microorganisms');
-      router.refresh()
-    } catch (err) { setErrorMessage((err as Error).message) } finally { setIsSubmitting(false) }
+      const newlyUploadedDocuments = pendingDocs.length ? await uploadDocuments() : []
+      const resultText = String(state.biochemical_information?.results || '')
+      const form = { ...state, availability_information: { ...state.availability_information, form_of_supply: String(state.availability_information?.form_of_supply || '').split(',').map((item: string) => item.trim()).filter(Boolean) }, biochemical_information: { results: Object.fromEntries(resultText.split('\n').map((line: string) => line.split(':')).filter((parts: string[]) => parts[0])) }, media: { images, documents: [...documents, ...newlyUploadedDocuments] }, storage_labels: storage }
+      const response = await fetch(submitUrl, { method: submitMethod, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+      if (!response.ok) throw new Error((await response.json()).error || 'Failed to save microorganism')
+      toast.success('Microorganism saved'); onSuccess ? onSuccess() : router.push('/dashboard/microorganisms'); router.refresh()
+    } catch (error) { setErrorMessage(error instanceof Error ? error.message : 'Could not save microorganism') } finally { setIsSubmitting(false) }
   }
 
-  return (
-    <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="space-y-2">
-              <Label className="text-sm font-extrabold flex items-center gap-2"><Microscope className="w-4 h-4 text-emerald-600" /> Scientific Name</Label>
-              <Input value={scientificName} onChange={e => setScientificName(e.target.value)} required className="h-11 italic" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-extrabold flex items-center gap-2"><Settings className="w-4 h-4 text-emerald-400" /> Strain ID</Label>
-              <Input value={strainCode} onChange={e => setStrainCode(e.target.value)} placeholder="e.g. JKUAT-MIC-2024" className="h-11" />
-            </div>
-        </div>
-
-        <div className="space-y-4 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
-           <div className="flex items-center gap-2 mb-2">
-              <MapPin className="w-4 h-4 text-emerald-600" />
-              <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Storage Mapping</h3>
-           </div>
-           
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-1.5">
-                 <Label className="text-[10px] font-black uppercase text-slate-400 pl-1">Fridge Code</Label>
-                 <Input list="fridge-list" value={fridge} onChange={e => setFridge(e.target.value)} placeholder="e.g. F1" className="h-10 bg-white" />
-                 <datalist id="fridge-list">{suggestions.fridges.map(c => <option key={c} value={c}>{c}</option>)}</datalist>
-              </div>
-              <div className="space-y-1.5">
-                 <Label className="text-[10px] font-black uppercase text-slate-400 pl-1">Shelf Unit</Label>
-                 <Input list="shelf-list" value={shelf} onChange={e => setShelf(e.target.value)} placeholder="e.g. S4" className="h-10 bg-white" />
-                 <datalist id="shelf-list">{suggestions.shelves.map(c => <option key={c} value={c}>{c}</option>)}</datalist>
-              </div>
-              <div className="space-y-1.5">
-                 <Label className="text-[10px] font-black uppercase text-slate-400 pl-1">Tray ID</Label>
-                 <Input list="tray-list" value={tray} onChange={e => setTray(e.target.value)} placeholder="e.g. T2" className="h-10 bg-white" />
-                 <datalist id="tray-list">{suggestions.trays.map(c => <option key={c} value={c}>{c}</option>)}</datalist>
-              </div>
-              <div className="space-y-1.5">
-                 <Label className="text-[10px] font-black uppercase text-slate-400 pl-1">Partition/Slot</Label>
-                 <Input list="partition-list" value={partition} onChange={e => setPartition(e.target.value)} placeholder="e.g. P12" className="h-10 bg-white" />
-                 <datalist id="partition-list">{suggestions.partitions.map(c => <option key={c} value={c}>{c}</option>)}</datalist>
-              </div>
-           </div>
-           <div className="pt-2">
-              <Label className="text-[10px] font-black uppercase text-slate-400 pl-1">Vial / Tube Label</Label>
-              <Input value={tubeLabel} onChange={e => setTubeLabel(e.target.value)} placeholder="Physical tag on sample vial..." className="h-11 bg-white font-mono font-bold" />
-           </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-emerald-50/20 p-6 rounded-2xl border border-emerald-100">
-           <div className="col-span-2 space-y-1.5"><Label className="text-[10px] font-black uppercase tracking-tight text-emerald-800">Culture Medium</Label><Input value={medium} onChange={e => setMedium(e.target.value)} className="h-10 bg-white" /></div>
-           <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase tracking-tight text-emerald-800">Temp (°C)</Label><Input type="number" step="0.1" value={optTemp} onChange={e => setOptTemp(e.target.value)} className="h-10 bg-white" /></div>
-           <div className="space-y-1.5"><Label className="text-[10px] font-black uppercase tracking-tight text-emerald-800">pH Range</Label><div className="flex gap-1"><Input type="number" step="0.1" value={minPh} onChange={e => setMinPh(e.target.value)} placeholder="Min" className="h-10 bg-white" /><Input type="number" step="0.1" value={maxPh} onChange={e => setMaxPh(e.target.value)} placeholder="Max" className="h-10 bg-white" /></div></div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div className="space-y-2">
-              <Label className="text-sm font-bold">Researcher</Label>
-              <select value={researcherId} onChange={e => setResearcherId(e.target.value)} className="w-full h-11 rounded-xl bg-white border border-slate-200 px-4 text-sm font-bold">
-                <option value="">Select Researcher...</option>
-                {researchers.map(r => <option key={r.id} value={r.researchers?.[0]?.id}>{r.full_name}</option>)}
-              </select>
-           </div>
-           <div className="space-y-2">
-              <Label className="text-sm font-bold">Isolation Source</Label>
-              <Input value={source} onChange={e => setSource(e.target.value)} className="h-11 bg-white" />
-           </div>
-        </div>
-
-        <div className="space-y-4">
-           <div className="space-y-2"><Label className="text-sm font-bold">Biochemical Activities / Characteristics</Label><textarea value={characteristics} onChange={e => setCharacteristics(e.target.value)} className="w-full min-h-[100px] rounded-xl border border-slate-200 p-4" /></div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-100">
-           <div className="space-y-4">
-                <ImageManager images={images} onChange={setImages} folder="microorganisms/images" label="Microscopy Images" />
-           </div>
-
-           <div className="space-y-4">
-              <Label className="text-xs font-black uppercase text-slate-400">Supporting Documentation (PDF)</Label>
-              <div className="flex gap-2">
-                <Input type="file" multiple accept=".pdf" onChange={e => handleFileSelection(e, 'doc')} disabled={uploading} className="h-11 bg-white pt-2 border-slate-200" />
-                <Button type="button" onClick={performUpload} disabled={uploading || pendingDocs.length === 0} variant="outline" className="h-11 border-emerald-200 text-emerald-600 gap-2">
-                   <Upload className="w-4 h-4" /> {uploading ? '...' : 'Upload'}
-                </Button>
-              </div>
-              
-              <div className="space-y-2 mt-4">
-                 {pendingDocs.map((file, idx) => (
-                   <div key={`pending-doc-${idx}`} className="p-3 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-[9px] font-bold text-slate-400 italic">
-                      Pending Sync: {file.name}
-                   </div>
-                 ))}
-                 {docs.map((doc, idx) => (
-                   <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 group">
-                      <div className="flex items-center gap-3">
-                         <div className="p-2 bg-white rounded-lg"><Settings className="w-3.5 h-3.5 text-slate-400" /></div>
-                         <span className="text-[10px] font-bold text-slate-600 truncate max-w-[150px]">RecordDoc_{idx + 1}</span>
-                      </div>
-                      <button 
-                        type="button" 
-                        onClick={() => setDocs(docs.filter((_, i) => i !== idx))}
-                        className="text-slate-300 hover:text-rose-600 transition-colors"
-                      >
-                         <Trash2 className="w-4 h-4" />
-                      </button>
-                   </div>
-                 ))}
-              </div>
-           </div>
-        </div>
-
-        <div className="flex flex-col gap-6 pt-8 border-t border-slate-100">
-           {errorMessage && <div className="p-3 bg-rose-50 text-rose-600 text-xs font-bold rounded-lg">{errorMessage}</div>}
-           <div className="flex justify-end pt-4">
-              <Button type="submit" disabled={isSubmitting || uploading} className="bg-jkuat-green hover:bg-jkuat-green-dark text-white font-bold h-12 px-12 rounded-xl transition-all shadow-lg">
-                {isSubmitting ? 'Saving...' : submitLabel}
-              </Button>
-           </div>
-        </div>
-      </form>
-    </div>
-  )
+  return <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Microbial strain record</h2><p className="mt-1 text-sm text-slate-500">Complete the information available. Optional fields can remain empty.</p></div>
+    {sections.map(([section, title], index) => <details key={section} open={index < 2} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><summary className="cursor-pointer text-base font-bold text-slate-800">{title}</summary><div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">{(fields[section] || []).map(([field, label, type]) => <div key={field} className={type === 'textarea' ? 'space-y-1.5 md:col-span-2' : 'space-y-1.5'}>{type === 'boolean' ? <label className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 text-sm font-medium"><input type="checkbox" checked={Boolean(displayValue(state, section, field, type))} onChange={(event) => update(section, field, event.target.checked)} />{label}</label> : <><Label>{label}</Label>{type === 'textarea' ? <textarea value={displayValue(state, section, field, type)} onChange={(event) => update(section, field, event.target.value)} className="min-h-24 w-full rounded-lg border border-slate-200 p-3 text-sm" /> : type === 'select' ? <select value={displayValue(state, section, field, type)} onChange={(event) => update(section, field, event.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"><option value="">Select...</option>{(options[field] || []).map((option) => <option key={option}>{option}</option>)}</select> : <Input type={type} value={displayValue(state, section, field, type)} onChange={(event) => update(section, field, type === 'number' ? (event.target.value ? Number(event.target.value) : undefined) : event.target.value)} />}</>}</div>)}</div></details>)}
+    <details className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><summary className="cursor-pointer text-base font-bold">Storage and media</summary><div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">{Object.entries(storage).map(([key, value]) => <div key={key}><Label>{key.replaceAll('_', ' ')}</Label><Input value={value} onChange={(event) => setStorage((current) => ({ ...current, [key]: event.target.value }))} /></div>)}</div><div className="mt-6"><ImageManager images={images} onChange={setImages} folder="microorganisms/images" label="Images" /></div><div className="mt-6 space-y-3"><Label>Supporting documents</Label><Input type="file" multiple accept=".pdf,.doc,.docx" onChange={(event) => setPendingDocs(Array.from(event.target.files || []))} /><Button type="button" variant="outline" onClick={uploadDocuments} disabled={!pendingDocs.length}>Upload documents</Button><div className="text-sm text-slate-500">{documents.length} document(s) stored</div></div></details>
+    {errorMessage && <div className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{errorMessage}</div>}<div className="flex justify-end"><Button disabled={isSubmitting} className="h-11 px-8">{isSubmitting ? 'Saving...' : submitLabel}</Button></div>
+  </form>
 }

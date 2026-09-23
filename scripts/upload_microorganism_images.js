@@ -1,0 +1,157 @@
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const cloudinary = require('cloudinary').v2;
+
+const ROOT = path.join(__dirname, '..');
+const IMAGE_FOLDERS = [
+  { name: 'staphylococcus', directory: path.join(ROOT, 'public', 'staphylococcus'), first: 1, last: 38 },
+  { name: 'elicoli', directory: path.join(ROOT, 'public', 'Elicoli'), first: 39, last: 47 },
+];
+const OUTPUT_SQL = path.join(ROOT, 'supabase', 'seeds', '03_microorganism_image_mapping.sql');
+const SUPPORTED_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp']);
+
+function loadLocalEnv() {
+  const envPath = path.join(ROOT, '.env.local');
+  if (!fs.existsSync(envPath)) return;
+  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+    if (!match || process.env[match[1]]) continue;
+    process.env[match[1]] = match[2].replace(/^['"]|['"]$/g, '');
+  }
+}
+
+function fail(message) {
+  throw new Error(message);
+}
+
+function inventory() {
+  const records = [];
+  for (const folder of IMAGE_FOLDERS) {
+    if (!fs.existsSync(folder.directory)) fail(`Missing image folder: ${folder.directory}`);
+    const files = fs.readdirSync(folder.directory)
+      .map((name) => ({ name, fullPath: path.join(folder.directory, name) }))
+      .filter((file) => fs.statSync(file.fullPath).isFile());
+
+    for (const file of files) {
+      const extension = path.extname(file.name).toLowerCase();
+      const match = path.basename(file.name, extension).match(/^(?:Picture|image|strain|microorganism|photo)[ _-]?(\d+)$/i);
+      if (!SUPPORTED_EXTENSIONS.has(extension) || !match) {
+        fail(`Unsupported or ambiguously named file: ${path.relative(ROOT, file.fullPath)}`);
+      }
+      const order = Number(match[1]);
+      if (order < folder.first || order > folder.last) {
+        fail(`Image ${file.name} is outside ${folder.name} range ${folder.first}-${folder.last}`);
+      }
+      records.push({ order, folder: folder.name, fileName: file.name, fullPath: file.fullPath, extension });
+    }
+  }
+
+  const byOrder = new Map();
+  for (const record of records) {
+    if (byOrder.has(record.order)) fail(`Duplicate image order ${record.order}: ${byOrder.get(record.order).fileName} and ${record.fileName}`);
+    byOrder.set(record.order, record);
+  }
+  const expected = Array.from({ length: 47 }, (_, index) => index + 1);
+  const missing = expected.filter((order) => !byOrder.has(order));
+  if (missing.length) fail(`Missing image orders: ${missing.join(', ')}`);
+  if (records.length !== 47) fail(`Expected 47 images, found ${records.length}`);
+
+  return expected.map((order) => byOrder.get(order));
+}
+
+function sqlString(value) {
+  return `'${String(value).replace(/'/g, "''")}'`;
+}
+
+function sqlJson(value) {
+  return `${sqlString(JSON.stringify(value))}::jsonb`;
+}
+
+function sha256(filePath) {
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
+function configureCloudinary() {
+  const required = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET'];
+  const missing = required.filter((key) => !process.env[key]);
+  if (missing.length) fail(`Missing Cloudinary environment variables: ${missing.join(', ')}`);
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+}
+
+async function upload(record) {
+  const publicId = `microorganisms/images/${record.folder}/${record.order}`;
+  const response = await cloudinary.uploader.upload(record.fullPath, {
+    folder: `microorganisms/images/${record.folder}`,
+    public_id: String(record.order),
+    resource_type: 'image',
+    use_filename: false,
+    unique_filename: false,
+    overwrite: true,
+    invalidate: true,
+  });
+  return {
+    order: record.order,
+    folder: record.folder,
+    fileName: record.fileName,
+    sha256: sha256(record.fullPath),
+    url: response.url,
+    secure_url: response.secure_url,
+    public_id: response.public_id || publicId,
+    resource_type: response.resource_type,
+    format: response.format,
+    width: response.width,
+    height: response.height,
+  };
+}
+
+function generateSql(images) {
+  const updates = images.map((image) => {
+    const mediaImage = {
+      url: image.url,
+      secure_url: image.secure_url,
+      public_id: image.public_id,
+      resource_type: image.resource_type,
+      format: image.format,
+      width: image.width,
+      height: image.height,
+      caption: `Microbial strain ${image.order}`,
+      source_file: image.fileName,
+      source_folder: image.folder,
+      source_sha256: image.sha256,
+    };
+    return `UPDATE microorganisms\nSET media = jsonb_set(COALESCE(media, '{"images": [], "documents": []}'::jsonb), '{images}', jsonb_build_array(${sqlJson(mediaImage)}), true)\nWHERE display_order = ${image.order};`;
+  }).join('\n\n');
+
+  return `-- Generated by scripts/upload_microorganism_images.js\n-- Exactly 47 validated Cloudinary images mapped by microorganisms.display_order.\n-- This SQL preserves existing media.documents and replaces only each record's images array.\n\nBEGIN;\nALTER TABLE microorganisms\n  ADD COLUMN IF NOT EXISTS display_order integer,\n  ADD COLUMN IF NOT EXISTS media JSONB NOT NULL DEFAULT '{"images": [], "documents": []}'::jsonb;\n\nDO $$\nBEGIN\n  IF (SELECT COUNT(*) FROM microorganisms WHERE display_order BETWEEN 1 AND 47) <> 47 THEN\n    RAISE EXCEPTION 'Expected exactly 47 microorganism records with display_order 1-47';\n  END IF;\nEND $$;\n\n${updates}\n\nCOMMIT;\n`;
+}
+
+async function main() {
+  loadLocalEnv();
+  const records = inventory();
+  console.log(`Validated ${records.length} images: staphylococcus 1-38, elicoli 39-47`);
+
+  if (process.argv.includes('--dry-run')) {
+    for (const record of records) console.log(`${record.order}: ${path.relative(ROOT, record.fullPath)}`);
+    return;
+  }
+
+  configureCloudinary();
+  const uploaded = [];
+  for (const record of records) {
+    console.log(`Uploading ${record.order}/47: ${record.fileName}`);
+    uploaded.push(await upload(record));
+  }
+  fs.writeFileSync(OUTPUT_SQL, generateSql(uploaded), 'utf8');
+  console.log(`Uploaded ${uploaded.length} images.`);
+  console.log(`Generated mapping SQL: ${path.relative(ROOT, OUTPUT_SQL)}`);
+}
+
+main().catch((error) => {
+  console.error(`Image import failed: ${error.message}`);
+  process.exitCode = 1;
+});

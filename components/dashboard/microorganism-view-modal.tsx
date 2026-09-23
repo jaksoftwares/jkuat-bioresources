@@ -1,251 +1,105 @@
 'use client'
 
-import React from 'react'
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from '@/components/ui/dialog'
-import { 
-  Eye, 
-  Microscope, 
-  MapPin, 
-  HardDrive, 
-  Settings, 
-  Thermometer, 
-  FlaskConical,
-  Activity,
-  History,
-  Globe,
-  FileText
-} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { Eye, FileText, Microscope } from 'lucide-react'
+import { normalizeMicroorganism } from '@/features/microorganisms/normalize'
 
-interface MicroorganismDetailModalProps {
-  micro: any
+interface MicroorganismDetailModalProps { micro: any }
+
+function formatValue(value: unknown) {
+  if (value === undefined || value === null || value === '') return 'Not recorded'
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  if (Array.isArray(value)) return value.length ? value.join(', ') : 'Not recorded'
+  return String(value)
+}
+
+function FieldGroup({ title, value }: { title: string; value: Record<string, unknown> | undefined }) {
+  if (!value) return null
+  return (
+    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h3 className="mb-4 border-b border-slate-100 pb-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">{title}</h3>
+      <dl className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+        {Object.entries(value).map(([key, item]) => (
+          <div key={key} className="min-w-0">
+            <dt className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{key.replaceAll('_', ' ')}</dt>
+            <dd className="mt-1 break-words text-sm font-medium text-slate-700">{formatValue(item)}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )
 }
 
 export function MicroorganismDetailModal({ micro }: MicroorganismDetailModalProps) {
-  const getProp = (obj: any, key: string) => {
-    if (!obj) return null;
-    const variations = [key, key.replace(/s$/, ''), `lab_${key}`, `lab_${key.replace(/s$/, '')}`];
-    for (const v of variations) {
-      if (obj[v]) {
-        const val = obj[v];
-        return Array.isArray(val) ? val[0] : val;
-      }
-    }
-    return null;
-  };
-
-  const rawStorage = micro.lab_test_tubes;
-  const storage = Array.isArray(rawStorage) ? rawStorage[0] : rawStorage;
-  
-  const partition = getProp(storage, 'lab_partitions');
-  const tray = getProp(partition, 'lab_trays');
-  const shelf = getProp(tray, 'lab_shelves');
-  const fridge = getProp(shelf, 'lab_fridges');
+  const canonical = normalizeMicroorganism(micro)
+  const tax = canonical.taxonomic_information
+  const title = `${tax.genus || 'Unknown'} ${tax.species || ''}`.trim()
+  const rawStorage = micro.lab_test_tubes
+  const storage = Array.isArray(rawStorage) ? rawStorage[0] : rawStorage
+  const getRelated = (value: any) => Array.isArray(value) ? value[0] : value
+  const partition = getRelated(storage?.lab_partitions)
+  const tray = getRelated(partition?.lab_trays)
+  const shelf = getRelated(tray?.lab_shelves)
+  const fridge = getRelated(shelf?.lab_fridges)
+  const storageFields = storage ? {
+    fridge_code: fridge?.code,
+    shelf_code: shelf?.code,
+    tray_code: tray?.code,
+    partition_code: partition?.code,
+    tube_label: storage.tube_label,
+  } : undefined
+  const biochemical = canonical.biochemical_information?.results
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors rounded-lg border border-slate-200">
-          <Eye className="w-3.5 h-3.5 text-jkuat-green" />
-          Full Details
+        <button className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-50">
+          <Eye className="h-3.5 w-3.5 text-jkuat-green" /> Full Details
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto rounded-xl border border-slate-200 shadow-2xl p-0 gap-0 bg-white">
-        {/* Professional Research Header */}
-        <div className="bg-slate-900 border-b border-slate-800 px-10 py-12 relative overflow-hidden">
-           <div className="relative z-10 space-y-6">
-              <div className="flex items-center gap-3">
-                 <Badge className="bg-jkuat-green text-white border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1">
-                    {micro.strain_code || 'UNTRACKED'}
-                 </Badge>
-                 <Badge variant="outline" className="text-white/60 border-white/20 font-medium tracking-widest text-[10px] uppercase px-3 py-1">
-                    {micro.type || 'Microbial Culture'}
-                 </Badge>
+      <DialogContent className="max-h-[92vh] max-w-6xl overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-0 shadow-2xl">
+        <header className="bg-slate-900 px-6 py-8 text-white md:px-10">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className="bg-jkuat-green text-white">{tax.strain_number}</Badge>
+            <Badge variant="outline" className="border-white/30 text-white">{tax.type_of_organism}</Badge>
+            <Badge variant="outline" className="border-white/30 text-white">Risk group {canonical.pathogenicity_information.biohazard_group}</Badge>
+          </div>
+          <h2 className="mt-4 text-3xl font-extrabold italic">{title}</h2>
+          <p className="mt-2 text-sm text-white/60">Record ID: {canonical.id || 'Not recorded'} · Updated: {canonical.updated_at || 'Not recorded'}</p>
+        </header>
+
+        <div className="space-y-5 p-5 md:p-8">
+          <FieldGroup title="Taxonomy and designation" value={canonical.taxonomic_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Origin and isolation" value={canonical.details_of_isolation as unknown as Record<string, unknown>} />
+          <FieldGroup title="Pathogenicity and biosafety" value={canonical.pathogenicity_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Availability" value={canonical.availability_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="CBD and Nagoya Protocol" value={canonical.cbd_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Growth and cultivation" value={canonical.growth_related_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Preservation" value={canonical.preservation_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Identification" value={canonical.identification_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Depositor" value={canonical.depositor_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Morphological identification" value={canonical.morphological_identification as unknown as Record<string, unknown>} />
+          <FieldGroup title="Molecular identification" value={canonical.molecular_identification as unknown as Record<string, unknown>} />
+          <FieldGroup title="Special features and references" value={canonical.special_feature_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Biochemical information" value={biochemical as unknown as Record<string, unknown>} />
+          <FieldGroup title="Payment information" value={canonical.payment_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Administrative metadata" value={canonical.administrative_information as unknown as Record<string, unknown>} />
+          <FieldGroup title="Physical storage" value={storageFields} />
+
+          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="mb-4 border-b border-slate-100 pb-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">Media archive</h3>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400"><Microscope className="h-4 w-4" /> Images ({canonical.media.images.length})</p>
+                {canonical.media.images.length ? <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{canonical.media.images.map((image: any, index) => <a key={`${image.public_id || image.url}-${index}`} href={image.url} target="_blank" rel="noreferrer" className="aspect-square overflow-hidden rounded-lg border border-slate-200"><img src={image.url} alt={image.caption || `Strain image ${index + 1}`} className="h-full w-full object-cover" /></a>)}</div> : <p className="text-sm text-slate-500">No images recorded.</p>}
               </div>
-              <div className="space-y-2">
-                 <h2 className="text-4xl font-extrabold tracking-tight text-white leading-tight italic">
-                    {micro.scientific_name}
-                 </h2>
-                 <div className="flex items-center gap-4 text-white/60 font-medium text-lg">
-                    <span className="flex items-center gap-2 text-[10px] uppercase font-black tracking-widest text-jkuat-green">
-                       <Activity className="w-4 h-4" /> Biochemical Registry
-                    </span>
-                 </div>
+              <div>
+                <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400"><FileText className="h-4 w-4" /> Documents ({canonical.media.documents.length})</p>
+                {canonical.media.documents.length ? <div className="space-y-2">{canonical.media.documents.map((document: any, index) => <a key={`${document.public_id || document.url}-${index}`} href={document.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 text-sm font-medium text-slate-700 hover:border-jkuat-green"><FileText className="h-4 w-4" />{document.name || document.caption || `Document ${index + 1}`}</a>)}</div> : <p className="text-sm text-slate-500">No documents recorded.</p>}
               </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-4">
-                 <div>
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-1">Source</span>
-                    <span className="text-sm font-bold text-white/90">{micro.source_isolated_from || 'Not Stated'}</span>
-                 </div>
-                 <div>
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-1">Geographic Origin</span>
-                    <span className="text-sm font-bold text-white/90">{micro.geographic_origin || 'Institutional Registry'}</span>
-                 </div>
-                 <div>
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-1">Record ID</span>
-                    <span className="text-sm font-bold text-white/90 font-mono">#{micro.id?.slice(0, 8).toUpperCase()}</span>
-                 </div>
-                 <div>
-                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-1">Last Updated</span>
-                    <span className="text-sm font-bold text-white/90">{new Date(micro.updated_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}</span>
-                 </div>
-              </div>
-           </div>
-           <Microscope className="absolute -bottom-10 -right-10 w-64 h-64 text-white/5 rotate-12" />
-        </div>
-
-        <div className="p-10 space-y-12 bg-white">
-           {/* Primary Narrative Sections */}
-           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              <div className="lg:col-span-2 space-y-10">
-                 <section className="space-y-4">
-                    <h3 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
-                       <FlaskConical className="w-4 h-4" /> Identity & Characteristics
-                    </h3>
-                    <div className="text-slate-600 leading-relaxed text-sm font-medium space-y-4">
-                       <p>{micro.characteristics || 'No detailed biochemical sequence archives found.'}</p>
-                    </div>
-                 </section>
-
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 border-t border-slate-100 pt-10">
-                    <section className="space-y-4">
-                       <h3 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em]">Enzymatic Activity</h3>
-                       <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                          {micro.enzymatic_activity || 'No enzymatic activity assays recorded.'}
-                       </p>
-                    </section>
-                    <section className="space-y-4">
-                       <h3 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em]">Experiment Details</h3>
-                       <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                          {micro.experiment_details || 'No linked experimental protocols.'}
-                       </p>
-                    </section>
-                 </div>
-              </div>
-
-              {/* Sidebar: Physical Inventory & Parameters */}
-              <div className="space-y-10">
-                 <section className="space-y-4">
-                    <h3 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
-                       <Thermometer className="w-4 h-4 text-jkuat-green" /> Growth & Maintenance
-                    </h3>
-                    <div className="bg-slate-50 border border-slate-100 rounded-xl overflow-hidden divide-y divide-slate-100">
-                       <div className="px-5 py-4 flex flex-col gap-1 bg-slate-50/50">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">Growth Medium</span>
-                          <span className="text-xs font-bold text-slate-700">{micro.growth_medium || '—'}</span>
-                       </div>
-                       <div className="px-5 py-4 flex flex-col gap-1 bg-white">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">Optimum Temp.</span>
-                          <span className="text-xs font-bold text-slate-700">{micro.optimum_temperature ? `${micro.optimum_temperature}°C` : '—'}</span>
-                       </div>
-                       <div className="px-5 py-4 flex flex-col gap-1 bg-slate-50/50">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">pH Range (Min - Max)</span>
-                          <span className="text-xs font-bold text-slate-700">
-                             {micro.min_ph || '-'} to {micro.max_ph || '-'}
-                          </span>
-                       </div>
-                    </div>
-                 </section>
-
-                 <section className="space-y-4">
-                    <h3 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
-                       <HardDrive className="w-4 h-4 text-jkuat-green" /> Physical Mapping
-                    </h3>
-                    <div className="bg-jkuat-green/5 border border-jkuat-green/10 p-5 rounded-xl">
-                       {storage ? (
-                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                               <span className="text-[9px] font-black uppercase text-jkuat-green/60 block">Unit</span>
-                               <span className="text-xs font-black text-slate-800">{fridge?.code || '—'}</span>
-                            </div>
-                            <div className="space-y-1">
-                               <span className="text-[9px] font-black uppercase text-jkuat-green/60 block">Shelf/Tray</span>
-                               <span className="text-xs font-black text-slate-800">{shelf?.code || '—'} / {tray?.code || '—'}</span>
-                            </div>
-                            <div className="col-span-2 space-y-1 pt-2 border-t border-jkuat-green/10">
-                               <span className="text-[9px] font-black uppercase text-jkuat-green/60 block">Vial ID</span>
-                               <span className="text-sm font-black text-jkuat-green tracking-widest">{storage.tube_label}</span>
-                            </div>
-                         </div>
-                       ) : (
-                         <p className="text-[11px] font-bold text-slate-500 italic">Inventory allocation pending.</p>
-                       )}
-                    </div>
-                 </section>
-                 
-                 <section className="space-y-3 pt-6 border-t border-slate-100">
-                    <h3 className="text-[11px] font-black uppercase text-slate-400 tracking-[0.1em] flex items-center gap-2">
-                       <History className="w-3.5 h-3.5" /> Provenance
-                    </h3>
-                    <div className="space-y-2">
-                       <div>
-                          <span className="text-[9px] font-black text-slate-400 uppercase block">Curated By</span>
-                          <span className="text-xs font-bold text-slate-600 font-mono">{micro.researcher_id || 'ADMIN'}</span>
-                       </div>
-                       {micro.date_stored && (
-                         <div>
-                            <span className="text-[9px] font-black text-slate-400 uppercase block">Date Stored</span>
-                            <span className="text-xs font-bold text-slate-600">{micro.date_stored}</span>
-                         </div>
-                       )}
-                    </div>
-                 </section>
-              </div>
-           </div>
-
-           {/* Media Archives */}
-           <div className="space-y-8 pt-12 border-t border-slate-100">
-              <h3 className="text-xs font-black uppercase text-slate-500 tracking-[0.2em]">Visual Evidence & Supporting Archives</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                 <section className="space-y-4">
-                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Microscopy Images</h4>
-                    <div className="grid grid-cols-3 gap-4">
-                       {micro.microscopy_images?.length > 0 ? (
-                         micro.microscopy_images.map((img: any, i: number) => (
-                           <div key={i} className="aspect-square rounded-lg overflow-hidden border border-slate-200 shadow-sm transition-all hover:scale-105 duration-300">
-                              <img src={img.secure_url} alt="Microscopy" className="w-full h-full object-cover grayscale transition-all hover:grayscale-0" />
-                           </div>
-                         ))
-                       ) : (
-                         <div className="col-span-3 aspect-video bg-slate-50 border border-dashed border-slate-200 rounded-xl flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-slate-300 uppercase">No Visual Evidence Found</span>
-                         </div>
-                       )}
-                    </div>
-                 </section>
-
-                 <section className="space-y-4">
-                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Technical Documents</h4>
-                    <div className="space-y-3">
-                       {micro.supporting_docs?.length > 0 ? (
-                         micro.supporting_docs.map((doc: any, i: number) => (
-                           <a key={i} href={doc.secure_url} target="_blank" className="flex items-center gap-4 p-4 bg-white border border-slate-200 rounded-xl hover:border-jkuat-green transition-all shadow-sm">
-                              <div className="p-2 bg-slate-100 rounded-lg">
-                                 <FileText className="w-5 h-5 text-slate-500" />
-                              </div>
-                              <div>
-                                 <span className="text-xs font-bold text-slate-700 block">Protocol_Report_{i+1}.pdf</span>
-                                 <span className="text-[10px] text-slate-400 font-medium uppercase">{doc.format} • ARCHIVE</span>
-                              </div>
-                           </a>
-                         ))
-                       ) : (
-                         <div className="p-8 border border-dashed border-slate-200 rounded-xl flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-slate-300 uppercase italic">No supporting documents archived.</span>
-                         </div>
-                       )}
-                    </div>
-                 </section>
-              </div>
-           </div>
+            </div>
+          </section>
         </div>
       </DialogContent>
     </Dialog>

@@ -126,11 +126,10 @@ export const BiochemicalInformationSchema = z.object({
 
 export const MicroorganismSchema = z.object({
   id: z.string().uuid().optional(), // optional for creates
+  display_order: z.number().int().positive().optional(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
   created_by: z.string().optional(),
-  scientific_name: z.string().min(1, "Scientific name is required"),
-  category: z.string().optional(),
   taxonomic_information: TaxonomicInformationSchema,
   details_of_isolation: DetailsOfIsolationSchema,
   pathogenicity_information: PathogenicityInformationSchema,
@@ -144,7 +143,13 @@ export const MicroorganismSchema = z.object({
   morphological_identification: MorphologicalIdentificationSchema.optional(),
   molecular_identification: MolecularIdentificationSchema.optional(),
   biochemical_information: BiochemicalInformationSchema.optional(),
-  images: z.array(z.object({ url: z.string(), caption: z.string().optional() })).optional()
+  media: z.object({
+    images: z.array(z.object({ url: z.string(), public_id: z.string().optional(), format: z.string().optional(), resource_type: z.string().optional(), secure_url: z.string().optional(), width: z.number().optional(), height: z.number().optional(), caption: z.string().optional() })),
+    documents: z.array(z.object({ url: z.string(), public_id: z.string().optional(), format: z.string().optional(), resource_type: z.string().optional(), secure_url: z.string().optional(), caption: z.string().optional(), name: z.string().optional() })),
+  }),
+  payment_information: z.object({ date_of_payment: z.string().optional(), mode_of_payment: z.string().optional(), payment_id: z.string().optional() }),
+  administrative_information: z.object({ signature: z.string().optional(), record_date: z.string().optional(), mcm_field_1: z.string().optional(), mcm_field_2: z.string().optional() }),
+  source_metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type MicroorganismFormData = z.infer<typeof MicroorganismSchema>;

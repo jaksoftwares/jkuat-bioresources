@@ -7,6 +7,7 @@ import Link from "next/link";
 import { MicroorganismRepository } from "@/repositories/microorganism.repository";
 import { TaxonomicInformation, PathogenicityInformation, DetailsOfIsolation } from "@/features/microorganisms/types";
 import Image from "next/image";
+import { MicroorganismCollectionRow } from "@/components/public/microorganism-collection-row";
 
 type StrainRecord = {
   id: string;
@@ -95,14 +96,14 @@ export default async function MicroorganismsPage({
               </Button>
             </div>
 
-            <div className="space-y-3 md:hidden">
+            <div className="space-y-3 lg:hidden">
               {strains.map((strain: StrainRecord) => {
                 const taxInfo = strain.taxonomic_information as TaxonomicInformation;
                 const isoInfo = strain.details_of_isolation as DetailsOfIsolation;
                 const pathInfo = strain.pathogenicity_information as PathogenicityInformation;
 
                 return (
-                  <article key={strain.id} className="rounded-xl border border-border/60 bg-card p-4 shadow-sm">
+                  <Link key={strain.id} href={`/microorganisms/${strain.id}`} className="block rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-colors hover:border-primary/50 hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <p className="font-mono text-xs font-semibold text-muted-foreground">{taxInfo?.strain_number || strain.id.substring(0, 8)}</p>
@@ -115,16 +116,16 @@ export default async function MicroorganismsPage({
                       <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Organism</dt><dd className="mt-1 text-foreground">{taxInfo?.type_of_organism || "Unknown"}</dd></div>
                       <div><dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Isolation source</dt><dd className="mt-1 break-words text-foreground">{isoInfo?.source_of_isolation || "Unknown"}</dd></div>
                     </dl>
-                    <Link href={`/microorganisms/${strain.id}`} className="mt-4 block">
-                      <Button className="h-10 w-full justify-center">View details <ChevronRight className="ml-1 h-4 w-4" /></Button>
-                    </Link>
-                  </article>
+                    <div className="mt-4 flex items-center justify-end text-sm font-medium text-primary">
+                      View details <ChevronRight className="ml-1 h-4 w-4" />
+                    </div>
+                  </Link>
                 );
               })}
               {strains.length === 0 && <div className="rounded-xl border border-border/60 bg-card p-8 text-center text-muted-foreground">No strains found matching your criteria.</div>}
             </div>
 
-            <div className="hidden overflow-x-auto border border-border/60 rounded-xl bg-card shadow-sm md:block">
+            <div className="hidden w-full overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm lg:block">
               <Table>
                 <TableHeader className="bg-muted/50">
                   <TableRow className="hover:bg-transparent">
@@ -137,46 +138,7 @@ export default async function MicroorganismsPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {strains.map((strain: StrainRecord) => {
-                    // Type casting based on the JSONB structure
-                    const taxInfo = strain.taxonomic_information as TaxonomicInformation;
-                    const isoInfo = strain.details_of_isolation as DetailsOfIsolation;
-                    const pathInfo = strain.pathogenicity_information as PathogenicityInformation;
-
-                    return (
-                      <TableRow key={strain.id} className="group hover:bg-muted/30 transition-colors cursor-pointer">
-                        <TableCell className="font-mono text-xs font-semibold text-muted-foreground">
-                          {taxInfo?.strain_number || strain.id.substring(0, 8)}
-                        </TableCell>
-                        <TableCell>
-                          <span className="italic font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {taxInfo?.genus} {taxInfo?.species}
-                          </span>
-                          {taxInfo?.is_type_strain && (
-                             <Badge variant="outline" className="ml-2 text-[10px] uppercase tracking-wider py-0 px-1.5 border-primary/30 text-primary">Type Strain</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {taxInfo?.type_of_organism || "Unknown"}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground truncate max-w-[150px]">
-                          {isoInfo?.source_of_isolation || "Unknown"}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant={pathInfo?.biohazard_group === "1" ? "secondary" : "destructive"} className="font-mono shadow-none">
-                            RG-{pathInfo?.biohazard_group || "1"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Link href={`/microorganisms/${strain.id}`}>
-                            <Button size="sm" variant="ghost" className="h-8 px-2 text-primary hover:bg-primary/10 hover:text-primary group-hover:flex">
-                              Details <ChevronRight className="ml-1 w-3 h-3" />
-                            </Button>
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                  {strains.map((strain: StrainRecord) => <MicroorganismCollectionRow key={strain.id} strain={strain} />)}
                   
                   {strains.length === 0 && (
                     <TableRow>
