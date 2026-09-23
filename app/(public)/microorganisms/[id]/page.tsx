@@ -164,12 +164,12 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
 
             <section>
               <h2 className="text-xl font-bold text-foreground mb-4 pb-2 border-b border-border/60">Microscopy & Media Images</h2>
-              <div className="bg-card border border-border/60 rounded-lg p-5 shadow-sm">
+              <div className="bg-card border border-border/60 rounded-lg p-6 shadow-sm">
                 <ImageGallery
                   images={micro.media?.images || []}
                   altBase={`${fullName} microscopy`}
-                  gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                  imageClassName="aspect-video"
+                  gridClassName="grid grid-cols-1 gap-6 md:grid-cols-2"
+                  imageClassName="aspect-[4/3]"
                 />
               </div>
             </section>
