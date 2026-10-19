@@ -52,7 +52,7 @@ export default async function MicroorganismDetailPage({ params }: PageProps) {
       <div className="bg-secondary border-b border-border py-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link href="/microorganisms" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors text-sm font-semibold">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Catalogue
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Repository
           </Link>
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">

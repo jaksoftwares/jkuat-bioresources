@@ -1,26 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Microscope, Sprout, BookOpen, SearchIcon } from "lucide-react";
+import { Microscope, Sprout, BookOpen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export function LandingHero() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-    } else {
-      router.push(`/search`);
-    }
-  };
-
   return (
     <section className="relative w-full bg-secondary border-b border-border/60">
       <div className="absolute inset-0 z-0">
@@ -49,26 +33,6 @@ export function LandingHero() {
         <p className="text-lg md:text-xl text-foreground/70 max-w-4xl mb-12 font-medium leading-relaxed">
           At JKUAT Bioresources, we are dedicated to advancing academic research and fostering a deeper understanding of biological sciences. Our state-of-the-art facility is committed to the collection, preservation, and distribution of microbial cultures, herbarium specimens, and indigenous flora, providing essential resources to researchers, educators, and students.
         </p>
-
-        {/* Global Search Bar */}
-        <div className="w-full max-w-3xl bg-background rounded-2xl shadow-xl border border-border/60 p-2 sm:p-3 backdrop-blur-sm relative z-20">
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 h-auto sm:h-14">
-            <div className="relative flex-1 h-12 sm:h-full">
-              <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/60" />
-              <Input
-                type="text"
-                placeholder="Search by strain number, genus, species, or common name..."
-                className="w-full h-full pl-12 pr-4 text-base bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/50 shadow-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <div className="h-px sm:w-px sm:h-8 bg-border/60 self-center hidden sm:block" />
-            <Button type="submit" size="lg" className="h-12 sm:h-full px-8 rounded-xl font-bold text-base shadow-md w-full sm:w-auto">
-              Search Catalogue
-            </Button>
-          </form>
-        </div>
 
         {/* Quick Links */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 w-full max-w-3xl">

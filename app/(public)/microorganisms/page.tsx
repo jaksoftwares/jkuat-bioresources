@@ -48,7 +48,7 @@ export default async function MicroorganismsPage({
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 font-medium">
             <Link href="/" className="hover:text-primary transition-colors">Home</Link>
             <ChevronRight className="h-4 w-4" />
-            <Link href="/search" className="hover:text-primary transition-colors">Catalogue</Link>
+            <Link href="/search" className="hover:text-primary transition-colors">Repository</Link>
             <ChevronRight className="h-4 w-4" />
             <span className="text-foreground">Microbial Strains</span>
           </div>
@@ -68,7 +68,7 @@ export default async function MicroorganismsPage({
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">Search</h3>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input defaultValue={searchQuery} placeholder="Search catalogue..." className="pl-9 h-10 bg-background border-border/60" />
+                <Input defaultValue={searchQuery} placeholder="Search repository..." className="pl-9 h-10 bg-background border-border/60" />
               </div>
             </div>
 

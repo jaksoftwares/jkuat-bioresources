@@ -20,7 +20,7 @@ export function Navbar() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: "/search", label: "Catalogue Search" },
+    { href: "/search", label: "Repository Search" },
     { href: "/microorganisms", label: "Microbial Strains" },
     { href: "/plants", label: "Plant Resources" },
     { href: "/herbarium", label: "Herbarium" },
@@ -69,7 +69,7 @@ export function Navbar() {
             <div className="hidden lg:flex shrink-0">
               <Button nativeButton={false} render={<Link href="/search" />} size="icon" variant="ghost" className="rounded-full hover:bg-primary/10 hover:text-primary transition-colors h-12 w-12">
                  <Search className="h-5 w-5" />
-                 <span className="sr-only">Search Catalogue</span>
+                 <span className="sr-only">Search Repository</span>
               </Button>
             </div>
           </div>

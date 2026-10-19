@@ -96,7 +96,7 @@ export function RegisterForm() {
       {/* Header */}
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Create Account</h2>
-        <p className="text-slate-500 text-sm font-medium">Create an account for the JKUAT Bioresources catalog.</p>
+        <p className="text-slate-500 text-sm font-medium">Create an account for the JKUAT Bioresources repository.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

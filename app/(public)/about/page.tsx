@@ -28,9 +28,9 @@ const collections = [
 ];
 
 const features = [
-  { title: "Structured records", description: "Browse consistent records for microorganisms, plants, and herbarium specimens in one catalog.", icon: Database },
+  { title: "Structured records", description: "Browse consistent records for microorganisms, plants, and herbarium specimens in one repository.", icon: Database },
   { title: "Collection context", description: "Review available storage and collection information where it has been recorded.", icon: ShieldCheck },
-  { title: "Catalog search", description: "Search for plants, microbial strains, and herbarium records using available details.", icon: Search },
+  { title: "Repository search", description: "Search for plants, microbial strains, and herbarium records using available details.", icon: Search },
 ];
 
 export default function AboutPage() {
@@ -42,15 +42,15 @@ export default function AboutPage() {
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center sm:px-8">
           <p className="mb-5 text-sm font-bold uppercase tracking-[0.2em] text-primary">JKUAT Bioresources</p>
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">About JKUAT Bioresources</h1>
-          <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">The JKUAT Digital Bioresource Catalog brings together structured records for microorganisms, herbarium collections, and African indigenous vegetables.</p>
+          <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted-foreground">The JKUAT Digital Bioresource Repository brings together structured records for microorganisms, herbarium collections, and African indigenous vegetables.</p>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-20">
         <div className="max-w-5xl">
-          <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-primary">About the catalog</p>
-          <h2 className="border-b border-border pb-4 text-3xl font-extrabold text-primary sm:text-4xl">A digital catalog for biological resources</h2>
-          <p className="mt-5 text-lg leading-8 text-foreground/75">The catalog supports the documentation and discovery of biological resources held by JKUAT researchers. It provides accessible, structured information for research, education, scientific collaboration, and responsible use of biodiversity.</p>
+          <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-primary">About the repository</p>
+          <h2 className="border-b border-border pb-4 text-3xl font-extrabold text-primary sm:text-4xl">A digital repository for biological resources</h2>
+          <p className="mt-5 text-lg leading-8 text-foreground/75">The repository supports the documentation and discovery of biological resources held by JKUAT researchers. It provides accessible, structured information for research, education, scientific collaboration, and responsible use of biodiversity.</p>
         </div>
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <article className="border border-primary/20 bg-secondary/60 p-7 sm:p-8">
@@ -67,7 +67,7 @@ export default function AboutPage() {
       <section className="border-y border-border bg-muted/40">
         <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-20">
           <div className="mb-10 border-b border-border pb-4">
-            <p className="mb-2 text-sm font-bold uppercase tracking-[0.2em] text-primary">Explore the catalog</p>
+            <p className="mb-2 text-sm font-bold uppercase tracking-[0.2em] text-primary">Explore the repository</p>
             <h2 className="text-3xl font-extrabold text-primary sm:text-4xl">Core collections</h2>
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
@@ -92,9 +92,9 @@ export default function AboutPage() {
       <section className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-10 lg:py-20">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <div>
-            <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-primary">How the catalog helps</p>
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-primary">How the repository helps</p>
             <h2 className="text-3xl font-extrabold text-primary sm:text-4xl">A practical reference for biological collections</h2>
-            <p className="mt-5 leading-8 text-foreground/70">Use the catalog to discover records, understand collection context, and move from a broad search to a specific resource.</p>
+            <p className="mt-5 leading-8 text-foreground/70">Use the repository to discover records, understand collection context, and move from a broad search to a specific resource.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             {features.map(feature => {
@@ -107,8 +107,8 @@ export default function AboutPage() {
 
       <section className="bg-primary text-primary-foreground">
         <div className="mx-auto flex max-w-7xl flex-col gap-7 px-6 py-14 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
-          <div><p className="mb-2 text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground/70">Continue exploring</p><h2 className="text-3xl font-extrabold">Explore the JKUAT Bioresource Catalog</h2><p className="mt-3 max-w-2xl leading-7 text-primary-foreground/80">Search structured collection records and learn more about the biological resources documented through JKUAT.</p></div>
-          <Link href="/search"><Button className="h-12 shrink-0 rounded-none bg-white px-7 text-primary hover:bg-white/90">Search the catalog <Search className="ml-2 h-4 w-4" /></Button></Link>
+          <div><p className="mb-2 text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground/70">Continue exploring</p><h2 className="text-3xl font-extrabold">Explore the JKUAT Bioresource Repository</h2><p className="mt-3 max-w-2xl leading-7 text-primary-foreground/80">Search structured collection records and learn more about the biological resources documented through JKUAT.</p></div>
+          <Link href="/search"><Button className="h-12 shrink-0 rounded-none bg-white px-7 text-primary hover:bg-white/90">Search the repository <Search className="ml-2 h-4 w-4" /></Button></Link>
         </div>
       </section>
     </div>

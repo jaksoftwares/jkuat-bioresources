@@ -25,7 +25,7 @@ export default function NotFound() {
 						<ArrowLeft className="mr-2 h-4 w-4" /> Back to home
 					</Button>
 					<Button nativeButton={false} render={<Link href="/search" />} variant="outline" className="h-11 px-6">
-						<Search className="mr-2 h-4 w-4" /> Search catalog
+						<Search className="mr-2 h-4 w-4" /> Search repository
 					</Button>
 				</div>
 			</section>

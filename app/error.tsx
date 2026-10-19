@@ -22,7 +22,7 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
 				<p className="mt-5 text-sm font-bold uppercase tracking-[0.2em] text-primary">JKUAT Bioresources</p>
 				<h1 className="mt-3 text-3xl font-extrabold text-foreground">Something went wrong</h1>
 				<p className="mx-auto mt-4 max-w-md leading-7 text-muted-foreground">
-					We could not complete that request. Please try again, or return to the catalog and continue browsing.
+					We could not complete that request. Please try again, or return to the repository and continue browsing.
 				</p>
 				<div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
 					<Button onClick={reset} className="h-11 px-6">
