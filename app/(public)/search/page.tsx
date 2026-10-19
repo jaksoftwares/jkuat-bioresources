@@ -14,16 +14,21 @@ export default function GlobalSearchPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Plants", "Microorganisms", "Herbarium"]);
   const [allResources, setAllResources] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dataUnavailable, setDataUnavailable] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       setIsLoading(true);
       try {
-        const [plantsRes, microRes, herbRes] = await Promise.all([
-          fetch('/api/plants').then(r => r.json()),
-          fetch('/api/microorganisms').then(r => r.json()),
-          fetch('/api/herbarium').then(r => r.json())
+        const responses = await Promise.all([
+          fetch('/api/plants'),
+          fetch('/api/microorganisms'),
+          fetch('/api/herbarium')
         ]);
+        const [plantsRes, microRes, herbRes] = await Promise.all(
+          responses.map((response) => response.ok ? response.json() : Promise.resolve([]))
+        );
+        setDataUnavailable(responses.some((response) => !response.ok));
 
         // The apis return arrays directly from the Repositories, so no `.data` wrapper.
         const safePlants = Array.isArray(plantsRes) ? plantsRes : (plantsRes.data || []);
@@ -65,6 +70,7 @@ export default function GlobalSearchPage() {
         setAllResources([...formattedPlants, ...formattedMicro, ...formattedHerb]);
       } catch (error) {
         console.error("Error fetching data for search:", error);
+        setDataUnavailable(true);
       } finally {
         setIsLoading(false);
       }
@@ -100,6 +106,11 @@ export default function GlobalSearchPage() {
           <p className="text-muted-foreground mt-3 text-left max-w-2xl text-lg">
             Discover plant species, microbial samples, and preserved specimens from across JKUAT's laboratories.
           </p>
+          {dataUnavailable && (
+            <p role="status" className="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+              Some collection data is temporarily unavailable. Please try again shortly.
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-10">
@@ -230,4 +241,3 @@ export default function GlobalSearchPage() {
     </div>
   );
 }
-

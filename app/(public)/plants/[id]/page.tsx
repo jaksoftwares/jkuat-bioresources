@@ -19,6 +19,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { PlantRepository } from "@/repositories/plant.repository";
 import ImageGallery from "@/components/public/image-gallery";
+import { loadPublicData, isMissingPublicRecord } from "@/lib/public-data";
+import { PublicDataUnavailable } from "@/components/public/public-data-unavailable";
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -26,14 +28,21 @@ interface PageProps {
 
 export default async function PlantDetailPage({ params }: PageProps) {
   const { id } = await params
-  
-  let plant;
-  try {
-    plant = await PlantRepository.getById(id)
-  } catch (error) {
-    return notFound()
+  const result = await loadPublicData(
+    "plant record",
+    () => PlantRepository.getById(id),
+  )
+
+  if (result.failed) {
+    if (isMissingPublicRecord(result.error)) return notFound()
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <PublicDataUnavailable collection="Plant details" backHref="/plants" backLabel="Browse plant records" />
+      </div>
+    )
   }
 
+  const plant = result.data;
   if (!plant) return notFound()
 
   const mainImage = plant.images?.[0]?.secure_url || "/assets/images/indigenous_plants.png";

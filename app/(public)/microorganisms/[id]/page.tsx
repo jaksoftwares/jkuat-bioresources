@@ -6,6 +6,8 @@ import { MicroorganismRepository } from "@/repositories/microorganism.repository
 import { TaxonomicInformation, GrowthRelatedInformation, DetailsOfIsolation, PathogenicityInformation, IdentificationInformation, CBDInformation } from "@/features/microorganisms/types";
 import ImageGallery from "@/components/public/image-gallery";
 import MicroorganismExportActions from "@/components/public/microorganism-export-actions";
+import { loadPublicData, isMissingPublicRecord } from "@/lib/public-data";
+import { PublicDataUnavailable } from "@/components/public/public-data-unavailable";
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -13,14 +15,21 @@ interface PageProps {
 
 export default async function MicroorganismDetailPage({ params }: PageProps) {
   const { id } = await params
-  
-  let micro;
-  try {
-    micro = await MicroorganismRepository.getById(id)
-  } catch {
-    return notFound()
+  const result = await loadPublicData(
+    "microorganism record",
+    () => MicroorganismRepository.getById(id),
+  )
+
+  if (result.failed) {
+    if (isMissingPublicRecord(result.error)) return notFound()
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <PublicDataUnavailable collection="Microorganism details" backHref="/microorganisms" backLabel="Browse microorganism records" />
+      </div>
+    )
   }
 
+  const micro = result.data;
   if (!micro) return notFound()
 
   // Cast JSONB fields

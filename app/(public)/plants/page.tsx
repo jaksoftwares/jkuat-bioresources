@@ -5,14 +5,22 @@ import { Search, Sprout, Filter, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { PlantRepository } from "@/repositories/plant.repository";
+import { loadPublicData } from "@/lib/public-data";
+import { PublicDataUnavailable } from "@/components/public/public-data-unavailable";
 
 export const dynamic = 'force-dynamic';
 
 export default async function PlantsRepositoryPage() {
-  const plants = await PlantRepository.list({});
+  const result = await loadPublicData("plant collection", () => PlantRepository.list({}));
+  const plants = result.data ?? [];
 
   return (
     <div className="min-h-screen">
+      {result.failed && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <PublicDataUnavailable collection="Plant records" />
+        </div>
+      )}
       {/* Category Header */}
       <div className="relative py-20 border-b border-sidebar-border overflow-hidden">
         <Image

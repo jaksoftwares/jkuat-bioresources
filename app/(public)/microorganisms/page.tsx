@@ -8,6 +8,8 @@ import { MicroorganismRepository } from "@/repositories/microorganism.repository
 import { TaxonomicInformation, PathogenicityInformation, DetailsOfIsolation } from "@/features/microorganisms/types";
 import Image from "next/image";
 import { MicroorganismCollectionRow } from "@/components/public/microorganism-collection-row";
+import { loadPublicData } from "@/lib/public-data";
+import { PublicDataUnavailable } from "@/components/public/public-data-unavailable";
 
 type StrainRecord = {
   id: string;
@@ -21,14 +23,24 @@ export const dynamic = 'force-dynamic';
 export default async function MicroorganismsPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const searchQuery = typeof searchParams.q === 'string' ? searchParams.q : undefined;
+  const resolvedSearchParams = await searchParams;
+  const searchQuery = typeof resolvedSearchParams.q === 'string' ? resolvedSearchParams.q : undefined;
   // Use repository search. (In a real app, you'd pass all filter params here)
-  const strains = await MicroorganismRepository.list({ search: searchQuery });
+  const result = await loadPublicData(
+    "microorganism collection",
+    () => MicroorganismRepository.list({ search: searchQuery }),
+  );
+  const strains = result.data ?? [];
 
   return (
     <div className="min-h-screen bg-background">
+      {result.failed && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <PublicDataUnavailable collection="Microorganism records" />
+        </div>
+      )}
       {/* Category Header */}
       <div className="relative overflow-hidden bg-secondary border-b border-border py-12">
         <Image src="/Thumbnail to bacteria repository.png" alt="Microbial strains repository" fill sizes="100vw" className="pointer-events-none object-cover opacity-10" />

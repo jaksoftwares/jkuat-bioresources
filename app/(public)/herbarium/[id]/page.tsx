@@ -17,6 +17,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { HerbariumRepository } from "@/repositories/herbarium.repository";
 import ImageGallery from "@/components/public/image-gallery";
+import { loadPublicData, isMissingPublicRecord } from "@/lib/public-data";
+import { PublicDataUnavailable } from "@/components/public/public-data-unavailable";
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -24,14 +26,21 @@ interface PageProps {
 
 export default async function HerbariumDetailPage({ params }: PageProps) {
   const { id } = await params
-  
-  let specimen;
-  try {
-    specimen = await HerbariumRepository.getById(id)
-  } catch (error) {
-    return notFound()
+  const result = await loadPublicData(
+    "herbarium record",
+    () => HerbariumRepository.getById(id),
+  )
+
+  if (result.failed) {
+    if (isMissingPublicRecord(result.error)) return notFound()
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <PublicDataUnavailable collection="Herbarium details" backHref="/herbarium" backLabel="Browse herbarium records" />
+      </div>
+    )
   }
 
+  const specimen = result.data;
   if (!specimen) return notFound()
 
   const mainImage = specimen.specimen_images?.[0]?.secure_url || "/assets/images/herbarium_collection.png";

@@ -5,14 +5,22 @@ import { Search, BookOpen, Filter, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { HerbariumRepository } from "@/repositories/herbarium.repository";
+import { loadPublicData } from "@/lib/public-data";
+import { PublicDataUnavailable } from "@/components/public/public-data-unavailable";
 
 export const dynamic = 'force-dynamic';
 
 export default async function HerbariumPage() {
-  const specimens = await HerbariumRepository.list({});
+  const result = await loadPublicData("herbarium collection", () => HerbariumRepository.list({}));
+  const specimens = result.data ?? [];
 
   return (
     <div className="min-h-screen">
+      {result.failed && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <PublicDataUnavailable collection="Herbarium records" />
+        </div>
+      )}
       {/* Category Header */}
       <div className="relative py-20 border-b border-sidebar-border overflow-hidden">
         <Image
