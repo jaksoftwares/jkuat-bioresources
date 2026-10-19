@@ -66,10 +66,13 @@ export default async function MicroorganismsPage({
           <aside className="w-full lg:w-64 shrink-0 space-y-8">
             <div>
               <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">Search</h3>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input defaultValue={searchQuery} placeholder="Search repository..." className="pl-9 h-10 bg-background border-border/60" />
-              </div>
+              <form action="/microorganisms" method="get" className="flex gap-2">
+                <div className="relative min-w-0 flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input name="q" defaultValue={searchQuery} placeholder="Search repository..." className="pl-9 h-10 bg-background border-border/60" />
+                </div>
+                <Button type="submit" size="sm" className="h-10">Search</Button>
+              </form>
             </div>
 
             <div className="space-y-4 border-t border-border/40 pt-6">

@@ -10,8 +10,17 @@ import { PublicDataUnavailable } from "@/components/public/public-data-unavailab
 
 export const dynamic = 'force-dynamic';
 
-export default async function PlantsRepositoryPage() {
-  const result = await loadPublicData("plant collection", () => PlantRepository.list({}));
+export default async function PlantsRepositoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const searchQuery = typeof params.q === "string" ? params.q.trim() : "";
+  const result = await loadPublicData(
+    "plant collection",
+    () => PlantRepository.list({ search: searchQuery || undefined }),
+  );
   const plants = result.data ?? [];
 
   return (
@@ -46,10 +55,13 @@ export default async function PlantsRepositoryPage() {
       <div className="bg-background py-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 bg-muted/40 p-4 rounded-xl border border-border">
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input placeholder="Search our plant collection..." className="pl-10 border-border bg-card shadow-sm" />
-            </div>
+            <form action="/plants" method="get" className="flex w-full max-w-xl gap-2">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input name="q" defaultValue={searchQuery} placeholder="Search plants by name or family..." className="pl-10 border-border bg-card shadow-sm" />
+              </div>
+              <Button type="submit">Search</Button>
+            </form>
             <div className="flex items-center gap-3 w-full md:w-auto">
               <Button variant="outline" className="w-full md:w-auto border-border bg-card">
                 <Filter className="mr-2 h-4 w-4" /> Attributes
@@ -70,8 +82,8 @@ export default async function PlantsRepositoryPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {plants.map((plant: any, i: number) => (
-                    <tr key={i} className="hover:bg-muted/50 transition-colors group cursor-pointer">
+                  {plants.map((plant: any) => (
+                    <tr key={plant.id} className="hover:bg-muted/50 transition-colors group cursor-pointer">
                       <td className="px-6 py-4">
                         <Link href={`/plants/${plant.id}`} className="block">
                           <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-border shadow-sm group-hover:scale-105 transition-transform bg-slate-100">
@@ -104,13 +116,20 @@ export default async function PlantsRepositoryPage() {
                       </td>
                     </tr>
                   ))}
+                  {plants.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
+                        {searchQuery ? `No plants found for "${searchQuery}".` : "No plant records are available."}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
             {/* Pagination placeholder */}
             <div className="p-4 border-t border-border flex items-center justify-between bg-muted/20">
               <span className="text-sm text-muted-foreground">
-                 Showing 1 to {plants.length} of {plants.length} records
+                 Showing {plants.length} of {plants.length} records
               </span>
               <div className="flex gap-2">
                 <Button variant="outline" disabled size="sm">Previous</Button>

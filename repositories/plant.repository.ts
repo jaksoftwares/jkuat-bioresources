@@ -26,7 +26,7 @@ export class PlantRepository {
       query = query.ilike('taxonomic_information->>family', `%${filters.family_name}%`)
     }
     if (filters?.search) {
-      query = query.or(`taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%`)
+      query = query.or(`scientific_name.ilike.%${filters.search}%,common_name.ilike.%${filters.search}%,family_name.ilike.%${filters.search}%,genus.ilike.%${filters.search}%,species.ilike.%${filters.search}%,taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%,taxonomic_information->>family.ilike.%${filters.search}%`)
     }
 
     const { data, error } = await query.order('created_at', { ascending: false })

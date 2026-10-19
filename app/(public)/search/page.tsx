@@ -17,6 +17,8 @@ export default function GlobalSearchPage() {
   const [dataUnavailable, setDataUnavailable] = useState(false);
 
   useEffect(() => {
+    setSearchQuery(new URLSearchParams(window.location.search).get("q") ?? "");
+
     async function fetchData() {
       setIsLoading(true);
       try {
@@ -44,23 +46,29 @@ export default function GlobalSearchPage() {
         }));
 
         const safeMicro = Array.isArray(microRes) ? microRes : (microRes.data || []);
-        const formattedMicro = safeMicro.map((m: any) => ({
-          id: m.id,
-          displayId: m.strain_code || m.id.substring(0,8),
-          taxa: m.scientific_name,
-          localName: m.source_isolated_from || "Culture Isolate",
-          family: m.category || "Microorganism",
-          repository: "Microorganisms",
-          image: m.microscopy_images?.[0]?.secure_url || "/assets/images/microorganism.png",
-          color: "blue",
-        }));
+        const formattedMicro = safeMicro.map((m: any) => {
+          const taxonomicInformation = m.taxonomic_information || {};
+          const isolationInformation = m.details_of_isolation || {};
+          const images = m.media?.images || m.microscopy_images || m.images || [];
+
+          return {
+            id: m.id,
+            displayId: taxonomicInformation.jkuat_number || taxonomicInformation.strain_number || m.strain_code || m.id.substring(0, 8),
+            taxa: taxonomicInformation.scientific_name || [taxonomicInformation.genus, taxonomicInformation.species].filter(Boolean).join(" ") || m.scientific_name || "Unknown microorganism",
+            localName: isolationInformation.source_of_isolation || m.source_isolated_from || "Culture Isolate",
+            family: taxonomicInformation.type_of_organism || m.category || "Microorganism",
+            repository: "Microorganisms",
+            image: images[0]?.secure_url || images[0]?.url || "/assets/images/microorganism.png",
+            color: "blue",
+          };
+        });
 
         const safeHerb = Array.isArray(herbRes) ? herbRes : (herbRes.data || []);
         const formattedHerb = safeHerb.map((h: any) => ({
           id: h.id,
-          displayId: h.herbarium_code || h.id.substring(0,8),
-          taxa: h.scientific_name,
-          localName: h.habitat_description || h.physical_storage_location || "Preserved Specimen",
+          displayId: h.herbarium_code || h.specimen_details?.herbarium_code || h.id.substring(0,8),
+          taxa: h.scientific_name || [h.taxonomic_information?.genus, h.taxonomic_information?.species].filter(Boolean).join(" ") || "Unknown specimen",
+          localName: h.common_name || h.habitat_description || h.physical_storage_location || "Preserved Specimen",
           family: "Preserved Record",
           repository: "Herbarium",
           image: h.specimen_images?.[0]?.secure_url || "/assets/images/herbarium_collection.png",
@@ -154,17 +162,19 @@ export default function GlobalSearchPage() {
 
           {/* Main Content */}
           <main className="flex-1 space-y-8">
-            <div className="flex gap-3">
+            <form action="/search" method="get" className="flex gap-3">
               <div className="relative flex-1 group">
                 <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input 
+                  name="q"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by taxon, local name, ID..." 
                   className="pl-12 h-14 text-lg shadow-sm border-border bg-card rounded-2xl focus-visible:ring-primary/20"
                 />
               </div>
-            </div>
+              <Button type="submit" className="h-14 rounded-2xl px-6">Search</Button>
+            </form>
 
             <div className="text-sm font-medium text-muted-foreground bg-muted/50 px-5 py-2.5 rounded-2xl inline-block border border-border/40">
               Found <strong>{filteredResults.length}</strong> scientific records Matching your criteria

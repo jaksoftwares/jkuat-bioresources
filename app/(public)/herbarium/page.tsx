@@ -10,8 +10,17 @@ import { PublicDataUnavailable } from "@/components/public/public-data-unavailab
 
 export const dynamic = 'force-dynamic';
 
-export default async function HerbariumPage() {
-  const result = await loadPublicData("herbarium collection", () => HerbariumRepository.list({}));
+export default async function HerbariumPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const searchQuery = typeof params.q === "string" ? params.q.trim() : "";
+  const result = await loadPublicData(
+    "herbarium collection",
+    () => HerbariumRepository.list({ search: searchQuery || undefined }),
+  );
   const specimens = result.data ?? [];
 
   return (
@@ -46,18 +55,21 @@ export default async function HerbariumPage() {
       <div className="bg-background py-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col justify-between items-center mb-8 md:flex-row gap-4 bg-muted/40 p-4 rounded-xl border border-border">
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input placeholder="Search preserved specimens..." className="pl-10 border-border bg-card shadow-sm" />
-            </div>
+            <form action="/herbarium" method="get" className="flex w-full max-w-xl gap-2">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input name="q" defaultValue={searchQuery} placeholder="Search specimens by name, code, or location..." className="pl-10 border-border bg-card shadow-sm" />
+              </div>
+              <Button type="submit">Search</Button>
+            </form>
             <Button variant="outline" className="w-full md:w-auto border-border bg-card">
               <Filter className="mr-2 h-4 w-4" /> Filter by Region
             </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {specimens.map((specimen: any, i: number) => (
-              <Link key={i} href={`/herbarium/${specimen.id}`} className="group">
+            {specimens.map((specimen: any) => (
+              <Link key={specimen.id} href={`/herbarium/${specimen.id}`} className="group">
                 <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all flex flex-col h-full relative cursor-pointer">
                   {/* Specimen Visual */}
                   <div className="h-56 relative bg-muted border-b border-border overflow-hidden">
@@ -96,6 +108,11 @@ export default async function HerbariumPage() {
                 </div>
               </Link>
             ))}
+            {specimens.length === 0 && (
+              <div className="col-span-full rounded-xl border border-dashed border-border bg-card px-6 py-12 text-center text-muted-foreground">
+                {searchQuery ? `No herbarium specimens found for "${searchQuery}".` : "No herbarium specimens are available."}
+              </div>
+            )}
           </div>
         </div>
       </div>

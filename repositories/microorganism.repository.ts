@@ -19,10 +19,10 @@ export class MicroorganismRepository {
 
     if (filters?.strain_code) query = query.ilike('taxonomic_information->>strain_number', `%${filters.strain_code}%`)
     if (filters?.scientific_name) {
-      query = query.or(`taxonomic_information->>genus.ilike.%${filters.scientific_name}%,taxonomic_information->>species.ilike.%${filters.scientific_name}%,taxonomic_information->>scientific_name.ilike.%${filters.scientific_name}%`)
+      query = query.or(`scientific_name.ilike.%${filters.scientific_name}%,taxonomic_information->>genus.ilike.%${filters.scientific_name}%,taxonomic_information->>species.ilike.%${filters.scientific_name}%,taxonomic_information->>scientific_name.ilike.%${filters.scientific_name}%`)
     }
     if (filters?.search) {
-      query = query.or(`taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%,taxonomic_information->>scientific_name.ilike.%${filters.search}%,taxonomic_information->>strain_number.ilike.%${filters.search}%`)
+      query = query.or(`scientific_name.ilike.%${filters.search}%,strain_code.ilike.%${filters.search}%,source_isolated_from.ilike.%${filters.search}%,taxonomic_information->>genus.ilike.%${filters.search}%,taxonomic_information->>species.ilike.%${filters.search}%,taxonomic_information->>scientific_name.ilike.%${filters.search}%,taxonomic_information->>strain_number.ilike.%${filters.search}%,taxonomic_information->>jkuat_number.ilike.%${filters.search}%,taxonomic_information->>ncbi_16s_accession_number.ilike.%${filters.search}%`)
     }
 
     const { data, error } = await query.order('display_order', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false })
